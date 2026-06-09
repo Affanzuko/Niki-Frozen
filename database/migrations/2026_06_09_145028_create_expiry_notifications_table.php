@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('expiry_notifications', function (Blueprint $table) {
             $table->id();
-            // $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
-            $table->string('barcode', 100)->nullable();
-            $table->string('name', 150);
-            $table->decimal('price', 10, 2);
+            $table->foreignId('stock_incoming_id')->constrained('stock_incomings')->onDelete('cascade');
+            $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
+            $table->text('message');
+            $table->boolean('is_read')->default(false);
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('expiry_notifications');
     }
 };
