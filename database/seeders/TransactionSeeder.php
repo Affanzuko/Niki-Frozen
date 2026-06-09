@@ -2,23 +2,26 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
+use App\Models\CashierSession;
 use App\Models\Transaction;
-use App\Models\TransactionItem;
+use Illuminate\Database\Seeder;
 
 class TransactionSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        // Transaction::factory(50)->create()->each(function ($transaction) {
-        //     $items = TransactionItem::factory(rand(1, 4))->make([
-        //         'transaction_id' => $transaction->id
-        //     ]);
-        //     $transaction->items()->saveMany($items);
-        //     $totalPrice = $items->sum('subtotal');
-        //     $transaction->update([
-        //         'total_price' => $totalPrice
-        //     ]);
-        // });
+        $cashierSessions = CashierSession::all();
+
+        // Create transactions for each cashier session
+        foreach ($cashierSessions as $session) {
+            Transaction::factory(50)
+                ->create([
+                    'cashier_session_id' => $session->id,
+                    'branch_id' => $session->branch_id,
+                ]);
+        }
     }
 }

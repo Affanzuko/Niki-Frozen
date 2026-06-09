@@ -26,6 +26,9 @@ class ProductFactory extends Factory
         $price = floor($this->faker->numberBetween(15000, 95000) / 500) * 500;
 
         return [
+            'branch_id' => null,              // Akan diset saat relasi
+            'product_categories_id' => null,  // Akan diset saat relasi
+            'product_units_id' => null,       // Akan diset saat relasi
             'barcode' => $this->faker->unique()->ean13(),
             'name'    => $productName,
             'price'   => $price,
