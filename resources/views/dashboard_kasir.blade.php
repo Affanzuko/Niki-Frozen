@@ -321,6 +321,21 @@
         </div>
     </div>
 
+    {{-- Custom Alert Modal --}}
+    <div id="custom-alert-modal" class="fixed inset-0 z-[80] hidden">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" id="custom-alert-backdrop"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xs flex flex-col items-center p-6 animate-in zoom-in duration-200">
+                <div id="custom-alert-icon-container" class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5">
+                </div>
+                <h3 id="custom-alert-title" class="text-xl font-bold text-slate-800 mb-2 text-center"></h3>
+                <p id="custom-alert-message" class="text-[13px] text-slate-500 mb-6 text-center leading-relaxed"></p>
+                <div id="custom-alert-buttons" class="w-full flex gap-3">
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Midtrans Snap --}}
     <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="{{ config('midtrans.client_key') }}"></script>
@@ -330,6 +345,57 @@
         let currentTotal = 0;
         let inputUangDiterima = '0';
         let lastTransactionData = null;
+
+        // Custom Alert Logic
+        function showCustomAlert(options) {
+            const modal = document.getElementById('custom-alert-modal');
+            const titleEl = document.getElementById('custom-alert-title');
+            const messageEl = document.getElementById('custom-alert-message');
+            const iconContainer = document.getElementById('custom-alert-icon-container');
+            const buttonsContainer = document.getElementById('custom-alert-buttons');
+
+            titleEl.textContent = options.title || 'Perhatian';
+            messageEl.textContent = options.message || '';
+
+            if (options.type === 'warning') {
+                iconContainer.className = 'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-amber-100 text-amber-500';
+                iconContainer.innerHTML = '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
+            } else if (options.type === 'error') {
+                iconContainer.className = 'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-red-100 text-red-500';
+                iconContainer.innerHTML = '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+            } else {
+                iconContainer.className = 'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-blue-100 text-blue-500';
+                iconContainer.innerHTML = '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+            }
+
+            buttonsContainer.innerHTML = '';
+            
+            if (options.showCancel) {
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'flex-1 py-3 px-4 rounded-xl border-2 border-slate-200 text-slate-700 font-bold text-[13px] hover:bg-slate-50 transition-colors active:scale-95';
+                cancelBtn.textContent = options.cancelText || 'Batal';
+                cancelBtn.onclick = () => {
+                    closeCustomAlert();
+                    if (options.onCancel) options.onCancel();
+                };
+                buttonsContainer.appendChild(cancelBtn);
+            }
+
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = `flex-1 py-3 px-4 rounded-xl text-white font-bold text-[13px] transition-colors active:scale-95 shadow-md ${options.confirmColorClass || 'bg-[#0f172a] hover:bg-slate-800'}`;
+            confirmBtn.textContent = options.confirmText || 'Oke';
+            confirmBtn.onclick = () => {
+                closeCustomAlert();
+                if (options.onConfirm) options.onConfirm();
+            };
+            buttonsContainer.appendChild(confirmBtn);
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('custom-alert-modal').classList.add('hidden');
+        }
 
         // Mobile Cart Toggle Logic
         function toggleMobileCart() {
@@ -372,9 +438,20 @@
         }
 
         function clearCart() {
-            if(cart.length > 0 && confirm('Kosongkan semua item di keranjang?')) {
-                cart = [];
-                renderCart();
+            if (cart.length > 0) {
+                showCustomAlert({
+                    title: 'Kosongkan Keranjang?',
+                    message: 'Semua item belanjaan akan dihapus secara permanen.',
+                    type: 'warning',
+                    showCancel: true,
+                    cancelText: 'Kembali',
+                    confirmText: 'Ya, Kosongkan',
+                    confirmColorClass: 'bg-red-500 hover:bg-red-600',
+                    onConfirm: () => {
+                        cart = [];
+                        renderCart();
+                    }
+                });
             }
         }
 
@@ -450,7 +527,12 @@
         // Payment
         async function processPayment(method) {
             if (cart.length === 0) {
-                alert('Keranjang belanja Anda masih kosong!');
+                showCustomAlert({
+                    title: 'Keranjang Kosong',
+                    message: 'Pilih produk terlebih dahulu sebelum melanjutkan ke pembayaran.',
+                    type: 'warning',
+                    confirmText: 'Mengerti'
+                });
                 return;
             }
 
@@ -488,22 +570,22 @@
                                 showSuccessModal('QRIS', null);
                             },
                             onPending: function(res) {
-                                alert("Menunggu pelanggan memindai QRIS.");
+                                showCustomAlert({title: 'Menunggu', message: 'Menunggu pelanggan memindai QRIS.', type: 'warning'});
                             },
                             onError: function(res) {
-                                alert("Transaksi gagal diproses!");
+                                showCustomAlert({title: 'Transaksi Gagal', message: 'Pembayaran QRIS gagal diproses.', type: 'error'});
                             },
                             onClose: function() {
-                                alert('Halaman pembayaran ditutup oleh kasir.');
+                                showCustomAlert({title: 'Dibatalkan', message: 'Halaman pembayaran QRIS ditutup oleh kasir.', type: 'error'});
                             }
                         });
                     } else {
-                        alert('Gagal mendapatkan token: ' + (result.message || 'Error internal server'));
+                        showCustomAlert({title: 'Gagal', message: 'Gagal mendapatkan token: ' + (result.message || 'Error internal'), type: 'error'});
                     }
 
                 } catch (error) {
                     console.error(error);
-                    alert('Gagal mengirim data transaksi ke server backend.');
+                    showCustomAlert({title: 'Error Jaringan', message: 'Gagal mengirim data transaksi ke server.', type: 'error'});
                 }
             }
         }
@@ -511,7 +593,12 @@
         // Cash Modal Logic
         function openCashModal() {
             if (cart.length === 0) {
-                alert('Keranjang belanja Anda masih kosong!');
+                showCustomAlert({
+                    title: 'Keranjang Kosong',
+                    message: 'Pilih produk terlebih dahulu sebelum melanjutkan ke pembayaran.',
+                    type: 'warning',
+                    confirmText: 'Mengerti'
+                });
                 return;
             }
             
@@ -670,7 +757,7 @@
 
         function cetakStruk() {
             if (!lastTransactionData) {
-                alert('Data transaksi tidak ditemukan.');
+                showCustomAlert({title: 'Data Tidak Ditemukan', message: 'Tidak ada data transaksi terakhir yang bisa dicetak.', type: 'error'});
                 return;
             }
 
