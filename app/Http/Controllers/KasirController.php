@@ -10,7 +10,7 @@ class KasirController extends Controller
     {
         $products = Product::orderBy('name', 'asc')->get();
 
-        return view('dashboard_kasir', ['products' => $products]);
+        return view('pages.kasir.dashboard', ['products' => $products]);
     }
 
     public function penjualan()
@@ -24,7 +24,7 @@ class KasirController extends Controller
             ['waktu' => 'Kemarin, 09:30', 'no_ref' => 'POS-8917-E', 'total' => 215000, 'metode' => 'QRIS', 'status' => 'Selesai'],
         ];
 
-        return view('penjualan_kasir', compact('transactions'));
+        return view('pages.kasir.transactions.index', compact('transactions'));
     }
 
     public function cetakStruk(\Illuminate\Http\Request $request)
@@ -41,6 +41,6 @@ class KasirController extends Controller
 
         $items = json_decode($data['items'], true);
 
-        return view('struk_pdf', compact('data', 'items'));
+        return view('pages.kasir.transactions.struk_pdf', compact('data', 'items'));
     }
 }
