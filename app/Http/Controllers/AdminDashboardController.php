@@ -10,4 +10,19 @@ class AdminDashboardController extends Controller
     {
         return view('pages.admin.dashboard');
     }
+
+    public function stok()
+    {
+        return view('pages.admin.stok');
+    }
+
+    public function penjualan()
+    {
+        return view('pages.admin.penjualan');
+    }
+
+    public function keuangan()
+    {
+        return view('pages.admin.keuangan');
+    }
 }

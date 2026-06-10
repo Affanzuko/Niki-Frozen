@@ -13,3 +13,6 @@ Route::post('midtrans-callback', [PaymentController::class, 'callback'])->name('
 Route::post('cetak-struk', [KasirController::class, 'cetakStruk'])->name('kasir.cetakStruk');
 
 Route::get('/dashboard-admin', [AdminDashboardController::class, 'index'])->name('dashboard.admin');
+Route::get('/admin-stok', [AdminDashboardController::class, 'stok'])->name('stok.admin');
+Route::get('/admin-penjualan', [AdminDashboardController::class, 'penjualan'])->name('penjualan.admin');
+Route::get('/admin-keuangan', [AdminDashboardController::class, 'keuangan'])->name('keuangan.admin');
