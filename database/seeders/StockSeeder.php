@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Branch;
 use App\Models\Product;
 use App\Models\Stock;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -15,18 +14,16 @@ class StockSeeder extends Seeder
      */
     public function run(): void
     {
-        $branches = Branch::all();
+        // Create stock for each product in its own branch only
+        // (products are already assigned to a specific branch)
         $products = Product::all();
 
-        // Create stock for each product in each branch
-        foreach ($branches as $branch) {
-            foreach ($products as $product) {
-                Stock::create([
-                    'product_id' => $product->id,
-                    'branch_id' => $branch->id,
-                    'quantity' => fake()->numberBetween(50, 200),
-                ]);
-            }
+        foreach ($products as $product) {
+            Stock::create([
+                'product_id' => $product->id,
+                'branch_id' => $product->branch_id,
+                'quantity' => fake()->numberBetween(50, 200),
+            ]);
         }
     }
 }

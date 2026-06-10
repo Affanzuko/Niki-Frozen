@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Transaction>
@@ -24,8 +23,8 @@ class TransactionFactory extends Factory
             'payment_method' => fake()->randomElement(['cash', 'qris']),
             'total_price' => fake()->numberBetween(50000, 500000),
             'status' => fake()->randomElement($statuses),
-            'snap_token' => fake()->randomElement([fake()->sha256(), null]),
-            'midtrans_transaction_id' => fake()->randomElement([fake()->numerify('###############'), null]),
+            'snap_token' => fake()->optional(0.3)->sha256(),
+            'midtrans_transaction_id' => fake()->optional(0.3)->numerify('###############'),
         ];
     }
 

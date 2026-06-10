@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
-            $table->enum('shift', ['morning', 'evening']); // pagi & malam
+            $table->enum('shift', ['pagi', 'siang']); // pagi & siang
             $table->date('date');
             $table->timestamp('started_at');
             $table->timestamp('ended_at')->nullable(); // null jika sesi masih berjalan

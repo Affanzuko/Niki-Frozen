@@ -14,18 +14,30 @@ class CashierSessionFactory extends Factory
 
     public function definition(): array
     {
-        $startDate = fake()->dateTimeBetween('-30 days', 'now');
-        $startedAt = $startDate;
-        $endedAt = fake()->randomElement([
-            $startDate->modify('+8 hours'), // Sesi berakhir normal
-            null, // Sesi masih berjalan
-        ]);
+        $date = fake()->dateTimeBetween('-30 days', 'now');
+        $dateStr = $date->format('d-m-Y');
+
+        $shift = fake()->randomElement(['pagi', 'siang']);
+
+        // Morning shift: 07:00-14:00, Evening shift: 14:00-21:00
+        if ($shift === 'pagi') {
+            $hour = fake()->numberBetween(7, 9);
+        } else {
+            $hour = fake()->numberBetween(14, 16);
+        }
+
+        $startedAt = \Carbon\Carbon::parse($dateStr)->setHour($hour)->setMinute(0)->setSecond(0);
+
+        // 70% chance session is closed
+        $endedAt = fake()->boolean(70)
+            ? (clone $startedAt)->addHours(fake()->numberBetween(6, 8))
+            : null;
 
         return [
             'user_id' => null,           // Akan diset saat relasi
             'branch_id' => null,         // Akan diset saat relasi
-            'shift' => fake()->randomElement(['morning', 'evening']),
-            'date' => $startDate->format('Y-m-d'),
+            'shift' => $shift,
+            'date' => $dateStr,
             'started_at' => $startedAt,
             'ended_at' => $endedAt,
         ];
@@ -46,8 +58,11 @@ class CashierSessionFactory extends Factory
      */
     public function closed(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'ended_at' => fake()->dateTime(),
-        ]);
+        return $this->state(function (array $attributes) {
+            $startedAt = \Carbon\Carbon::parse($attributes['started_at']);
+            return [
+                'ended_at' => (clone $startedAt)->addHours(fake()->numberBetween(6, 8)),
+            ];
+        });
     }
 }

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            // $table->foreignId('cashier_session_id')->constrained('cashier_sessions')->onDelete('cascade');
-            // $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
+            $table->foreignId('cashier_session_id')->constrained('cashier_sessions')->onDelete('cascade');
+            $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
             $table->string('transaction_code', 50)->unique(); // Digunakan sebagai order_id di Midtrans
             $table->enum('payment_method', ['cash', 'qris']);
             $table->decimal('total_price', 12, 2);

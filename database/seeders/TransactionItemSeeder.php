@@ -15,24 +15,46 @@ class TransactionItemSeeder extends Seeder
     public function run(): void
     {
         $transactions = Transaction::all();
-        $products = Product::all();
 
         // Create transaction items for each transaction
         foreach ($transactions as $transaction) {
-            // Each transaction has 2-5 items
-            $itemCount = fake()->numberBetween(2, 5);
+            // Get products from the same branch as the transaction
+            $branchProducts = Product::where('branch_id', $transaction->branch_id)->get();
 
-            for ($i = 0; $i < $itemCount; $i++) {
-                $product = $products->random();
-
-                TransactionItem::factory()
-                    ->create([
-                        'transaction_id' => $transaction->id,
-                        'product_id' => $product->id,
-                        'product_name' => $product->name,
-                        'unit_price' => $product->price,
-                    ]);
+            if ($branchProducts->isEmpty()) {
+                continue;
             }
+
+            // Each transaction has 2-4 items
+            $itemCount = fake()->numberBetween(2, 4);
+            $selectedProducts = $branchProducts->random(min($itemCount, $branchProducts->count()));
+
+            $totalPrice = 0;
+
+            foreach ($selectedProducts as $product) {
+                $quantity = fake()->numberBetween(1, 5);
+                $unitPrice = $product->price;
+                $discountPercentage = fake()->randomElement([0, 0, 0, 10, 15, 20]); // 50% chance no discount
+                $discountedPrice = $discountPercentage > 0
+                    ? round($unitPrice * (100 - $discountPercentage) / 100, 2)
+                    : null;
+                $subtotal = ($discountedPrice ?? $unitPrice) * $quantity;
+
+                TransactionItem::create([
+                    'transaction_id' => $transaction->id,
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'unit_price' => $unitPrice,
+                    'discounted_price' => $discountedPrice,
+                    'quantity' => $quantity,
+                    'subtotal' => $subtotal,
+                ]);
+
+                $totalPrice += $subtotal;
+            }
+
+            // Update total_price on transaction to match actual items
+            $transaction->update(['total_price' => $totalPrice]);
         }
     }
 }

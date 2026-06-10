@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
-            $table->foreignId('product_categories_id')->constrained('product_categories')->onDelete('cascade');
-            $table->foreignId('product_units_id')->constrained('product_units')->onDelete('cascade');
+            $table->foreignId('product_category_id')->constrained('product_categories')->onDelete('cascade');
+            $table->foreignId('product_unit_id')->constrained('product_units')->onDelete('cascade');
             $table->string('barcode', 100)->nullable();
             $table->string('name', 150);
             $table->decimal('price', 10, 2);

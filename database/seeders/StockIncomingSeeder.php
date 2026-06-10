@@ -17,17 +17,27 @@ class StockIncomingSeeder extends Seeder
     public function run(): void
     {
         $branches = Branch::all();
-        $products = Product::all();
-        $users = User::where('role', 'admin')->get();
+        $admins = User::where('role', 'admin')->get();
 
-        // Create stock incoming records
+        // Create stock incoming records per branch
         foreach ($branches as $branch) {
-            foreach ($products->random(min(5, $products->count())) as $product) {
+            $branchProducts = Product::where('branch_id', $branch->id)->get();
+            $branchAdmin = $admins->where('branch_id', $branch->id)->first()
+                           ?? $admins->first();
+
+            if ($branchProducts->isEmpty() || !$branchAdmin) {
+                continue;
+            }
+
+            // Create incoming stock for 5 random products per branch
+            $selectedProducts = $branchProducts->random(min(5, $branchProducts->count()));
+
+            foreach ($selectedProducts as $product) {
                 StockIncoming::factory()
                     ->create([
                         'product_id' => $product->id,
                         'branch_id' => $branch->id,
-                        'user_id' => $users->random()->id ?? $users->first()->id,
+                        'user_id' => $branchAdmin->id,
                     ]);
             }
         }

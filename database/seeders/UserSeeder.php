@@ -17,16 +17,16 @@ class UserSeeder extends Seeder
     {
         $branches = Branch::all();
 
-        // Create owner user
+        // Create owner user (no specific branch — oversees all)
         User::create([
-            'branch_id' => $branches->first()->id,
+            'branch_id' => null,
             'name' => 'Pemilik NikiFrozen',
             'username' => 'owner',
             'password' => Hash::make('password'),
             'role' => 'owner',
         ]);
 
-        // Create general managers
+        // Create general manager for each branch
         foreach ($branches as $branch) {
             User::factory()
                 ->manager()
@@ -36,16 +36,20 @@ class UserSeeder extends Seeder
                 ]);
         }
 
-        // Create admin users
-        User::factory(3)->admin()->create([
-            'branch_id' => $branches->random()->id,
-        ]);
-
-        // Create cashier users for each branch
+        // Create admin for each branch (1 admin per branch)
         foreach ($branches as $branch) {
-            User::factory(3)->cashier()->create([
+            User::factory()
+                ->admin()
+                ->create([
+                    'branch_id' => $branch->id,
+                    'name' => 'Admin ' . $branch->name,
+                ]);
+        }
+
+        // Create cashier users for each branch (2 per branch)
+        foreach ($branches as $branch) {
+            User::factory(2)->cashier()->create([
                 'branch_id' => $branch->id,
-                'name' => fake()->firstName() . ' (Cashier)',
             ]);
         }
     }

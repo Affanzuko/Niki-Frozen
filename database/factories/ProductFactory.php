@@ -27,8 +27,8 @@ class ProductFactory extends Factory
 
         return [
             'branch_id' => null,              // Akan diset saat relasi
-            'product_categories_id' => null,  // Akan diset saat relasi
-            'product_units_id' => null,       // Akan diset saat relasi
+            'product_category_id' => null,     // Akan diset saat relasi
+            'product_unit_id' => null,         // Akan diset saat relasi
             'barcode' => $this->faker->unique()->ean13(),
             'name'    => $productName,
             'price'   => $price,

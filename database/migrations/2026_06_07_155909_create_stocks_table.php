@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
             $table->integer('quantity')->default(0);
+            $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
 
             $table->unique(['product_id', 'branch_id']); // 1 produk hanya punya 1 record stok per cabang

@@ -28,8 +28,8 @@ class ProductSeeder extends Seeder
             foreach ($topProducts as $item) {
                 Product::create([
                     'branch_id' => $branch->id,
-                    'product_categories_id' => $categories->random()->id,
-                    'product_units_id' => $units->random()->id,
+                    'product_category_id' => $categories->random()->id,
+                    'product_unit_id' => $units->random()->id,
                     'barcode' => $item['barcode'] . '-' . $branch->id,
                     'name' => $item['name'],
                     'price' => $item['price'],
@@ -37,13 +37,13 @@ class ProductSeeder extends Seeder
             }
         }
 
-        // Create random products
+        // Create random products for each branch
         foreach ($branches as $branch) {
-            Product::factory(46)
+            Product::factory(16)
                 ->create([
                     'branch_id' => $branch->id,
-                    'product_categories_id' => $categories->random()->id,
-                    'product_units_id' => $units->random()->id,
+                    'product_category_id' => fn () => $categories->random()->id,
+                    'product_unit_id' => fn () => $units->random()->id,
                 ]);
         }
     }

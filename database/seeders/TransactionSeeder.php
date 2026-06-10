@@ -15,9 +15,9 @@ class TransactionSeeder extends Seeder
     {
         $cashierSessions = CashierSession::all();
 
-        // Create transactions for each cashier session
+        // Create transactions for each cashier session (5 per session)
         foreach ($cashierSessions as $session) {
-            Transaction::factory(50)
+            Transaction::factory(5)
                 ->create([
                     'cashier_session_id' => $session->id,
                     'branch_id' => $session->branch_id,
