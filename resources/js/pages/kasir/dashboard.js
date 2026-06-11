@@ -243,16 +243,17 @@ window.processPayment = async function(method) {
     }
 
     if (method === 'qris') {
-        try {
-            const btnQris = document.querySelector('button[onclick="processPayment(\'qris\')"]');
-            if(btnQris) {
-                const originalText = btnQris.innerHTML;
-                btnQris.innerHTML =
-                    '<span class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span> Tunggu...';
-                btnQris.disabled = true;
-            }
+        const btnQris = document.querySelector('button[onclick="processPayment(\'qris\')"]');
+        let originalText = '';
+        if (btnQris) {
+            originalText = btnQris.innerHTML;
+            btnQris.innerHTML = '<span class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span> Tunggu...';
+            btnQris.disabled = true;
+        }
 
-            const response = await fetch('/checkout-kasir', {
+        try {
+
+            const response = await fetch('/kasir/checkout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -269,11 +270,6 @@ window.processPayment = async function(method) {
             });
 
             const result = await response.json();
-            
-            if(btnQris) {
-                btnQris.innerHTML = originalText;
-                btnQris.disabled = false;
-            }
 
             if (result.snap_token) {
                 window.snap.pay(result.snap_token, {
@@ -319,6 +315,11 @@ window.processPayment = async function(method) {
                 message: 'Gagal mengirim data transaksi ke server.',
                 type: 'error'
             });
+        } finally {
+            if (btnQris) {
+                btnQris.innerHTML = originalText;
+                btnQris.disabled = false;
+            }
         }
     }
 };
