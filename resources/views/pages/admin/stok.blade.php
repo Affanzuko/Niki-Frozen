@@ -70,12 +70,23 @@
             </div>
 
             <!-- Table -->
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 overflow-hidden flex flex-col">
-                <div class="overflow-y-auto flex-1">
-                    <table class="w-full text-center border-collapse">
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0" x-data="{
+                syncScroll(e) {
+                    $refs.headerScroll.scrollLeft = e.target.scrollLeft;
+                }
+            }">
+                <!-- Header Table (Static) -->
+                <div class="bg-gray-50 border-b border-gray-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
+                    <table class="w-full text-center border-collapse table-fixed min-w-[900px]">
+                        <colgroup>
+                            <col class="w-[25%]">
+                            <col class="w-[15%]">
+                            <col class="w-[25%]">
+                            <col class="w-[20%]">
+                            <col class="w-[15%]">
+                        </colgroup>
                         <thead>
-                            <tr
-                                class="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200 sticky top-0 z-10">
+                            <tr class="text-xs font-bold text-gray-500 uppercase tracking-wider">
                                 <th class="px-6 py-4 text-left">Product</th>
                                 <th class="px-6 py-4">Barcode</th>
                                 <th class="px-6 py-4">Stock Level</th>
@@ -83,6 +94,19 @@
                                 <th class="px-6 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
+                    </table>
+                </div>
+
+                <!-- Body Table (Scrollable) -->
+                <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
+                    <table class="w-full text-center border-collapse table-fixed min-w-[900px]">
+                        <colgroup>
+                            <col class="w-[25%]">
+                            <col class="w-[15%]">
+                            <col class="w-[25%]">
+                            <col class="w-[20%]">
+                            <col class="w-[15%]">
+                        </colgroup>
                         <tbody class="divide-y divide-gray-100 text-sm font-medium">
                             @forelse ($stocks as $stock)
                                 @php

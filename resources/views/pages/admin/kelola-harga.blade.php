@@ -61,12 +61,24 @@ x-data="{
             </div>
 
             <!-- Table -->
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 overflow-hidden flex flex-col">
-                <div class="overflow-y-auto flex-1">
-                    <table class="w-full text-center border-collapse">
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0" x-data="{
+                syncScroll(e) {
+                    $refs.headerScroll.scrollLeft = e.target.scrollLeft;
+                }
+            }">
+                <!-- Header Table (Static) -->
+                <div class="bg-gray-50 border-b border-gray-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
+                    <table class="w-full text-center border-collapse table-fixed min-w-[900px]">
+                        <colgroup>
+                            <col class="w-[25%]">
+                            <col class="w-[15%]">
+                            <col class="w-[15%]">
+                            <col class="w-[10%]">
+                            <col class="w-[20%]">
+                            <col class="w-[15%]">
+                        </colgroup>
                         <thead>
-                            <tr
-                                class="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200 sticky top-0 z-10">
+                            <tr class="text-xs font-bold text-gray-500 uppercase tracking-wider">
                                 <th class="px-6 py-4 text-left">Produk</th>
                                 <th class="px-6 py-4">Barcode</th>
                                 <th class="px-6 py-4">Kategori</th>
@@ -75,23 +87,37 @@ x-data="{
                                 <th class="px-6 py-4 text-right">Aksi</th>
                             </tr>
                         </thead>
+                    </table>
+                </div>
+
+                <!-- Body Table (Scrollable) -->
+                <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
+                    <table class="w-full text-center border-collapse table-fixed min-w-[900px]">
+                        <colgroup>
+                            <col class="w-[25%]">
+                            <col class="w-[15%]">
+                            <col class="w-[15%]">
+                            <col class="w-[10%]">
+                            <col class="w-[20%]">
+                            <col class="w-[15%]">
+                        </colgroup>
                         <tbody class="divide-y divide-gray-100 text-sm font-medium">
                             @forelse ($products as $product)
                                 <tr class="hover:bg-gray-50 transition-colors group">
-                                    <td class="px-6 py-4 text-left">
+                                    <td class="px-6 py-4 text-left truncate">
                                         <div class="flex items-center gap-3">
                                             <div
                                                 class="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center shrink-0">
                                                 <i class="fa-solid fa-cube text-gray-400"></i>
                                             </div>
                                             <span
-                                                class="text-gray-900 font-bold group-hover:text-brand-textBlue transition-colors">{{ $product->name }}</span>
+                                                class="text-gray-900 font-bold group-hover:text-brand-textBlue transition-colors truncate">{{ $product->name }}</span>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 text-gray-500 tabular-nums font-mono text-xs">
+                                    <td class="px-6 py-4 text-gray-500 tabular-nums font-mono text-xs truncate">
                                         {{ $product->barcode ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-gray-600">{{ $product->category->name ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-gray-600">{{ $product->unit->name ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-gray-600 truncate">{{ $product->category->name ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-gray-600 truncate">{{ $product->unit->name ?? '-' }}</td>
                                     <td class="px-6 py-4">
                                         <!-- Normal display -->
                                         <div x-show="editingProduct !== {{ $product->id }}">
