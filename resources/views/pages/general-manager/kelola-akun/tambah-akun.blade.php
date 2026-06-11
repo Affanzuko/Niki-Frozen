@@ -6,7 +6,7 @@
 
 @section('content')
     {{-- Sidebar --}}
-    @include('layouts.partials.sidebar-gm', ['active' => 'kelola-akun'])
+    <x-sidebar role="general-manager" active="kelola-akun" />
 
     {{-- Main Content Area --}}
     <main class="flex-1 flex overflow-hidden relative">
@@ -22,27 +22,34 @@
                     <form>
                         <div class="mb-5">
                             <label class="block text-sm font-bold text-slate-800 mb-2">Nama Lengkap</label>
-                            <input type="text" placeholder="Nama Pengguna" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
+                            <input type="text" placeholder="Nama Pengguna"
+                                class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
                         </div>
 
                         <div class="mb-5">
                             <label class="block text-sm font-bold text-slate-800 mb-2">Email</label>
-                            <input type="email" placeholder="Email@example.com" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
+                            <input type="email" placeholder="Email@example.com"
+                                class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
                         </div>
 
                         <div class="mb-5">
                             <label class="block text-sm font-bold text-slate-800 mb-2">Role</label>
-                            <input type="text" placeholder="Admin cabang" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
+                            <input type="text" placeholder="Admin cabang"
+                                class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
                         </div>
 
                         <div class="mb-8">
                             <label class="block text-sm font-bold text-slate-800 mb-2">Cabang</label>
-                            <input type="text" placeholder="Contoh:Condongcatur, Depok, Seturan" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
+                            <input type="text" placeholder="Contoh:Condongcatur, Depok, Seturan"
+                                class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
                         </div>
 
                         <div class="flex gap-3">
-                            <button type="button" class="px-6 py-2.5 bg-[#0f172a] text-white rounded-full text-sm font-bold hover:bg-slate-800 transition-colors shadow-md">Simpan Akun</button>
-                            <a href="{{ route('pages.general-manager.kelola-akun') }}" class="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-full text-sm font-bold hover:bg-slate-300 transition-colors">Batal</a>
+                            <button type="button"
+                                class="px-6 py-2.5 bg-[#0f172a] text-white rounded-full text-sm font-bold hover:bg-slate-800 transition-colors shadow-md">Simpan
+                                Akun</button>
+                            <a href="{{ route('pages.general-manager.kelola-akun') }}"
+                                class="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-full text-sm font-bold hover:bg-slate-300 transition-colors">Batal</a>
                         </div>
                     </form>
                 </div>

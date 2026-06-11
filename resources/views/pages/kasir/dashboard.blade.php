@@ -1,29 +1,10 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kasir POS - Niki Frozen</title>
+@extends('layouts.app')
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+@section('title', 'Kasir POS - Niki Frozen')
 
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-        <script src="https://cdn.tailwindcss.com"></script>
-    @endif
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        /* Hide scrollbar for Chrome, Safari and Opera */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        /* Hide scrollbar for IE, Edge and Firefox */
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
-</head>
-<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex flex-col lg:flex-row">
+@section('body_class', 'bg-slate-50 text-slate-800 h-screen overflow-hidden flex flex-col lg:flex-row')
 
+@section('content')
     {{-- Mobile Header --}}
     <div class="lg:hidden bg-[#0f172a] text-white p-4 flex items-center justify-between z-20 shadow-md shrink-0">
         <div class="flex items-center gap-3">
@@ -345,11 +326,15 @@
             </div>
         </div>
     </div>
+@endsection
 
+@push('head_scripts')
     {{-- Midtrans Snap --}}
     <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="{{ config('midtrans.client_key') }}"></script>
+@endpush
 
+@push('scripts')
     <script>
         let cart = [];
         let currentTotal = 0;
@@ -413,16 +398,12 @@
             const overlay = document.getElementById('mobile-cart-overlay');
             
             if (panel.classList.contains('translate-x-full')) {
-                // Open
                 panel.classList.remove('translate-x-full');
                 overlay.classList.remove('hidden');
-                // Small delay to allow display:block to apply before opacity transition
                 setTimeout(() => overlay.classList.remove('opacity-0'), 10);
             } else {
-                // Close
                 panel.classList.add('translate-x-full');
                 overlay.classList.add('opacity-0');
-                // Wait for transition to finish before hiding
                 setTimeout(() => overlay.classList.add('hidden'), 300);
             }
         }
@@ -436,7 +417,6 @@
             }
             renderCart();
             
-            // Pop an animation on mobile badge
             const badge = document.getElementById('mobile-cart-badge');
             badge.classList.add('scale-150');
             setTimeout(() => badge.classList.remove('scale-150'), 200);
@@ -484,7 +464,6 @@
         function renderCart() {
             const container = document.getElementById('cart-items');
             
-            // Update Badges
             const totalItems = cart.reduce((sum, item) => sum + item.jumlah, 0);
             document.getElementById('mobile-cart-badge').textContent = totalItems;
             document.getElementById('cart-item-count').textContent = totalItems;
@@ -531,7 +510,6 @@
         function filterCategory(category) {
             currentCategory = category;
             
-            // Update active state on buttons
             document.querySelectorAll('.category-btn').forEach(btn => {
                 if (btn.getAttribute('data-category') === category) {
                     btn.classList.remove('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
@@ -647,28 +625,22 @@
                 return;
             }
             
-            // Calculate total
             const subtotal = cart.reduce((sum, item) => sum + (item.harga * item.jumlah), 0);
             const tax = Math.round(subtotal * 0.11);
             currentTotal = subtotal + tax;
 
-            // Reset input
-            inputUangDiterima = ''; // Keep empty initially for keyboard typing
+            inputUangDiterima = '';
             updateModalUI();
             
-            // Force focus so mobile/desktop users can just start typing
             setTimeout(() => {
                 document.getElementById('modal-uang-diterima').focus();
             }, 100);
 
-            // Set fixed values
             document.getElementById('modal-total-tagihan').textContent = 'Rp ' + currentTotal.toLocaleString('id-ID');
             
-            // Generate quick amounts
             const quickAmountsDiv = document.getElementById('modal-quick-amounts');
             let quickHTML = `<button onclick="setQuickAmount(${currentTotal})" class="px-4 py-2 bg-[#dbeafe] text-[#1e40af] border border-[#bfdbfe] rounded-lg text-xs font-semibold whitespace-nowrap hover:bg-blue-200 transition-colors shadow-sm active:scale-95">Rp ${currentTotal.toLocaleString('id-ID')} (Pas)</button>`;
             
-            // Generate next sensible amounts
             const amount1 = Math.ceil(currentTotal / 50000) * 50000;
             const amount2 = Math.ceil(currentTotal / 100000) * 100000;
             
@@ -681,7 +653,6 @@
 
             quickAmountsDiv.innerHTML = quickHTML;
 
-            // Show modal
             document.getElementById('cash-modal').classList.remove('hidden');
         }
 
@@ -689,7 +660,6 @@
             document.getElementById('cash-modal').classList.add('hidden');
         }
 
-        // Handle keyboard input (oninput)
         function handleUangDiterimaInput(e) {
             let rawValue = e.target.value.replace(/\D/g, '');
             if (rawValue.length > 12) {
@@ -697,11 +667,9 @@
             }
             inputUangDiterima = rawValue;
             
-            // Only update kembalian and formatted input field
             const inputField = document.getElementById('modal-uang-diterima');
             const numericValue = parseInt(inputUangDiterima) || 0;
             
-            // Update input visually formatted
             inputField.value = inputUangDiterima === '' ? '' : numericValue.toLocaleString('id-ID');
             
             recalcKembalian();
@@ -713,7 +681,6 @@
             } else {
                 inputUangDiterima += val;
             }
-            // Max length guard to prevent overflow
             if (inputUangDiterima.length > 12) {
                 inputUangDiterima = inputUangDiterima.substring(0, 12);
             }
@@ -741,7 +708,6 @@
             inputField.value = inputUangDiterima === '' ? '' : numericValue.toLocaleString('id-ID');
             recalcKembalian();
             
-            // Refocus for smooth keyboard usage
             inputField.focus();
         }
 
@@ -775,7 +741,6 @@
             showSuccessModal('Tunai', kembalian);
         }
 
-        // Success Modal Logic
         function showSuccessModal(method, kembalian) {
             document.getElementById('success-metode').textContent = method;
             document.getElementById('success-kembalian').textContent = kembalian !== null ? 'Rp ' + kembalian.toLocaleString('id-ID') : '-';
@@ -836,16 +801,13 @@
         function clearCartAfterPayment() {
             cart = [];
             renderCart();
-            // Reset filter and search optionally
             document.getElementById('search-produk').value = '';
             document.getElementById('search-produk').dispatchEvent(new Event('input'));
             
-            // Hide mobile cart if it was open
             const panel = document.getElementById('cart-panel');
             if (!panel.classList.contains('translate-x-full') && window.innerWidth < 1024) {
                 toggleMobileCart();
             }
         }
     </script>
-</body>
-</html>
+@endpush

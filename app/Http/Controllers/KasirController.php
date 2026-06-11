@@ -30,7 +30,7 @@ class KasirController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('pages.kasir.transactions.index', compact('transactions'));
+        return view('pages.kasir.penjualan', compact('transactions'));
     }
 
     public function cetakStruk(\Illuminate\Http\Request $request)
@@ -47,6 +47,6 @@ class KasirController extends Controller
 
         $items = json_decode($data['items'], true);
 
-        return view('pages.kasir.transactions.struk_pdf', compact('data', 'items'));
+        return view('pages.kasir.penjualan.struk-pdf', compact('data', 'items'));
     }
 }
