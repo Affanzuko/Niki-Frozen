@@ -1,8 +1,8 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Struk Pembelian - Niki Frozen</title>
+@extends('layouts.app')
+
+@section('title', 'Struk Pembelian - Niki Frozen')
+
+@push('styles')
     <style>
         @page {
             margin: 0px;
@@ -70,8 +70,11 @@
             font-size: 10px;
         }
     </style>
-</head>
-<body>
+@endpush
+
+@section('body_class', 'bg-white text-black')
+
+@section('content')
     <div class="header">
         <h1>Niki Frozen</h1>
         <p>Jl. Contoh No. 123, Kota</p>
@@ -147,10 +150,12 @@
         <p>Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.</p>
     </div>
 
+@endsection
+
+@push('scripts')
     <script>
         window.onload = function() {
             window.print();
         };
     </script>
-</body>
-</html>
+@endpush

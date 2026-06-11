@@ -23,7 +23,7 @@ class StockIncomingController extends Controller
             ->orderBy('name', 'asc')
             ->get();
 
-        return view('pages.admin.barang-masuk', compact('products', 'branchId'));
+        return view('pages.admin.stok.barang-masuk', compact('products', 'branchId'));
     }
 
     /**
@@ -69,7 +69,7 @@ class StockIncomingController extends Controller
 
             DB::commit();
 
-            return redirect()->route('stok.admin')
+            return redirect()->route('pages.admin.stok')
                 ->with('success', 'Barang masuk berhasil dicatat. Stok terupdate.');
 
         } catch (\Exception $e) {
