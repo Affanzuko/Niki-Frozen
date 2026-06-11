@@ -3,10 +3,10 @@
 @section('title', 'Dashboard Admin - Niki Frozen')
 
 @section('body_data')
-x-data="{
-    selectedDate: 'Hari Ini',
-    sidebarOpen: false
-}"
+    x-data="{
+        selectedDate: 'Hari Ini',
+        sidebarOpen: false
+    }"
 @endsection
 
 @section('content')
@@ -67,7 +67,8 @@ x-data="{
                             </div>
                         </div>
                         <div class="relative z-10">
-                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">Rp {{ number_format($todayRevenue, 0, ',', '.') }}</h3>
+                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">Rp
+                                {{ number_format($todayRevenue, 0, ',', '.') }}</h3>
                             <p class="text-sm text-gray-500 font-medium">Pendapatan transaksi berhasil</p>
                         </div>
                     </div>
@@ -86,14 +87,18 @@ x-data="{
                             </div>
                         </div>
                         <div class="relative z-10">
-                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">{{ $todayTransactions }}</h3>
+                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">
+                                {{ $todayTransactions }}</h3>
                             <p class="text-sm text-gray-500 font-medium">Transaksi berhasil hari ini</p>
                         </div>
                     </div>
 
                     <!-- Kartu Stok -->
-                    <div onclick="window.location='{{ route('stok.admin') }}'" class="group bg-white rounded-2xl p-6 border {{ $nearExpiryCount > 0 ? 'border-red-200' : 'border-gray-200' }} shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-red-400 transition-all duration-300 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform"></div>
+                    <div onclick="window.location='{{ route('pages.admin.stok') }}'"
+                        class="group bg-white rounded-2xl p-6 border {{ $nearExpiryCount > 0 ? 'border-red-200' : 'border-gray-200' }} shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-red-400 transition-all duration-300 relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform">
+                        </div>
                         <div class="flex justify-between items-start mb-6 relative z-10">
                             <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Peringatan Stok
                                 Kadaluarsa</p>
@@ -103,8 +108,10 @@ x-data="{
                             </div>
                         </div>
                         <div class="relative z-10">
-                            <h3 class="text-3xl font-bold text-red-600 mb-1 tracking-tight tabular-nums">{{ $nearExpiryCount }} Barang</h3>
-                            <p class="text-sm text-gray-500 font-medium">{{ $nearExpiryCount > 0 ? 'Butuh pengecekan segera' : 'Tidak ada peringatan' }}</p>
+                            <h3 class="text-3xl font-bold text-red-600 mb-1 tracking-tight tabular-nums">
+                                {{ $nearExpiryCount }} Barang</h3>
+                            <p class="text-sm text-gray-500 font-medium">
+                                {{ $nearExpiryCount > 0 ? 'Butuh pengecekan segera' : 'Tidak ada peringatan' }}</p>
                         </div>
                     </div>
                 </div>
@@ -134,21 +141,28 @@ x-data="{
                             <tbody class="divide-y divide-gray-100 text-sm">
                                 @forelse ($recentTransactions as $trx)
                                     <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 text-gray-500 font-medium text-center tabular-nums">{{ $trx->created_at->format('H:i:s') }}</td>
-                                        <td class="px-6 py-4 text-gray-500 font-medium font-mono text-xs">{{ $trx->transaction_code }}</td>
-                                        <td class="px-6 py-4 text-center font-bold text-gray-900 tabular-nums">{{ number_format($trx->total_price, 0, ',', '.') }}</td>
+                                        <td class="px-6 py-4 text-gray-500 font-medium text-center tabular-nums">
+                                            {{ $trx->created_at->format('H:i:s') }}</td>
+                                        <td class="px-6 py-4 text-gray-500 font-medium font-mono text-xs">
+                                            {{ $trx->transaction_code }}</td>
+                                        <td class="px-6 py-4 text-center font-bold text-gray-900 tabular-nums">
+                                            {{ number_format($trx->total_price, 0, ',', '.') }}</td>
                                         <td class="px-6 py-4 text-center">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold {{ $trx->payment_method === 'cash' ? 'bg-green-50 text-green-700' : 'bg-purple-50 text-purple-700' }}">
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold {{ $trx->payment_method === 'cash' ? 'bg-green-50 text-green-700' : 'bg-purple-50 text-purple-700' }}">
                                                 {{ strtoupper($trx->payment_method) }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 text-center">
                                             @if ($trx->status === 'success')
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-200">Selesai</span>
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-200">Selesai</span>
                                             @elseif ($trx->status === 'pending')
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-yellow-50 text-yellow-700 border border-yellow-200">Pending</span>
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-yellow-50 text-yellow-700 border border-yellow-200">Pending</span>
                                             @else
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">Batal</span>
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">Batal</span>
                                             @endif
                                         </td>
                                     </tr>
