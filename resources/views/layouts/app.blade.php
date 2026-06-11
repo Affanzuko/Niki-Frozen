@@ -70,6 +70,7 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
     @stack('styles')
+    @stack('head_scripts')
 </head>
 <body class="@yield('body_class', 'flex h-screen overflow-hidden text-gray-800 bg-[#f8fafc]')" @yield('body_data')>
     @yield('content')
