@@ -143,14 +143,6 @@
     </main>
 
     @push('scripts')
-        <script>
-            function goToKeuanganDetail() {
-                const select = document.getElementById('pilih-cabang');
-                const cabang = select ? select.value : 'Condongcatur';
-                let url = "{{ route('pages.general-manager.keuangan-detail', ':cabang') }}";
-                url = url.replace(':cabang', cabang);
-                window.location.href = url;
-            }
-        </script>
+    @vite('resources/js/pages/general-manager/dashboard.js')
     @endpush
 @endsection
