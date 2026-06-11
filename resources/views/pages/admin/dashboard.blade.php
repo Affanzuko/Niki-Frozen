@@ -67,11 +67,8 @@ x-data="{
                             </div>
                         </div>
                         <div class="relative z-10">
-                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">Rp 24.850.000
-                            </h3>
-                            <p class="text-sm font-medium text-green-600 flex items-center gap-1"><i
-                                    class="fa-solid fa-arrow-trend-up text-xs"></i> +12.5% <span
-                                    class="text-gray-500 font-normal">dari kemarin</span></p>
+                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">Rp {{ number_format($todayRevenue, 0, ',', '.') }}</h3>
+                            <p class="text-sm text-gray-500 font-medium">Pendapatan transaksi berhasil</p>
                         </div>
                     </div>
 
@@ -89,17 +86,14 @@ x-data="{
                             </div>
                         </div>
                         <div class="relative z-10">
-                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">184</h3>
-                            <p class="text-sm text-gray-500 font-medium">Rata-rata keranjang Rp 135.054</p>
+                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">{{ $todayTransactions }}</h3>
+                            <p class="text-sm text-gray-500 font-medium">Transaksi berhasil hari ini</p>
                         </div>
                     </div>
 
                     <!-- Kartu Stok -->
-                    <div onclick="window.location='{{ route('pages.admin.stok') }}'"
-                        class="group bg-white rounded-2xl p-6 border border-red-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-red-400 transition-all duration-300 relative overflow-hidden">
-                        <div
-                            class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform">
-                        </div>
+                    <div onclick="window.location='{{ route('stok.admin') }}'" class="group bg-white rounded-2xl p-6 border {{ $nearExpiryCount > 0 ? 'border-red-200' : 'border-gray-200' }} shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-red-400 transition-all duration-300 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform"></div>
                         <div class="flex justify-between items-start mb-6 relative z-10">
                             <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Peringatan Stok
                                 Kadaluarsa</p>
@@ -109,8 +103,8 @@ x-data="{
                             </div>
                         </div>
                         <div class="relative z-10">
-                            <h3 class="text-3xl font-bold text-red-600 mb-1 tracking-tight tabular-nums">8 Barang</h3>
-                            <p class="text-sm text-gray-500 font-medium">Butuh pengecekan segera</p>
+                            <h3 class="text-3xl font-bold text-red-600 mb-1 tracking-tight tabular-nums">{{ $nearExpiryCount }} Barang</h3>
+                            <p class="text-sm text-gray-500 font-medium">{{ $nearExpiryCount > 0 ? 'Butuh pengecekan segera' : 'Tidak ada peringatan' }}</p>
                         </div>
                     </div>
                 </div>
@@ -131,59 +125,41 @@ x-data="{
                                 <tr
                                     class="bg-gray-50/50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">
                                     <th class="px-6 py-4 w-40 text-center">Waktu</th>
-                                    <th class="px-6 py-4">Kasir</th>
                                     <th class="px-6 py-4">No. Referensi</th>
                                     <th class="px-6 py-4 text-center">Total (Rp)</th>
+                                    <th class="px-6 py-4 text-center">Metode</th>
                                     <th class="px-6 py-4 w-32 text-center">Status</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-sm">
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 text-gray-500 font-medium text-center tabular-nums">10:45:22
-                                    </td>
-                                    <td class="px-6 py-4 font-bold text-gray-900 flex items-center gap-2">
-                                        <div
-                                            class="w-6 h-6 rounded-full bg-blue-100 text-brand-textBlue flex items-center justify-center text-xs">
-                                            BS</div> Budi Santoso
-                                    </td>
-                                    <td class="px-6 py-4 text-gray-500 font-medium font-mono text-xs">POS-8921-A</td>
-                                    <td class="px-6 py-4 text-center font-bold text-gray-900 tabular-nums">450.000</td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-200">Selesai</span>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 text-gray-500 font-medium text-center tabular-nums">10:42:15
-                                    </td>
-                                    <td class="px-6 py-4 font-bold text-gray-900 flex items-center gap-2">
-                                        <div
-                                            class="w-6 h-6 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center text-xs">
-                                            SA</div> Siti Aminah
-                                    </td>
-                                    <td class="px-6 py-4 text-gray-500 font-medium font-mono text-xs">POS-8920-A</td>
-                                    <td class="px-6 py-4 text-center font-bold text-gray-900 tabular-nums">1.250.500
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-200">Selesai</span>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 text-gray-500 font-medium text-center tabular-nums">10:31:50
-                                    </td>
-                                    <td class="px-6 py-4 font-bold text-gray-900 flex items-center gap-2">
-                                        <div
-                                            class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs">
-                                            RM</div> Rina Melati
-                                    </td>
-                                    <td class="px-6 py-4 text-gray-500 font-medium font-mono text-xs">POS-8918-B</td>
-                                    <td class="px-6 py-4 text-center font-bold text-gray-900 tabular-nums">890.000</td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">Batal</span>
-                                    </td>
-                                </tr>
+                                @forelse ($recentTransactions as $trx)
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 text-gray-500 font-medium text-center tabular-nums">{{ $trx->created_at->format('H:i:s') }}</td>
+                                        <td class="px-6 py-4 text-gray-500 font-medium font-mono text-xs">{{ $trx->transaction_code }}</td>
+                                        <td class="px-6 py-4 text-center font-bold text-gray-900 tabular-nums">{{ number_format($trx->total_price, 0, ',', '.') }}</td>
+                                        <td class="px-6 py-4 text-center">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold {{ $trx->payment_method === 'cash' ? 'bg-green-50 text-green-700' : 'bg-purple-50 text-purple-700' }}">
+                                                {{ strtoupper($trx->payment_method) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-center">
+                                            @if ($trx->status === 'success')
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-200">Selesai</span>
+                                            @elseif ($trx->status === 'pending')
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-yellow-50 text-yellow-700 border border-yellow-200">Pending</span>
+                                            @else
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">Batal</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+                                            <i class="fa-solid fa-receipt text-3xl mb-2 block"></i>
+                                            <p class="font-medium">Belum ada transaksi hari ini</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
