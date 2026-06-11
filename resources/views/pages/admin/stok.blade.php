@@ -22,16 +22,16 @@
     <x-sidebar role="admin" active="stok" />
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-gray-50">
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-slate-50">
 
         <!-- Header -->
         <header class="px-6 lg:px-8 py-6 shrink-0 flex items-center gap-4">
-            <button @click="sidebarOpen = true" class="lg:hidden text-gray-500 hover:text-gray-700">
+            <button @click="sidebarOpen = true" class="lg:hidden text-slate-500 hover:text-slate-700">
                 <i class="fa-solid fa-bars text-xl"></i>
             </button>
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Niki Frozen - Condongcatur</h1>
-                <p class="text-gray-500 mt-1 text-sm">Kelola Stok</p>
+                <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Niki Frozen - Condongcatur</h1>
+                <p class="text-slate-500 mt-1 text-sm font-medium">Kelola Stok</p>
             </div>
         </header>
 
@@ -48,36 +48,34 @@
             @endif
 
             <!-- Filters -->
-            <div class="flex flex-wrap gap-2 mb-4 items-center">
+            <div class="flex flex-wrap items-center gap-2 mb-6 shrink-0">
                 <button @click="stokFilter = 'Semua Barang'"
-                    :class="stokFilter === 'Semua Barang' ?
-                        'bg-brand-blue text-brand-textBlue font-semibold border border-brand-blue ring-1 ring-brand-blue' :
-                        'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'"
-                    class="px-4 py-2 text-sm rounded-lg shadow-sm transition-all">Semua Barang</button>
+                    :class="stokFilter === 'Semua Barang' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                        'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                    class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Semua Barang</button>
 
                 <button @click="stokFilter = 'Status Kedaluwarsa'"
-                    :class="stokFilter === 'Status Kedaluwarsa' ?
-                        'bg-red-50 text-red-700 font-semibold border border-red-200 ring-1 ring-red-200' :
-                        'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'"
-                    class="px-4 py-2 text-sm rounded-lg shadow-sm transition-all">Status Kedaluwarsa</button>
+                    :class="stokFilter === 'Status Kedaluwarsa' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                        'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                    class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Status Kedaluwarsa</button>
 
                 <div class="flex-1"></div>
 
                 <a href="{{ route('pages.admin.barang-masuk.create') }}"
-                    class="px-4 py-2 bg-brand-dark text-white text-sm font-semibold rounded-lg hover:bg-gray-800 transition-colors shadow-sm flex items-center gap-2">
+                    class="px-5 py-2 bg-slate-800 text-white text-sm font-bold rounded-xl hover:bg-slate-900 transition-colors shadow-sm flex items-center gap-2">
                     <i class="fa-solid fa-plus"></i> Input Barang Masuk
                 </a>
             </div>
 
             <!-- Table -->
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0" x-data="{
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0" x-data="{
                 syncScroll(e) {
                     $refs.headerScroll.scrollLeft = e.target.scrollLeft;
                 }
             }">
                 <!-- Header Table (Static) -->
-                <div class="bg-gray-50 border-b border-gray-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
-                    <table class="w-full text-center border-collapse table-fixed min-w-[900px]">
+                <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
+                    <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
                         <colgroup>
                             <col class="w-[25%]">
                             <col class="w-[15%]">
@@ -86,12 +84,12 @@
                             <col class="w-[15%]">
                         </colgroup>
                         <thead>
-                            <tr class="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                <th class="px-6 py-4 text-left">Product</th>
-                                <th class="px-6 py-4">Barcode</th>
-                                <th class="px-6 py-4">Stock Level</th>
-                                <th class="px-6 py-4">Expiry Date</th>
-                                <th class="px-6 py-4 text-right">Actions</th>
+                            <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                <th class="p-4 py-3">Product</th>
+                                <th class="p-4 py-3">Barcode</th>
+                                <th class="p-4 py-3 text-center">Stock Level</th>
+                                <th class="p-4 py-3">Expiry Date</th>
+                                <th class="p-4 py-3 text-right">Actions</th>
                             </tr>
                         </thead>
                     </table>
@@ -99,7 +97,7 @@
 
                 <!-- Body Table (Scrollable) -->
                 <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
-                    <table class="w-full text-center border-collapse table-fixed min-w-[900px]">
+                    <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
                         <colgroup>
                             <col class="w-[25%]">
                             <col class="w-[15%]">
@@ -107,7 +105,7 @@
                             <col class="w-[20%]">
                             <col class="w-[15%]">
                         </colgroup>
-                        <tbody class="divide-y divide-gray-100 text-sm font-medium">
+                        <tbody class="divide-y divide-slate-100 text-sm font-medium">
                             @forelse ($stocks as $stock)
                                 @php
                                     $expiryDate = $latestExpiries[$stock->product_id] ?? null;
@@ -124,69 +122,62 @@
                                                 ? 'bg-yellow-500'
                                                 : 'bg-green-500');
                                 @endphp
-                                <tr class="{{ $isExpired ? 'bg-red-50/30' : '' }} hover:bg-gray-50 transition-colors group"
+                                <tr class="{{ $isExpired ? 'bg-red-50/30' : '' }} hover:bg-slate-50 transition-colors group cursor-pointer"
                                     x-show="stokFilter === 'Semua Barang' || (stokFilter === 'Status Kedaluwarsa' && {{ $isExpired || $isNearExpiry ? 'true' : 'false' }})">
-                                    <td class="px-6 py-4 text-left flex items-center gap-3">
+                                    <td class="p-4 flex items-center gap-3">
                                         <div
-                                            class="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center shrink-0">
-                                            <i class="fa-solid fa-cube text-gray-400"></i>
+                                            class="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center shrink-0">
+                                            <i class="fa-solid fa-cube text-slate-400"></i>
                                         </div>
                                         <div>
                                             <span
-                                                class="text-gray-900 font-bold group-hover:text-brand-textBlue transition-colors">{{ $stock->product->name }}</span>
+                                                class="text-slate-800 font-bold group-hover:text-blue-600 transition-colors">{{ $stock->product->name }}</span>
                                             @if ($stock->product->category)
-                                                <p class="text-xs text-gray-400 mt-0.5">
+                                                <p class="text-xs text-slate-500 mt-0.5">
                                                     {{ $stock->product->category->name }}</p>
                                             @endif
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 text-gray-500 tabular-nums">{{ $stock->product->barcode ?? '-' }}
+                                    <td class="p-4 text-slate-500 tabular-nums">{{ $stock->product->barcode ?? '-' }}
                                     </td>
-                                    <td class="px-6 py-4 text-gray-900 tabular-nums">
+                                    <td class="p-4 text-slate-900 tabular-nums">
                                         <div class="flex items-center justify-center gap-2">
                                             <span
                                                 class="{{ $stock->quantity < 20 ? 'text-red-600 font-bold' : '' }}">{{ $stock->quantity }}</span>
-                                            <div class="w-12 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                            <div class="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                                 <div class="h-full {{ $stockColor }} rounded-full"
                                                     style="width: {{ $stockPercent }}%"></div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4">
+                                    <td class="p-4 text-slate-500 tabular-nums">
                                         @if ($expiryDate)
                                             @if ($isExpired)
-                                                <span
-                                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold bg-red-100 text-red-700 border border-red-200">
-                                                    <i class="fa-solid fa-circle-exclamation text-[10px]"></i>
-                                                    {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
+                                                <span class="text-red-600 font-bold">
+                                                    <i class="fa-solid fa-circle-exclamation mr-1"></i>{{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
                                                 </span>
                                             @elseif ($isNearExpiry)
-                                                <span
-                                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold bg-yellow-100 text-yellow-700 border border-yellow-200">
-                                                    <i class="fa-solid fa-triangle-exclamation text-[10px]"></i>
-                                                    {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
+                                                <span class="text-yellow-600 font-bold">
+                                                    <i class="fa-solid fa-triangle-exclamation mr-1"></i>{{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
                                                 </span>
                                             @else
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-1 rounded text-xs font-bold bg-[#e2e8f0] text-gray-700">
-                                                    {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
-                                                </span>
+                                                {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
                                             @endif
                                         @else
-                                            <span class="text-gray-400 text-xs">Belum ada data</span>
+                                            -
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 text-right relative">
+                                    <td class="p-4 text-right relative">
                                         <button @click.stop="toggleDropdown({{ $stock->id }})"
-                                            class="w-8 h-8 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
+                                            class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
                                             <i class="fa-solid fa-ellipsis-vertical"></i>
                                         </button>
                                         <div x-show="activeDropdown === {{ $stock->id }}"
                                             @click.away="activeDropdown = null" x-cloak x-transition
-                                            class="absolute right-6 top-10 w-40 bg-white rounded-lg shadow-xl border border-gray-100 z-20 py-1 text-left">
+                                            class="absolute right-6 top-10 w-40 bg-white rounded-xl shadow-xl border border-slate-100 z-20 py-1 text-left">
                                             <a href="#"
-                                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><i
-                                                    class="fa-regular fa-pen-to-square w-4 mr-1 text-gray-400"></i> Edit
+                                                class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"><i
+                                                    class="fa-regular fa-pen-to-square w-4 mr-1 text-slate-400"></i> Edit
                                                 Detail</a>
                                             <a href="#"
                                                 class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50"><i
@@ -196,7 +187,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+                                    <td colspan="5" class="p-4 py-12 text-center text-slate-400">
                                         <i class="fa-solid fa-box-open text-4xl mb-3 block"></i>
                                         <p class="font-medium">Belum ada data stok</p>
                                     </td>
@@ -206,8 +197,8 @@
                     </table>
                 </div>
                 <!-- Footer -->
-                <div class="px-6 py-3 border-t border-gray-200 flex justify-between items-center bg-gray-50/50">
-                    <span class="text-xs font-medium text-gray-500">Showing {{ $stocks->count() }} items</span>
+                <div class="px-6 py-4 border-t border-slate-200 flex justify-between items-center bg-slate-50">
+                    <span class="text-xs font-medium text-slate-500">Showing {{ $stocks->count() }} items</span>
                 </div>
             </div>
         </div>

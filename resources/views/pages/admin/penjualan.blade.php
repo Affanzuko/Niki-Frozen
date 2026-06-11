@@ -17,6 +17,8 @@
                     matchesFilter = t.status === 'success' || t.status === 'Selesai';
                 } else if (this.penjualanFilter === 'Batal') {
                     matchesFilter = t.status === 'failed' || t.status === 'Batal' || t.status === 'refund';
+                } else if (this.penjualanFilter === 'Pending') {
+                    matchesFilter = t.status === 'waiting' || t.status === 'pending';
                 }
     
                 let matchesSearch = true;
@@ -102,6 +104,10 @@
                         :class="penjualanFilter === 'Berhasil' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
                             'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
                         class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Berhasil</button>
+                    <button @click="penjualanFilter = 'Pending'"
+                        :class="penjualanFilter === 'Pending' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                            'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                        class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Pending</button>
                     <button @click="penjualanFilter = 'Batal'"
                         :class="penjualanFilter === 'Batal' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
                             'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
@@ -109,11 +115,12 @@
                 </div>
 
                 {{-- Table --}}
-                <div class="w-full border border-slate-200 rounded-xl overflow-hidden bg-white flex-1 flex flex-col min-h-0" x-data="{
-                    syncScroll(e) {
-                        $refs.headerScroll.scrollLeft = e.target.scrollLeft;
-                    }
-                }">
+                <div class="w-full border border-slate-200 rounded-xl overflow-hidden bg-white flex-1 flex flex-col min-h-0"
+                    x-data="{
+                        syncScroll(e) {
+                            $refs.headerScroll.scrollLeft = e.target.scrollLeft;
+                        }
+                    }">
                     <!-- Header Table (Static) -->
                     <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
                         <table class="w-full text-left border-collapse min-w-[700px] table-fixed">
@@ -150,11 +157,22 @@
                                 <template x-for="trx in filteredTransactions" :key="trx.id">
                                     <tr class="transaction-row hover:bg-slate-50 cursor-pointer transition-colors"
                                         :class="activeRowId === trx.id ? 'bg-blue-100' : ''" @click="openDetail(trx.id)">
-                                        <td class="p-4 font-medium text-slate-700 truncate" x-text="formatDate(trx.created_at)"></td>
-                                        <td class="p-4 font-semibold text-blue-600 truncate" x-text="trx.transaction_code"></td>
-                                        <td class="p-4 font-bold text-slate-900 truncate" x-text="formatCurrency(trx.total_price)">
+                                        <td class="p-4 font-medium text-slate-700 truncate"
+                                            x-text="formatDate(trx.created_at)"></td>
+                                        <td class="p-4 font-semibold text-blue-600 truncate" x-text="trx.transaction_code">
                                         </td>
-                                        <td class="p-4 font-medium text-slate-600 truncate" x-text="trx.payment_method"></td>
+                                        <td class="p-4 font-bold text-slate-900 truncate"
+                                            x-text="formatCurrency(trx.total_price)">
+                                        </td>
+                                        <td class="p-4 truncate">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase border shadow-sm"
+                                                :class="(trx.payment_method || '').toLowerCase() === 'cash' ?
+                                                    'bg-green-50 text-green-700 border-green-200' :
+                                                    'bg-blue-50 text-blue-700 border-blue-200'"
+                                                x-text="trx.payment_method">
+                                            </span>
+                                        </td>
                                         <td class="p-4">
                                             <template x-if="trx.status === 'success' || trx.status === 'Selesai'">
                                                 <span
@@ -168,7 +186,8 @@
                                                     Pending
                                                 </span>
                                             </template>
-                                            <template x-if="trx.status !== 'success' && trx.status !== 'Selesai' && trx.status !== 'pending' && trx.status !== 'Pending'">
+                                            <template
+                                                x-if="trx.status !== 'success' && trx.status !== 'Selesai' && trx.status !== 'pending' && trx.status !== 'Pending'">
                                                 <span
                                                     class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-100 text-red-700 truncate max-w-[100px]"
                                                     x-text="trx.status"></span>
@@ -188,14 +207,11 @@
         </main>
 
         {{-- Right Sidebar Detail --}}
-        <aside id="detail-sidebar"
-            x-show="activeTransaction"
+        <aside id="detail-sidebar" x-show="activeTransaction"
             x-transition:enter="transition ease-out duration-300 transform"
-            x-transition:enter-start="translate-x-full opacity-0"
-            x-transition:enter-end="translate-x-0 opacity-100"
+            x-transition:enter-start="translate-x-full opacity-0" x-transition:enter-end="translate-x-0 opacity-100"
             x-transition:leave="transition ease-in duration-200 transform"
-            x-transition:leave-start="translate-x-0 opacity-100"
-            x-transition:leave-end="translate-x-full opacity-0"
+            x-transition:leave-start="translate-x-0 opacity-100" x-transition:leave-end="translate-x-full opacity-0"
             class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl lg:shadow-none border-l border-slate-200 lg:static z-50 flex flex-col shrink-0">
 
             <div class="h-16 flex items-center justify-between px-6 border-b border-slate-200 bg-slate-50">
@@ -223,7 +239,8 @@
                         <template x-for="item in activeTransaction.items" :key="item.id">
                             <div class="flex justify-between items-start gap-2">
                                 <div>
-                                    <p class="text-sm font-bold text-slate-800 leading-snug" x-text="item.product?.name || item.product_name">
+                                    <p class="text-sm font-bold text-slate-800 leading-snug"
+                                        x-text="item.product?.name || item.product_name">
                                     </p>
                                     <p class="text-xs font-medium text-slate-500 mt-0.5"
                                         x-text="item.quantity + ' x ' + formatCurrency(item.unit_price)"></p>
@@ -255,7 +272,10 @@
                         <div class="flex justify-between items-center text-sm mt-3">
                             <span class="font-medium text-slate-500">Metode Pembayaran</span>
                             <span
-                                class="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded border border-gray-200 uppercase"
+                                class="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold uppercase border shadow-sm"
+                                :class="(activeTransaction.payment_method || '').toLowerCase() === 'cash' ?
+                                    'bg-green-50 text-green-700 border-green-200' :
+                                    'bg-blue-50 text-blue-700 border-blue-200'"
                                 x-text="activeTransaction.payment_method"></span>
                         </div>
                     </div>
