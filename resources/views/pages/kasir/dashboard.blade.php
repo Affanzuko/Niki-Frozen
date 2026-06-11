@@ -462,6 +462,13 @@
                         renderCart();
                     }
                 });
+            } else {
+                showCustomAlert({
+                    title: 'Keranjang Kosong',
+                    message: 'Keranjang masih kosong, belum ada item yang ditambahkan.',
+                    type: 'warning',
+                    confirmText: 'Mengerti'
+                });
             }
         }
 
