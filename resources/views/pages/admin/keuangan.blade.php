@@ -4,28 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keuangan Admin - Niki Frozen</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        brand: {
-                            dark: '#0f172a',
-                            blue: '#e0f2fe',
-                            textBlue: '#0284c7',
-                        }
+                        brand: { dark: '#0f172a', blue: '#e0f2fe', textBlue: '#0284c7' }
                     }
                 }
             }
@@ -42,10 +32,7 @@
 </head>
 
 <body class="flex h-screen overflow-hidden text-gray-800 bg-[#f8fafc]" 
-    x-data="{ 
-        keuanganFilter: 'Hari',
-        sidebarOpen: false
-    }">
+    x-data="{ sidebarOpen: false }">
 
     <!-- Mobile Sidebar Backdrop -->
     <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" class="fixed inset-0 bg-slate-900/50 z-20 lg:hidden backdrop-blur-sm" x-transition.opacity></div>
@@ -69,13 +56,21 @@
 
         <!-- Content Area -->
         <div class="px-6 lg:px-8 pb-8 flex-1 flex flex-col min-h-0">
-            <!-- Filters -->
-            <div class="flex flex-wrap gap-2 mb-6">
-                <template x-for="filter in ['Hari', 'Minggu', 'Bulan', 'Tahun']" :key="filter">
-                    <button @click="keuanganFilter = filter" 
-                        :class="keuanganFilter === filter ? 'bg-brand-blue text-brand-textBlue font-semibold border border-brand-blue ring-1 ring-brand-blue' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'" 
-                        class="px-6 py-2 text-sm rounded-lg shadow-sm transition-all" x-text="filter"></button>
-                </template>
+
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Total Pendapatan</p>
+                    <h3 class="text-2xl font-bold text-gray-900 tabular-nums">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h3>
+                </div>
+                <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Pendapatan Cash</p>
+                    <h3 class="text-2xl font-bold text-green-600 tabular-nums">Rp {{ number_format($cashTotal, 0, ',', '.') }}</h3>
+                </div>
+                <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Pendapatan QRIS</p>
+                    <h3 class="text-2xl font-bold text-brand-textBlue tabular-nums">Rp {{ number_format($qrisTotal, 0, ',', '.') }}</h3>
+                </div>
             </div>
 
             <!-- Table -->
@@ -85,30 +80,31 @@
                         <thead>
                             <tr class="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200 sticky top-0 z-10">
                                 <th class="px-6 py-4">Waktu</th>
-                                <th class="px-6 py-4">Cash</th>
-                                <th class="px-6 py-4">QRIS</th>
-                                <th class="px-6 py-4">Pengeluaran</th>
-                                <th class="px-6 py-4">Saldo Akhir</th>
-                                <th class="px-6 py-4">Profit</th>
+                                <th class="px-6 py-4">Kode Transaksi</th>
+                                <th class="px-6 py-4">Metode</th>
+                                <th class="px-6 py-4">Total</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 text-sm font-medium">
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 text-gray-700">Senin, 5 Juni 2026</td>
-                                <td class="px-6 py-4 text-green-600 font-bold tabular-nums">Rp. 7.000.000</td>
-                                <td class="px-6 py-4 text-green-600 font-bold tabular-nums">Rp. 27.000.000</td>
-                                <td class="px-6 py-4 text-red-500 tabular-nums">Rp 4.000.000</td>
-                                <td class="px-6 py-4 text-gray-900 font-bold tabular-nums">Rp. 30.000.000</td>
-                                <td class="px-6 py-4 text-gray-400">-</td>
-                            </tr>
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 text-gray-700">Selasa, 6 Juni 2026</td>
-                                <td class="px-6 py-4 text-green-600 font-bold tabular-nums">Rp. 7.000.000</td>
-                                <td class="px-6 py-4 text-green-600 font-bold tabular-nums">Rp. 27.000.000</td>
-                                <td class="px-6 py-4 text-red-500 tabular-nums">Rp 4.000.000</td>
-                                <td class="px-6 py-4 text-gray-900 font-bold tabular-nums">Rp. 60.000.000</td>
-                                <td class="px-6 py-4 text-green-600 font-bold tabular-nums bg-green-50/50"><i class="fa-solid fa-arrow-trend-up text-[10px] mr-1"></i> Rp. 30.000.000</td>
-                            </tr>
+                            @forelse ($transactions as $trx)
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 text-gray-700 tabular-nums">{{ $trx->created_at->format('d/m/Y H:i') }}</td>
+                                    <td class="px-6 py-4 text-gray-500 font-mono text-xs">{{ $trx->transaction_code }}</td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold {{ $trx->payment_method === 'cash' ? 'bg-green-50 text-green-700' : 'bg-purple-50 text-purple-700' }}">
+                                            {{ strtoupper($trx->payment_method) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-green-600 font-bold tabular-nums">Rp {{ number_format($trx->total_price, 0, ',', '.') }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="px-6 py-12 text-center text-gray-400">
+                                        <i class="fa-solid fa-chart-line text-3xl mb-2 block"></i>
+                                        <p class="font-medium">Belum ada data keuangan</p>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
