@@ -43,7 +43,7 @@ class ProductController extends Controller
             'price' => $request->price,
         ]);
 
-        return redirect()->route('kelola-harga.admin')
+        return redirect()->route('pages.admin.kelola-harga')
             ->with('success', 'Harga produk "' . $product->name . '" berhasil diperbarui.');
     }
 }

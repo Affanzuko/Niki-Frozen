@@ -26,23 +26,12 @@ Route::prefix('admin')->name('pages.admin.')->group(function () {
     Route::get('stok', [AdminDashboardController::class, 'stok'])->name('stok');
     Route::get('penjualan', [AdminDashboardController::class, 'penjualan'])->name('penjualan');
     Route::get('keuangan', [AdminDashboardController::class, 'keuangan'])->name('keuangan');
+    Route::get('barang-masuk', [StockIncomingController::class, 'create'])->name('barang-masuk.create');
+    Route::post('barang-masuk', [StockIncomingController::class, 'store'])->name('barang-masuk.store');
+    Route::get('kelola-harga', [ProductController::class, 'index'])->name('kelola-harga');
+    Route::put('kelola-harga/{id}', [ProductController::class, 'update'])->name('kelola-harga.update');
 });
 
-// Admin: Input Barang Masuk (dengan tanggal kadaluarsa manual)
-Route::get('/admin/barang-masuk', [StockIncomingController::class, 'create'])->name('barang-masuk.create');
-Route::post('/admin/barang-masuk', [StockIncomingController::class, 'store'])->name('barang-masuk.store');
-
-// Admin: Kelola Harga Produk
-Route::get('/admin/kelola-harga', [ProductController::class, 'index'])->name('kelola-harga.admin');
-Route::put('/admin/kelola-harga/{id}', [ProductController::class, 'update'])->name('kelola-harga.update');
-
-// ==================== OWNER ====================
-Route::prefix('owner')->name('pages.owner.')->group(function () {
-    Route::get('/', [OwnerController::class, 'dashboard'])->name('dashboard');
-    Route::get('/cabang/{branchId}', [OwnerController::class, 'detailCabang'])->name('detail-cabang');
-});
-
-// ==================== GENERAL MANAGER ====================
 Route::prefix('gm')->name('pages.general-manager.')->group(function () {
     Route::get('/', [GmController::class, 'dashboard'])->name('dashboard');
     Route::get('keuangan', [GmController::class, 'keuangan'])->name('keuangan');
@@ -50,4 +39,9 @@ Route::prefix('gm')->name('pages.general-manager.')->group(function () {
     Route::get('kelola-akun', [GmController::class, 'kelolaAkun'])->name('kelola-akun');
     Route::get('tambah-akun', [GmController::class, 'tambahAkun'])->name('tambah-akun');
     Route::get('edit-akun/{id}', [GmController::class, 'editAkun'])->name('edit-akun');
+});
+
+Route::prefix('owner')->name('pages.owner.')->group(function () {
+    Route::get('/', [OwnerController::class, 'dashboard'])->name('dashboard');
+    Route::get('/cabang/{branchId}', [OwnerController::class, 'detailCabang'])->name('detail-cabang');
 });
