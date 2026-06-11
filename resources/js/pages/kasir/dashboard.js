@@ -273,7 +273,20 @@ window.processPayment = async function(method) {
 
             if (result.snap_token) {
                 window.snap.pay(result.snap_token, {
-                    onSuccess: function(res) {
+                    onSuccess: async function(res) {
+                        try {
+                            await fetch('/kasir/checkout/success', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                body: JSON.stringify({ order_id: result.order_id })
+                            });
+                        } catch (e) {
+                            console.error('Failed to update status locally', e);
+                        }
+                        
                         window.saveTransactionData('qris', null, null);
                         window.clearCartAfterPayment();
                         window.showSuccessModal('QRIS', null);

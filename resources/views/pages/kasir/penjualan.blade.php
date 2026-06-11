@@ -114,10 +114,23 @@
                 </div>
 
                 {{-- Table --}}
-                <div class="flex-1 w-full border border-slate-200 rounded-xl bg-white relative overflow-hidden">
-                    <div class="absolute inset-0 overflow-auto">
-                        <table class="w-full text-left border-collapse min-w-[700px]">
-                            <thead class="sticky top-0 z-10 bg-slate-50 shadow-[inset_0_-1px_0_0_#e2e8f0]">
+                <div class="w-full border border-slate-200 rounded-xl overflow-hidden bg-white flex-1 flex flex-col min-h-0"
+                    x-data="{
+                        syncScroll(e) {
+                            $refs.headerScroll.scrollLeft = e.target.scrollLeft;
+                        }
+                    }">
+                    <!-- Header Table (Static) -->
+                    <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
+                        <table class="w-full text-left border-collapse min-w-[700px] table-fixed">
+                            <colgroup>
+                                <col class="w-[20%]">
+                                <col class="w-[25%]">
+                                <col class="w-[20%]">
+                                <col class="w-[15%]">
+                                <col class="w-[20%]">
+                            </colgroup>
+                            <thead>
                                 <tr class="text-xs text-slate-500 uppercase tracking-wider font-bold">
                                     <th class="p-4 py-3">Waktu</th>
                                     <th class="p-4 py-3">No. Referensi</th>
@@ -126,15 +139,32 @@
                                     <th class="p-4 py-3">Status</th>
                                 </tr>
                             </thead>
+                        </table>
+                    </div>
+
+                    <!-- Body Table (Scrollable) -->
+                    <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
+                        <table class="w-full text-left border-collapse min-w-[700px] table-fixed">
+                            <colgroup>
+                                <col class="w-[20%]">
+                                <col class="w-[25%]">
+                                <col class="w-[20%]">
+                                <col class="w-[15%]">
+                                <col class="w-[20%]">
+                            </colgroup>
                             <tbody class="divide-y divide-slate-100 text-sm">
                                 <template x-for="trx in filteredTransactions" :key="trx.id">
                                     <tr class="transaction-row hover:bg-slate-50 cursor-pointer transition-colors"
                                         :class="activeRowId === trx.id ? 'bg-blue-100' : ''" @click="openDetail(trx.id)">
-                                        <td class="p-4 font-medium text-slate-700" x-text="formatDate(trx.created_at)"></td>
-                                        <td class="p-4 font-semibold text-blue-600" x-text="trx.transaction_code"></td>
-                                        <td class="p-4 font-bold text-slate-900" x-text="formatCurrency(trx.total_price)">
+                                        <td class="p-4 font-medium text-slate-700 truncate"
+                                            x-text="formatDate(trx.created_at)"></td>
+                                        <td class="p-4 font-semibold text-blue-600 truncate" x-text="trx.transaction_code">
                                         </td>
-                                        <td class="p-4 font-medium text-slate-600" x-text="trx.payment_method"></td>
+                                        <td class="p-4 font-bold text-slate-900 truncate"
+                                            x-text="formatCurrency(trx.total_price)">
+                                        </td>
+                                        <td class="p-4 font-medium text-slate-600 truncate" x-text="trx.payment_method">
+                                        </td>
                                         <td class="p-4">
                                             <template x-if="trx.status === 'success' || trx.status === 'Selesai'">
                                                 <span
@@ -142,9 +172,16 @@
                                                     Selesai
                                                 </span>
                                             </template>
-                                            <template x-if="trx.status !== 'success' && trx.status !== 'Selesai'">
+                                            <template x-if="trx.status === 'pending' || trx.status === 'Pending'">
                                                 <span
-                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-100 text-red-700"
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-yellow-100 text-yellow-700">
+                                                    Pending
+                                                </span>
+                                            </template>
+                                            <template
+                                                x-if="trx.status !== 'success' && trx.status !== 'Selesai' && trx.status !== 'pending' && trx.status !== 'Pending'">
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-100 text-red-700 truncate max-w-[100px]"
                                                     x-text="trx.status"></span>
                                             </template>
                                         </td>
