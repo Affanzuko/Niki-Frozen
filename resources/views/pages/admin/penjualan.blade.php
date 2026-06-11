@@ -9,41 +9,13 @@
         searchQuery: '',
         showTransactionDetail: false,
         activeRowId: null,
+        selectedTransaction: null,
         sidebarOpen: false,
-        get filteredTransactions() {
-            return this.transactions.filter(t => {
-                let matchesFilter = true;
-                if (this.penjualanFilter === 'Berhasil') {
-                    matchesFilter = t.status === 'success' || t.status === 'Selesai';
-                } else if (this.penjualanFilter === 'Batal') {
-                    matchesFilter = t.status === 'failed' || t.status === 'Batal' || t.status === 'refund';
-                }
-    
-                let matchesSearch = true;
-                if (this.searchQuery) {
-                    const q = this.searchQuery.toLowerCase();
-                    const ref = (t.transaction_code || '').toLowerCase();
-                    const cashier = (t.cashier_session?.user?.name || '').toLowerCase();
-                    matchesSearch = ref.includes(q) || cashier.includes(q);
-                }
-    
-                return matchesFilter && matchesSearch;
-            });
-        },
-        get activeTransaction() {
-            return this.transactions.find(t => t.id === this.activeRowId);
-        },
+        transactions: @js($transactions),
         openDetail(id) {
             this.showTransactionDetail = true;
             this.activeRowId = id;
-        },
-        formatDate(dateStr) {
-            if (!dateStr) return '';
-            const d = new Date(dateStr);
-            return d.toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        },
-        formatCurrency(num) {
-            return 'Rp ' + Number(num).toLocaleString('id-ID');
+            this.selectedTransaction = this.transactions.find(t => t.id === id);
         }
     }"
 @endsection
@@ -117,76 +89,77 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 text-sm">
-                            <template x-for="trx in filteredTransactions" :key="trx.id">
-                                <tr @click="openDetail(trx.id)"
-                                    :class="activeRowId === trx.id ? 'bg-blue-50/50' : 'hover:bg-gray-50'"
-                                    class="transition-colors cursor-pointer group">
-                                    <td class="px-6 py-4 text-gray-500 font-medium" x-text="formatDate(trx.created_at)">
-                                    </td>
-                                    <td class="px-6 py-4 text-gray-500 font-medium font-mono text-xs"
-                                        x-text="trx.transaction_code"></td>
-                                    <td class="px-6 py-4 font-bold text-gray-900 tabular-nums"
-                                        x-text="formatCurrency(trx.total_price)"></td>
-                                    <td class="px-6 py-4 text-gray-500" x-text="trx.payment_method"></td>
+                            @forelse ($transactions as $trx)
+                                <tr @click="openDetail({{ $trx->id }})" 
+                                    :class="activeRowId === {{ $trx->id }} ? 'bg-blue-50/50' : 'hover:bg-gray-50'" 
+                                    class="transition-colors cursor-pointer group"
+                                    x-show="penjualanFilter === 'Semua' || (penjualanFilter === 'Berhasil' && '{{ $trx->status }}' === 'success') || (penjualanFilter === 'Batal' && '{{ $trx->status }}' !== 'success')">
+                                    <td class="px-6 py-4 text-gray-500 font-medium tabular-nums">{{ $trx->created_at->format('d/m/Y H:i') }}</td>
+                                    <td class="px-6 py-4 text-gray-500 font-medium font-mono text-xs">{{ $trx->transaction_code }}</td>
+                                    <td class="px-6 py-4 font-bold text-gray-900 tabular-nums">Rp {{ number_format($trx->total_price, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4 text-gray-500">{{ strtoupper($trx->payment_method) }}</td>
                                     <td class="px-6 py-4">
-                                        <template x-if="trx.status === 'success' || trx.status === 'Selesai'">
-                                            <span
-                                                class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-200">Selesai</span>
-                                        </template>
-                                        <template x-if="trx.status !== 'success' && trx.status !== 'Selesai'">
-                                            <span
-                                                class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200"
-                                                x-text="trx.status"></span>
-                                        </template>
+                                        @if ($trx->status === 'success')
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-200">Selesai</span>
+                                        @elseif ($trx->status === 'pending')
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-yellow-50 text-yellow-700 border border-yellow-200">Pending</span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">Batal</span>
+                                        @endif
                                     </td>
                                 </tr>
-                            </template>
-                            <tr x-show="filteredTransactions.length === 0">
-                                <td colspan="5" class="px-6 py-8 text-center text-gray-500">Tidak ada transaksi ditemukan
-                                </td>
-                            </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+                                        <i class="fa-solid fa-receipt text-3xl mb-2 block"></i>
+                                        <p class="font-medium">Belum ada transaksi</p>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <!-- Right: Detail Panel -->
-            <div x-show="showTransactionDetail && activeTransaction" x-cloak
-                x-transition:enter="transition ease-out duration-300 transform"
-                x-transition:enter-start="translate-x-8 opacity-0" x-transition:enter-end="translate-x-0 opacity-100"
+            <div x-show="showTransactionDetail && selectedTransaction" x-cloak 
+                x-transition:enter="transition ease-out duration-300 transform" 
+                x-transition:enter-start="translate-x-8 opacity-0" 
+                x-transition:enter-end="translate-x-0 opacity-100" 
                 class="w-full lg:w-[380px] bg-white rounded-xl border border-gray-200 shadow-xl flex flex-col shrink-0 lg:static absolute inset-y-8 right-8 z-20">
                 <!-- Header -->
                 <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white rounded-t-xl">
                     <h3 class="font-bold text-gray-900">Detail Transaksi</h3>
-                    <button @click="showTransactionDetail = false; activeRowId = null"
-                        class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors">
+                    <button @click="showTransactionDetail = false; activeRowId = null; selectedTransaction = null" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
-
-                <div class="p-6 flex-1 overflow-y-auto">
+                
+                <div class="p-6 flex-1 overflow-y-auto" x-show="selectedTransaction">
                     <div class="text-center mb-8 bg-gray-50 rounded-xl py-4 border border-gray-100">
-                        <h2 class="text-2xl font-bold text-brand-dark font-mono tracking-tight"
-                            x-text="activeTransaction.transaction_code"></h2>
-                        <p class="text-xs text-gray-500 mt-1 font-medium"><i class="fa-regular fa-clock mr-1"></i> <span
-                                x-text="formatDate(activeTransaction.created_at)"></span> &nbsp;|&nbsp; <i
-                                class="fa-regular fa-user mr-1"></i> Kasir: <span
-                                x-text="activeTransaction.cashier_session?.user?.name || '-'"></span></p>
+                        <h2 class="text-2xl font-bold text-brand-dark font-mono tracking-tight" x-text="selectedTransaction?.transaction_code"></h2>
+                        <p class="text-xs text-gray-500 mt-1 font-medium">
+                            <i class="fa-regular fa-clock mr-1"></i>
+                            <span x-text="selectedTransaction ? new Date(selectedTransaction.created_at).toLocaleString('id-ID') : ''"></span>
+                        </p>
                     </div>
 
                     <!-- Items -->
                     <div class="space-y-5 mb-6">
-                        <template x-for="item in activeTransaction.items" :key="item.id">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="font-bold text-sm text-gray-900 leading-tight" x-text="item.product?.name">
+                        <template x-if="selectedTransaction?.items">
+                            <template x-for="item in selectedTransaction.items" :key="item.id">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-bold text-sm text-gray-900 leading-tight" x-text="item.product_name"></p>
+                                        <p class="text-xs text-gray-500 mt-1 font-medium">
+                                            <span x-text="item.quantity"></span> x Rp <span x-text="Number(item.unit_price).toLocaleString('id-ID')"></span>
+                                        </p>
+                                    </div>
+                                    <p class="font-bold text-sm text-gray-900 tabular-nums">
+                                        Rp <span x-text="Number(item.subtotal).toLocaleString('id-ID')"></span>
                                     </p>
-                                    <p class="text-xs text-gray-500 mt-1 font-medium"
-                                        x-text="item.quantity + ' x ' + formatCurrency(item.unit_price)"></p>
                                 </div>
-                                <p class="font-bold text-sm text-gray-900 tabular-nums"
-                                    x-text="formatCurrency(item.quantity * item.unit_price)"></p>
-                            </div>
+                            </template>
                         </template>
                     </div>
 
