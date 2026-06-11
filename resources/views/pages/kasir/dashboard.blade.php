@@ -82,10 +82,11 @@
             {{-- Product Grid --}}
             <div class="flex-1 overflow-y-auto pr-1 lg:pr-2 no-scrollbar pb-24 lg:pb-0">
                 <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4" id="product-container">
-                    @foreach ($products as $product)
-                        <div onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }})"
-                            data-name="{{ strtolower($product->name) }}" data-barcode="{{ $product->barcode }}"
-                            data-category="{{ $product->category ? strtolower($product->category->name) : '' }}"
+                    @foreach ($stocks as $stock)
+                        <div onclick="addToCart({{ $stock->product->id }}, '{{ addslashes($stock->product->name) }}', {{ $stock->product->price }})"
+                            data-name="{{ strtolower($stock->product->name) }}"
+                            data-barcode="{{ $stock->product->barcode }}"
+                            data-category="{{ $stock->product->category ? strtolower($stock->product->category->name) : '' }}"
                             class="product-card group cursor-pointer bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-200 flex flex-col active:scale-95">
 
                             {{-- Product Image Placeholder --}}
@@ -98,15 +99,15 @@
 
                             <div class="p-3 flex flex-col flex-1">
                                 <h3 class="text-[13px] lg:text-sm font-bold text-slate-800 leading-tight line-clamp-2 mb-2">
-                                    {{ $product->name }}</h3>
+                                    {{ $stock->product->name }}</h3>
 
                                 <div
                                     class="mt-auto flex flex-col lg:flex-row items-start lg:items-end justify-between gap-1">
                                     <p class="text-sm font-bold text-blue-700 lg:text-slate-900">Rp
-                                        {{ number_format($product->price, 0, ',', '.') }}</p>
+                                        {{ number_format($stock->product->price, 0, ',', '.') }}</p>
                                     <span
-                                        class="text-[9px] lg:text-[10px] font-bold px-2 py-0.5 rounded-md {{ $product->id % 3 == 0 ? 'bg-red-100 text-red-600' : 'bg-blue-50 text-blue-600' }}">
-                                        {{ $product->id % 3 == 0 ? '3 in stock' : '12 in stock' }}
+                                        class="text-xs lg:text-sm font-bold px-2 py-0.5 rounded-md {{ $stock->quantity <= 15 ? 'bg-red-100 text-red-600' : 'bg-blue-50 text-blue-600' }}">
+                                        {{ $stock->quantity }} <span class="text-xs">stok</span>
                                     </span>
                                 </div>
                             </div>

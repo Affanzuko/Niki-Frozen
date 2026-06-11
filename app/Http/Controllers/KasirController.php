@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\Stock;
 
 class KasirController extends Controller
 {
     public function index()
     {
         $products = Product::with('category')->orderBy('name', 'asc')->get();
+
+        $stocks = Stock::with('product')->where('branch_id', 1)->orderBy('product_id', 'asc')->get();
         
         $categories = ProductCategory::orderBy('name', 'asc')->get();
         // Pindahkan "Lainnya" ke urutan paling akhir
@@ -20,7 +23,8 @@ class KasirController extends Controller
 
         return view('pages.kasir.dashboard', [
             'products' => $products,
-            'categories' => $categories
+            'categories' => $categories,
+            'stocks' => $stocks
         ]);
     }
 

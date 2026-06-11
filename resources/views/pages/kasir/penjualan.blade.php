@@ -10,6 +10,7 @@
         penjualanFilter: 'Semua',
         searchQuery: '',
         activeRowId: null,
+        showDetailSidebar: false,
         get filteredTransactions() {
             return this.transactions.filter(t => {
                 let matchesFilter = true;
@@ -35,12 +36,11 @@
         },
         openDetail(id) {
             this.activeRowId = id;
-            if (window.innerWidth < 1024) {
-                document.getElementById('detail-sidebar').classList.remove('translate-x-full');
-            }
+            this.showDetailSidebar = true;
         },
         closeDetail() {
-            document.getElementById('detail-sidebar').classList.add('translate-x-full');
+            this.showDetailSidebar = false;
+            this.activeRowId = null;
         },
         formatDate(dateStr) {
             if (!dateStr) return '';
@@ -76,48 +76,62 @@
         {{-- Main Content --}}
         <main class="flex-1 h-full flex flex-col pt-16 lg:pt-0 overflow-hidden relative">
             <div
-                class="flex-1 overflow-y-auto p-4 lg:p-8 no-scrollbar bg-white rounded-tl-none lg:rounded-tl-2xl shadow-sm border-l border-t lg:border-t-0 border-slate-200">
+                class="flex-1 flex flex-col p-4 lg:p-8 no-scrollbar bg-white shadow-sm border-l border-t lg:border-t-0 border-slate-200 min-h-0">
 
-                {{-- Header --}}
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                    <div>
-                        <h1 class="text-2xl font-bold text-slate-800">Niki Frozen - Condongcatur</h1>
-                        <p class="text-slate-500 font-medium">Riwayat Penjualan</p>
+                <div class="shrink-0">
+                    {{-- Header --}}
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                        <div>
+                            <h1 class="text-2xl font-bold text-slate-800">Niki Frozen - Condongcatur</h1>
+                            <p class="text-slate-500 font-medium">Riwayat Penjualan</p>
+                        </div>
+                        <div class="relative w-full md:w-80">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                            <input type="text" x-model="searchQuery" placeholder="Cari No. Referensi"
+                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-medium placeholder-slate-400">
+                        </div>
                     </div>
-                    <div class="relative w-full md:w-80">
-                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        <input type="text" x-model="searchQuery" placeholder="Cari No. Referensi / Nama Kasir"
-                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-medium placeholder-slate-400">
-                    </div>
-                </div>
 
-                {{-- Filters --}}
-                <div class="flex flex-wrap items-center gap-2 mb-6">
-                    <button @click="penjualanFilter = 'Semua'"
-                        :class="penjualanFilter === 'Semua' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
-                            'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
-                        class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Semua</button>
-                    <button @click="penjualanFilter = 'Berhasil'"
-                        :class="penjualanFilter === 'Berhasil' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
-                            'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
-                        class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Berhasil</button>
-                    <button @click="penjualanFilter = 'Batal'"
-                        :class="penjualanFilter === 'Batal' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
-                            'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
-                        class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Dibatalkan/Refund</button>
+                    {{-- Filters --}}
+                    <div class="flex flex-wrap items-center gap-2 mb-6">
+                        <button @click="penjualanFilter = 'Semua'"
+                            :class="penjualanFilter === 'Semua' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                                'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                            class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Semua</button>
+                        <button @click="penjualanFilter = 'Berhasil'"
+                            :class="penjualanFilter === 'Berhasil' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                                'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                            class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Berhasil</button>
+                        <button @click="penjualanFilter = 'Batal'"
+                            :class="penjualanFilter === 'Batal' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                                'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                            class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Dibatalkan/Refund</button>
+                    </div>
                 </div>
 
                 {{-- Table --}}
-                <div class="w-full border border-slate-200 rounded-xl overflow-hidden bg-white">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse min-w-[700px]">
+                <div class="w-full border border-slate-200 rounded-xl overflow-hidden bg-white flex-1 flex flex-col min-h-0"
+                    x-data="{
+                        syncScroll(e) {
+                            $refs.headerScroll.scrollLeft = e.target.scrollLeft;
+                        }
+                    }">
+                    <!-- Header Table (Static) -->
+                    <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
+                        <table class="w-full text-left border-collapse min-w-[700px] table-fixed">
+                            <colgroup>
+                                <col class="w-[20%]">
+                                <col class="w-[25%]">
+                                <col class="w-[20%]">
+                                <col class="w-[15%]">
+                                <col class="w-[20%]">
+                            </colgroup>
                             <thead>
-                                <tr
-                                    class="bg-slate-50 border-b border-slate-200 text-xs text-slate-500 uppercase tracking-wider font-bold">
+                                <tr class="text-xs text-slate-500 uppercase tracking-wider font-bold">
                                     <th class="p-4 py-3">Waktu</th>
                                     <th class="p-4 py-3">No. Referensi</th>
                                     <th class="p-4 py-3">Total Belanja</th>
@@ -125,15 +139,32 @@
                                     <th class="p-4 py-3">Status</th>
                                 </tr>
                             </thead>
+                        </table>
+                    </div>
+
+                    <!-- Body Table (Scrollable) -->
+                    <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
+                        <table class="w-full text-left border-collapse min-w-[700px] table-fixed">
+                            <colgroup>
+                                <col class="w-[20%]">
+                                <col class="w-[25%]">
+                                <col class="w-[20%]">
+                                <col class="w-[15%]">
+                                <col class="w-[20%]">
+                            </colgroup>
                             <tbody class="divide-y divide-slate-100 text-sm">
                                 <template x-for="trx in filteredTransactions" :key="trx.id">
                                     <tr class="transaction-row hover:bg-slate-50 cursor-pointer transition-colors"
                                         :class="activeRowId === trx.id ? 'bg-blue-100' : ''" @click="openDetail(trx.id)">
-                                        <td class="p-4 font-medium text-slate-700" x-text="formatDate(trx.created_at)"></td>
-                                        <td class="p-4 font-semibold text-blue-600" x-text="trx.transaction_code"></td>
-                                        <td class="p-4 font-bold text-slate-900" x-text="formatCurrency(trx.total_price)">
+                                        <td class="p-4 font-medium text-slate-700 truncate"
+                                            x-text="formatDate(trx.created_at)"></td>
+                                        <td class="p-4 font-semibold text-blue-600 truncate" x-text="trx.transaction_code">
                                         </td>
-                                        <td class="p-4 font-medium text-slate-600" x-text="trx.payment_method"></td>
+                                        <td class="p-4 font-bold text-slate-900 truncate"
+                                            x-text="formatCurrency(trx.total_price)">
+                                        </td>
+                                        <td class="p-4 font-medium text-slate-600 truncate" x-text="trx.payment_method">
+                                        </td>
                                         <td class="p-4">
                                             <template x-if="trx.status === 'success' || trx.status === 'Selesai'">
                                                 <span
@@ -141,9 +172,16 @@
                                                     Selesai
                                                 </span>
                                             </template>
-                                            <template x-if="trx.status !== 'success' && trx.status !== 'Selesai'">
+                                            <template x-if="trx.status === 'pending' || trx.status === 'Pending'">
                                                 <span
-                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-100 text-red-700"
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-yellow-100 text-yellow-700">
+                                                    Pending
+                                                </span>
+                                            </template>
+                                            <template
+                                                x-if="trx.status !== 'success' && trx.status !== 'Selesai' && trx.status !== 'pending' && trx.status !== 'Pending'">
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-100 text-red-700 truncate max-w-[100px]"
                                                     x-text="trx.status"></span>
                                             </template>
                                         </td>
@@ -161,13 +199,15 @@
         </main>
 
         {{-- Right Sidebar Detail --}}
-        <aside id="detail-sidebar"
-            class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl lg:shadow-none border-l border-slate-200 transform translate-x-full lg:translate-x-0 lg:static transition-transform duration-300 z-50 flex flex-col">
+        <aside id="detail-sidebar" x-show="showDetailSidebar" x-cloak
+            x-transition:enter="transition ease-out duration-300 transform"
+            x-transition:enter-start="translate-x-8 opacity-0" x-transition:enter-end="translate-x-0 opacity-100"
+            class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl lg:shadow-none border-l border-slate-200 lg:static z-50 flex flex-col shrink-0">
 
-            <div class="h-16 flex items-center justify-between px-6 border-b border-slate-200 bg-slate-50">
+            <div class="h-16 flex items-center justify-between px-6 border-b border-slate-200 bg-slate-50 shrink-0">
                 <h2 class="font-bold text-slate-800 text-base">Detail Transaksi</h2>
                 <button @click="closeDetail()"
-                    class="p-2 -mr-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors lg:hidden">
+                    class="p-2 -mr-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -220,7 +260,9 @@
                         </div>
                         <div class="flex justify-between items-center text-sm mt-3">
                             <span class="font-medium text-slate-500">Metode Pembayaran</span>
-                            <span class="font-bold text-slate-800" x-text="activeTransaction.payment_method"></span>
+                            <span
+                                class="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded border border-gray-200 uppercase"
+                                x-text="activeTransaction.payment_method"></span>
                         </div>
                     </div>
                 </div>

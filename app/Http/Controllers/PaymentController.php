@@ -56,16 +56,27 @@ class PaymentController extends Controller
         }
 
         // 4. Generate Kode Transaksi
-        $transactionCode = 'TRX-' . date('Ymd') . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
+        $date = date('Ymd');
+        $lastTransaction = Transaction::where('transaction_code', 'like', "TRX-{$date}-%")
+            ->orderBy('id', 'desc')
+            ->first();
 
-        // $cashierSessionId = $request->cashier_session_id ?? 1;
-        // $branchId         = $request->branch_id ?? 1;
+        $nextSequence = '001';
+        if ($lastTransaction) {
+            $lastSequence = (int) substr($lastTransaction->transaction_code, -3);
+            $nextSequence = str_pad($lastSequence + 1, 3, '0', STR_PAD_LEFT);
+        }
+
+        $transactionCode = "TRX-{$date}-{$nextSequence}";
+
+        $cashierSessionId = $request->cashier_session_id ?? 1;
+        $branchId         = $request->branch_id ?? 1;
 
         DB::beginTransaction();
         try {
             $transaction = Transaction::create([
-                // 'cashier_session_id' => $cashierSessionId,
-                // 'branch_id'          => $branchId,
+                'cashier_session_id' => $cashierSessionId,
+                'branch_id'          => $branchId,
                 'transaction_code'   => $transactionCode,
                 'payment_method'     => 'qris',
                 'total_price'        => $grossAmount,
@@ -168,6 +179,16 @@ class PaymentController extends Controller
         }
 
         return response()->json(['message' => 'Callback received']);
+    }
+
+    public function markSuccessLocal(Request $request)
+    {
+        $transaction = \App\Models\Transaction::where('transaction_code', $request->order_id)->first();
+        if ($transaction && $transaction->status !== 'success') {
+            $transaction->update(['status' => 'success']);
+            $this->deductStock($transaction);
+        }
+        return response()->json(['status' => 'success']);
     }
 
     /**
