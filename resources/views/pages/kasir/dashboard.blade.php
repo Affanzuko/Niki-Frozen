@@ -68,11 +68,21 @@
                 </div>
 
                 {{-- Filter Pills --}}
-                <div class="flex items-center gap-2 lg:gap-3 mt-4 overflow-x-auto no-scrollbar pb-1">
-                    <button class="px-4 lg:px-5 py-2 rounded-lg bg-[#0f172a] text-white text-xs font-semibold whitespace-nowrap shadow-sm">Semua</button>
-                    <button class="px-4 lg:px-5 py-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-semibold whitespace-nowrap">Nugget</button>
-                    <button class="px-4 lg:px-5 py-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-semibold whitespace-nowrap">Sosis</button>
-                    <button class="px-4 lg:px-5 py-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-semibold whitespace-nowrap">Olahan Laut</button>
+                <div class="flex items-center gap-2 lg:gap-3 mt-4 overflow-x-auto no-scrollbar pb-1" id="category-filters">
+                    <button onclick="filterCategory('all')" class="category-btn px-4 lg:px-5 py-2 rounded-lg bg-[#0f172a] text-white text-xs font-semibold whitespace-nowrap shadow-sm" data-category="all">Semua</button>
+                    @php
+                        $lainnyaCategory = null;
+                    @endphp
+                    @foreach ($categories as $category)
+                        @if(strtolower($category->name) === 'lainnya')
+                            @php $lainnyaCategory = $category; @endphp
+                            @continue
+                        @endif
+                        <button onclick="filterCategory('{{ strtolower($category->name) }}')" class="category-btn px-4 lg:px-5 py-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-semibold whitespace-nowrap" data-category="{{ strtolower($category->name) }}">{{ $category->name }}</button>
+                    @endforeach
+                    @if($lainnyaCategory)
+                        <button onclick="filterCategory('{{ strtolower($lainnyaCategory->name) }}')" class="category-btn px-4 lg:px-5 py-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-semibold whitespace-nowrap" data-category="{{ strtolower($lainnyaCategory->name) }}">{{ $lainnyaCategory->name }}</button>
+                    @endif
                 </div>
             </div>
 
@@ -81,7 +91,7 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4" id="product-container">
                     @foreach ($products as $product)
                         <div onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }})"
-                            data-name="{{ strtolower($product->name) }}" data-barcode="{{ $product->barcode }}"
+                            data-name="{{ strtolower($product->name) }}" data-barcode="{{ $product->barcode }}" data-category="{{ $product->category ? strtolower($product->category->name) : '' }}"
                             class="product-card group cursor-pointer bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-200 flex flex-col active:scale-95">
                             
                             {{-- Product Image Placeholder --}}
@@ -508,21 +518,49 @@
             document.getElementById('cart-total').textContent = 'Rp ' + total.toLocaleString('id-ID');
         }
 
-        // Live Search
+        // Category Filter & Live Search
+        let currentCategory = 'all';
+
+        function filterCategory(category) {
+            currentCategory = category;
+            
+            // Update active state on buttons
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.getAttribute('data-category') === category) {
+                    btn.classList.remove('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
+                    btn.classList.add('bg-[#0f172a]', 'text-white', 'shadow-sm');
+                } else {
+                    btn.classList.remove('bg-[#0f172a]', 'text-white', 'shadow-sm');
+                    btn.classList.add('bg-slate-100', 'text-slate-600', 'hover:bg-slate-200');
+                }
+            });
+
+            applyFilters();
+        }
+
         document.getElementById('search-produk').addEventListener('input', function(e) {
-            const keyword = e.target.value.toLowerCase();
+            applyFilters();
+        });
+
+        function applyFilters() {
+            const keyword = document.getElementById('search-produk').value.toLowerCase();
             const cards = document.querySelectorAll('.product-card');
 
             cards.forEach(card => {
                 const name = card.getAttribute('data-name');
-                const barcode = card.getAttribute('data-barcode');
-                if (name.includes(keyword) || barcode.includes(keyword)) {
+                const barcode = card.getAttribute('data-barcode') || '';
+                const category = card.getAttribute('data-category') || '';
+                
+                const matchesKeyword = name.includes(keyword) || barcode.includes(keyword);
+                const matchesCategory = currentCategory === 'all' || category === currentCategory;
+
+                if (matchesKeyword && matchesCategory) {
                     card.style.display = 'flex';
                 } else {
                     card.style.display = 'none';
                 }
             });
-        });
+        }
 
         // Payment
         async function processPayment(method) {

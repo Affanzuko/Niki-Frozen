@@ -43,13 +43,46 @@
 
 <body class="flex h-screen overflow-hidden text-gray-800 bg-[#f8fafc]" 
     x-data="{ 
+        transactions: {{ Js::from($transactions ?? []) }},
         penjualanFilter: 'Semua',
+        searchQuery: '',
         showTransactionDetail: false,
         activeRowId: null,
         sidebarOpen: false,
+        get filteredTransactions() {
+            return this.transactions.filter(t => {
+                let matchesFilter = true;
+                if (this.penjualanFilter === 'Berhasil') {
+                    matchesFilter = t.status === 'success' || t.status === 'Selesai';
+                } else if (this.penjualanFilter === 'Batal') {
+                    matchesFilter = t.status === 'failed' || t.status === 'Batal' || t.status === 'refund';
+                }
+                
+                let matchesSearch = true;
+                if (this.searchQuery) {
+                    const q = this.searchQuery.toLowerCase();
+                    const ref = (t.transaction_code || '').toLowerCase();
+                    const cashier = (t.cashier_session?.user?.name || '').toLowerCase();
+                    matchesSearch = ref.includes(q) || cashier.includes(q);
+                }
+                
+                return matchesFilter && matchesSearch;
+            });
+        },
+        get activeTransaction() {
+            return this.transactions.find(t => t.id === this.activeRowId);
+        },
         openDetail(id) {
             this.showTransactionDetail = true;
             this.activeRowId = id;
+        },
+        formatDate(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            return d.toLocaleString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit'});
+        },
+        formatCurrency(num) {
+            return 'Rp ' + Number(num).toLocaleString('id-ID');
         }
     }">
 
@@ -76,7 +109,7 @@
             <div>
                 <div class="relative group">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-textBlue transition-colors"></i>
-                    <input type="text" placeholder="Cari No. Referensi / Nama Kasir" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-textBlue w-full sm:w-[300px] transition-all">
+                    <input type="text" x-model="searchQuery" placeholder="Cari No. Referensi / Nama Kasir" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-textBlue w-full sm:w-[300px] transition-all">
                 </div>
             </div>
         </header>
@@ -104,23 +137,24 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 text-sm">
-                            <tr @click="openDetail(1)" :class="activeRowId === 1 ? 'bg-blue-50/50' : 'hover:bg-gray-50'" class="transition-colors cursor-pointer group">
-                                <td class="px-6 py-4 text-gray-500 font-medium">Hari ini, 14:32</td>
-                                <td class="px-6 py-4 text-gray-500 font-medium font-mono text-xs">POS-8921-A</td>
-                                <td class="px-6 py-4 font-bold text-gray-900 tabular-nums">Rp 135.975</td>
-                                <td class="px-6 py-4 text-gray-500">QRIS</td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-200">Selesai</span>
-                                </td>
-                            </tr>
-                            <tr @click="openDetail(2)" :class="activeRowId === 2 ? 'bg-blue-50/50' : 'hover:bg-gray-50'" class="transition-colors cursor-pointer">
-                                <td class="px-6 py-4 text-gray-500 font-medium">Hari ini, 13:15</td>
-                                <td class="px-6 py-4 text-gray-500 font-medium font-mono text-xs">POS-8920-B</td>
-                                <td class="px-6 py-4 font-bold text-gray-900 tabular-nums">Rp 450.000</td>
-                                <td class="px-6 py-4 text-gray-500">Tunai</td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-200">Selesai</span>
-                                </td>
+                            <template x-for="trx in filteredTransactions" :key="trx.id">
+                                <tr @click="openDetail(trx.id)" :class="activeRowId === trx.id ? 'bg-blue-50/50' : 'hover:bg-gray-50'" class="transition-colors cursor-pointer group">
+                                    <td class="px-6 py-4 text-gray-500 font-medium" x-text="formatDate(trx.created_at)"></td>
+                                    <td class="px-6 py-4 text-gray-500 font-medium font-mono text-xs" x-text="trx.transaction_code"></td>
+                                    <td class="px-6 py-4 font-bold text-gray-900 tabular-nums" x-text="formatCurrency(trx.total_price)"></td>
+                                    <td class="px-6 py-4 text-gray-500" x-text="trx.payment_method"></td>
+                                    <td class="px-6 py-4">
+                                        <template x-if="trx.status === 'success' || trx.status === 'Selesai'">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-200">Selesai</span>
+                                        </template>
+                                        <template x-if="trx.status !== 'success' && trx.status !== 'Selesai'">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200" x-text="trx.status"></span>
+                                        </template>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr x-show="filteredTransactions.length === 0">
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-500">Tidak ada transaksi ditemukan</td>
                             </tr>
                         </tbody>
                     </table>
@@ -128,7 +162,7 @@
             </div>
 
             <!-- Right: Detail Panel -->
-            <div x-show="showTransactionDetail" x-cloak x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-x-8 opacity-0" x-transition:enter-end="translate-x-0 opacity-100" class="w-full lg:w-[380px] bg-white rounded-xl border border-gray-200 shadow-xl flex flex-col shrink-0 lg:static absolute inset-y-8 right-8 z-20">
+            <div x-show="showTransactionDetail && activeTransaction" x-cloak x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-x-8 opacity-0" x-transition:enter-end="translate-x-0 opacity-100" class="w-full lg:w-[380px] bg-white rounded-xl border border-gray-200 shadow-xl flex flex-col shrink-0 lg:static absolute inset-y-8 right-8 z-20">
                 <!-- Header -->
                 <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white rounded-t-xl">
                     <h3 class="font-bold text-gray-900">Detail Transaksi</h3>
@@ -139,44 +173,39 @@
                 
                 <div class="p-6 flex-1 overflow-y-auto">
                     <div class="text-center mb-8 bg-gray-50 rounded-xl py-4 border border-gray-100">
-                        <h2 class="text-2xl font-bold text-brand-dark font-mono tracking-tight">POS-8921-A</h2>
-                        <p class="text-xs text-gray-500 mt-1 font-medium"><i class="fa-regular fa-clock mr-1"></i> 14 Nov 2023 • 14:32 &nbsp;|&nbsp; <i class="fa-regular fa-user mr-1"></i> Kasir: Budi</p>
+                        <h2 class="text-2xl font-bold text-brand-dark font-mono tracking-tight" x-text="activeTransaction.transaction_code"></h2>
+                        <p class="text-xs text-gray-500 mt-1 font-medium"><i class="fa-regular fa-clock mr-1"></i> <span x-text="formatDate(activeTransaction.created_at)"></span> &nbsp;|&nbsp; <i class="fa-regular fa-user mr-1"></i> Kasir: <span x-text="activeTransaction.cashier_session?.user?.name || '-'"></span></p>
                     </div>
 
                     <!-- Items -->
                     <div class="space-y-5 mb-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="font-bold text-sm text-gray-900 leading-tight">Fiesta Chicken Nugget 500g</p>
-                                <p class="text-xs text-gray-500 mt-1 font-medium">2 x Rp 45.000</p>
+                        <template x-for="item in activeTransaction.items" :key="item.id">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-bold text-sm text-gray-900 leading-tight" x-text="item.product?.name"></p>
+                                    <p class="text-xs text-gray-500 mt-1 font-medium" x-text="item.quantity + ' x ' + formatCurrency(item.unit_price)"></p>
+                                </div>
+                                <p class="font-bold text-sm text-gray-900 tabular-nums" x-text="formatCurrency(item.quantity * item.unit_price)"></p>
                             </div>
-                            <p class="font-bold text-sm text-gray-900 tabular-nums">Rp 90.000</p>
-                        </div>
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="font-bold text-sm text-gray-900 leading-tight">Champ Sosis Sapi 375g</p>
-                                <p class="text-xs text-gray-500 mt-1 font-medium">1 x Rp 32.500</p>
-                            </div>
-                            <p class="font-bold text-sm text-gray-900 tabular-nums">Rp 32.500</p>
-                        </div>
+                        </template>
                     </div>
 
                     <div class="border-t border-dashed border-gray-300 pt-5 mb-2">
                         <div class="flex justify-between text-sm mb-3">
                             <span class="text-gray-500 font-medium">Subtotal</span>
-                            <span class="text-gray-900 font-semibold tabular-nums">Rp 122.500</span>
+                            <span class="text-gray-900 font-semibold tabular-nums" x-text="formatCurrency(activeTransaction.total_price / 1.11)"></span>
                         </div>
                         <div class="flex justify-between text-sm mb-5">
                             <span class="text-gray-500 font-medium">Pajak (11%)</span>
-                            <span class="text-gray-900 font-semibold tabular-nums">Rp 13.475</span>
+                            <span class="text-gray-900 font-semibold tabular-nums" x-text="formatCurrency(activeTransaction.total_price - (activeTransaction.total_price / 1.11))"></span>
                         </div>
                         <div class="flex justify-between items-center mb-6 bg-blue-50 p-3 rounded-lg border border-brand-blue">
                             <span class="font-bold text-lg text-brand-textBlue">Total</span>
-                            <span class="font-bold text-2xl text-brand-textBlue tabular-nums">Rp 135.975</span>
+                            <span class="font-bold text-2xl text-brand-textBlue tabular-nums" x-text="formatCurrency(activeTransaction.total_price)"></span>
                         </div>
                         <div class="flex justify-between text-sm items-center">
                             <span class="text-gray-500 font-medium">Metode Pembayaran</span>
-                            <span class="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded border border-gray-200">QRIS</span>
+                            <span class="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded border border-gray-200" x-text="activeTransaction.payment_method"></span>
                         </div>
                     </div>
                 </div>
