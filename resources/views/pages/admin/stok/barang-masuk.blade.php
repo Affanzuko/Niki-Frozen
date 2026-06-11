@@ -129,7 +129,6 @@
                     <div class="flex items-center gap-3">
                         <button type="submit"
                             class="px-8 py-3 bg-brand-dark text-white text-sm font-bold rounded-xl hover:bg-gray-800 transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center gap-2">
-                            <i class="fa-solid fa-plus"></i>
                             Simpan Barang Masuk
                         </button>
                         <a href="{{ route('pages.admin.stok') }}"
@@ -144,6 +143,7 @@
     </main>
 @endsection
 
-    @vite('resources/js/pages/admin/barang-masuk.js')
+@vite('resources/js/pages/admin/barang-masuk.js')
 </body>
+
 </html>

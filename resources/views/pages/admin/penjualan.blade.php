@@ -166,24 +166,27 @@
                     <div class="border-t border-dashed border-gray-300 pt-5 mb-2">
                         <div class="flex justify-between text-sm mb-3">
                             <span class="text-gray-500 font-medium">Subtotal</span>
-                            <span class="text-gray-900 font-semibold tabular-nums"
-                                x-text="formatCurrency(activeTransaction.total_price / 1.11)"></span>
+                            <span class="text-gray-900 font-semibold tabular-nums">
+                                Rp <span x-text="selectedTransaction ? Number(selectedTransaction.total_price / 1.11).toLocaleString('id-ID', {maximumFractionDigits: 0}) : '0'"></span>
+                            </span>
                         </div>
                         <div class="flex justify-between text-sm mb-5">
                             <span class="text-gray-500 font-medium">Pajak (11%)</span>
-                            <span class="text-gray-900 font-semibold tabular-nums"
-                                x-text="formatCurrency(activeTransaction.total_price - (activeTransaction.total_price / 1.11))"></span>
+                            <span class="text-gray-900 font-semibold tabular-nums">
+                                Rp <span x-text="selectedTransaction ? Number(selectedTransaction.total_price - (selectedTransaction.total_price / 1.11)).toLocaleString('id-ID', {maximumFractionDigits: 0}) : '0'"></span>
+                            </span>
                         </div>
                         <div
                             class="flex justify-between items-center mb-6 bg-blue-50 p-3 rounded-lg border border-brand-blue">
                             <span class="font-bold text-lg text-brand-textBlue">Total</span>
-                            <span class="font-bold text-2xl text-brand-textBlue tabular-nums"
-                                x-text="formatCurrency(activeTransaction.total_price)"></span>
+                            <span class="font-bold text-2xl text-brand-textBlue tabular-nums">
+                                Rp <span x-text="selectedTransaction ? Number(selectedTransaction.total_price).toLocaleString('id-ID', {maximumFractionDigits: 0}) : '0'"></span>
+                            </span>
                         </div>
                         <div class="flex justify-between text-sm items-center">
                             <span class="text-gray-500 font-medium">Metode Pembayaran</span>
-                            <span class="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded border border-gray-200"
-                                x-text="activeTransaction.payment_method"></span>
+                            <span class="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded border border-gray-200 uppercase"
+                                x-text="selectedTransaction?.payment_method || '-'"></span>
                         </div>
                     </div>
                 </div>
