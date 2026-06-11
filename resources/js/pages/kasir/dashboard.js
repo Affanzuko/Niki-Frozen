@@ -492,7 +492,7 @@ window.cetakStruk = function() {
 
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = '/cetak-struk';
+    form.action = '/kasir/cetak-struk';
     form.target = '_blank';
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

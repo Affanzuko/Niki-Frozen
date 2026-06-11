@@ -234,7 +234,7 @@
             {{-- Action Buttons --}}
             <template x-if="activeTransaction">
                 <div class="p-6 border-t border-slate-200 bg-slate-50 space-y-3 shrink-0">
-                    <button
+                    <button @click="cetakUlangStruk(activeTransaction)"
                         class="w-full py-3.5 px-4 rounded-xl border-2 border-slate-200 bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 active:scale-95 shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
