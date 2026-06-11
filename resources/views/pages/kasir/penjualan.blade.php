@@ -18,6 +18,8 @@
                     matchesFilter = t.status === 'success' || t.status === 'Selesai';
                 } else if (this.penjualanFilter === 'Batal') {
                     matchesFilter = t.status === 'failed' || t.status === 'Batal' || t.status === 'refund';
+                } else if (this.penjualanFilter === 'Pending') {
+                    matchesFilter = t.status === 'waiting' || t.status === 'pending';
                 }
     
                 let matchesSearch = true;
@@ -106,6 +108,10 @@
                             :class="penjualanFilter === 'Berhasil' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
                                 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
                             class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Berhasil</button>
+                        <button @click="penjualanFilter = 'Pending'"
+                            :class="penjualanFilter === 'Pending' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                                'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                            class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Pending</button>
                         <button @click="penjualanFilter = 'Batal'"
                             :class="penjualanFilter === 'Batal' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
                                 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
