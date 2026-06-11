@@ -17,7 +17,11 @@
                 if (this.penjualanFilter === 'Berhasil') {
                     matchesFilter = t.status === 'success' || t.status === 'Selesai';
                 } else if (this.penjualanFilter === 'Batal') {
-                    matchesFilter = t.status === 'failed' || t.status === 'Batal' || t.status === 'refund';
+                    matchesFilter = t.status === 'failed' || t.status === 'Batal';
+                } else if (this.penjualanFilter === 'Pending') {
+                    matchesFilter = t.status === 'waiting' || t.status === 'pending';
+                } else if (this.penjualanFilter === 'Retur') {
+                    matchesFilter = t.status === 'rollback' || t.status === 'returned' || t.status === 'Retur';
                 }
     
                 let matchesSearch = true;
@@ -106,10 +110,18 @@
                             :class="penjualanFilter === 'Berhasil' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
                                 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
                             class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Berhasil</button>
+                        <button @click="penjualanFilter = 'Pending'"
+                            :class="penjualanFilter === 'Pending' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                                'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                            class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Menunggu</button>
                         <button @click="penjualanFilter = 'Batal'"
                             :class="penjualanFilter === 'Batal' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
                                 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
-                            class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Dibatalkan/Refund</button>
+                            class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Gagal</button>
+                        <button @click="penjualanFilter = 'Retur'"
+                            :class="penjualanFilter === 'Retur' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                                'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                            class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Retur</button>
                     </div>
                 </div>
 
@@ -172,17 +184,25 @@
                                                     Selesai
                                                 </span>
                                             </template>
-                                            <template x-if="trx.status === 'pending' || trx.status === 'Pending'">
+                                            <template
+                                                x-if="trx.status === 'pending' || trx.status === 'Pending' || trx.status === 'waiting'">
                                                 <span
                                                     class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-yellow-100 text-yellow-700">
-                                                    Pending
+                                                    Menunggu
+                                                </span>
+                                            </template>
+                                            <template x-if="trx.status === 'failed' || trx.status === 'Batal'">
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-100 text-red-700">
+                                                    Gagal
                                                 </span>
                                             </template>
                                             <template
-                                                x-if="trx.status !== 'success' && trx.status !== 'Selesai' && trx.status !== 'pending' && trx.status !== 'Pending'">
+                                                x-if="trx.status === 'refund' || trx.status === 'Retur' || trx.status === 'rollback' || trx.status === 'Rollback'">
                                                 <span
-                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-100 text-red-700 truncate max-w-[100px]"
-                                                    x-text="trx.status"></span>
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-100 text-red-700">
+                                                    Retur
+                                                </span>
                                             </template>
                                         </td>
                                     </tr>
