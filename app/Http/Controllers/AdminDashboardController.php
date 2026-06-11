@@ -18,7 +18,11 @@ class AdminDashboardController extends Controller
 
     public function penjualan()
     {
-        return view('pages.admin.penjualan');
+        $transactions = \App\Models\Transaction::with(['items.product', 'cashierSession.user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return view('pages.admin.penjualan', compact('transactions'));
     }
 
     public function keuangan()
