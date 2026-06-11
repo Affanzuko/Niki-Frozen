@@ -6,7 +6,7 @@
 
 @section('content')
     {{-- Sidebar --}}
-    @include('layouts.partials.sidebar-gm', ['active' => 'keuangan'])
+    <x-sidebar role="general-manager" active="keuangan" />
 
     {{-- Main Content Area --}}
     <main class="flex-1 flex overflow-hidden relative">
@@ -20,17 +20,22 @@
             <div class="flex-1 overflow-y-auto pr-2 no-scrollbar">
                 {{-- Filters --}}
                 <div class="flex items-center gap-2 mb-6">
-                    <button class="px-5 py-2 rounded-lg bg-[#dbeafe] text-blue-700 text-sm font-semibold border border-[#bfdbfe]">Hari</button>
-                    <button class="px-5 py-2 rounded-lg bg-white text-slate-600 border border-slate-200 text-sm font-semibold hover:bg-slate-50">Minggu</button>
-                    <button class="px-5 py-2 rounded-lg bg-white text-slate-600 border border-slate-200 text-sm font-semibold hover:bg-slate-50">Bulan</button>
-                    <button class="px-5 py-2 rounded-lg bg-white text-slate-600 border border-slate-200 text-sm font-semibold hover:bg-slate-50">Tahun</button>
+                    <button
+                        class="px-5 py-2 rounded-lg bg-[#dbeafe] text-blue-700 text-sm font-semibold border border-[#bfdbfe]">Hari</button>
+                    <button
+                        class="px-5 py-2 rounded-lg bg-white text-slate-600 border border-slate-200 text-sm font-semibold hover:bg-slate-50">Minggu</button>
+                    <button
+                        class="px-5 py-2 rounded-lg bg-white text-slate-600 border border-slate-200 text-sm font-semibold hover:bg-slate-50">Bulan</button>
+                    <button
+                        class="px-5 py-2 rounded-lg bg-white text-slate-600 border border-slate-200 text-sm font-semibold hover:bg-slate-50">Tahun</button>
                 </div>
 
                 {{-- Table --}}
                 <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                            <tr
+                                class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                                 <th class="p-4 text-center">Waktu</th>
                                 <th class="p-4 text-center">Cash</th>
                                 <th class="p-4 text-center">QRIS</th>
