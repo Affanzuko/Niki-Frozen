@@ -202,7 +202,7 @@
                         pointBorderColor: '#2563eb',
                         pointRadius: 4,
                         fill: true,
-                        tension: 0
+                        tension: 0.6
                     }]
                 },
                 options: {
