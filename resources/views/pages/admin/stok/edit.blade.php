@@ -15,27 +15,28 @@
     <x-sidebar role="admin" active="stok" />
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-gray-50">
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full transition-all duration-300">
+        <div class="flex-1 flex flex-col min-h-0 p-4 lg:p-8 bg-white rounded-tl-none lg:rounded-tl-2xl shadow-sm border-l border-t lg:border-t-0 border-slate-200">
 
-        <!-- Header -->
-        <header class="px-6 lg:px-8 py-6 shrink-0 flex items-center gap-4">
-            <button @click="sidebarOpen = true" class="lg:hidden text-gray-500 hover:text-gray-700">
-                <i class="fa-solid fa-bars text-xl"></i>
-            </button>
-            <div class="flex items-center gap-3">
-                <a href="{{ route('pages.admin.stok') }}"
-                    class="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-brand-textBlue hover:border-brand-textBlue transition-all shadow-sm">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </a>
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Edit Produk</h1>
-                    <p class="text-gray-500 mt-1 text-sm">Perbarui informasi detail produk</p>
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
+                <div class="flex items-center gap-4">
+                    <button @click="sidebarOpen = true" class="lg:hidden text-gray-500 hover:text-gray-700">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <a href="{{ route('pages.admin.stok') }}"
+                        class="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-800">Edit Produk</h1>
+                        <p class="text-slate-500 font-medium">Perbarui informasi detail produk</p>
+                    </div>
                 </div>
             </div>
-        </header>
 
-        <!-- Content -->
-        <div class="px-6 lg:px-8 pb-8 flex-1 overflow-y-auto">
+            <!-- Content Area -->
+            <div class="flex-1 flex flex-col min-h-0 overflow-y-auto">
             <div class="max-w-2xl">
                 <!-- Success Message -->
                 @if (session('success'))
@@ -169,8 +170,8 @@
                     </div>
                 </form>
             </div>
+            </div>
         </div>
-
     </main>
 @endsection
 

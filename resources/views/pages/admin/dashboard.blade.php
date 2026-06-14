@@ -18,18 +18,18 @@
     <x-sidebar role="admin" active="dashboard" />
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full">
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full transition-all duration-300">
+        <div class="flex-1 flex flex-col min-h-0 p-4 lg:p-8 bg-white rounded-tl-none lg:rounded-tl-2xl shadow-sm border-l border-t lg:border-t-0 border-slate-200 overflow-y-auto">
 
-        <div class="flex-1 flex flex-col h-full overflow-y-auto">
             <!-- Header -->
-            <header class="px-6 lg:px-8 py-6 flex justify-between items-center shrink-0">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
                 <div class="flex items-center gap-4">
                     <button @click="sidebarOpen = true" class="lg:hidden text-gray-500 hover:text-gray-700">
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Niki Frozen - Condongcatur</h1>
-                        <p class="text-gray-500 mt-1 text-sm">Dashboard Admin</p>
+                        <h1 class="text-2xl font-bold text-slate-800">Niki Frozen - Condongcatur</h1>
+                        <p class="text-slate-500 font-medium">Ringkasan aktivitas hari ini</p>
                     </div>
                 </div>
                 <div>
@@ -47,10 +47,10 @@
                         <i class="fa-solid fa-chevron-down text-[10px] ml-1 text-gray-400"></i>
                     </button>
                 </div>
-            </header>
+            </div>
 
             <!-- Content Area -->
-            <div class="px-6 lg:px-8 pb-8">
+            <div>
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <!-- Kartu Pendapatan -->

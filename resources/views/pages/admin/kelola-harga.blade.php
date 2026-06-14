@@ -27,21 +27,23 @@ x-data="{
     <x-sidebar role="admin" active="kelola-harga" />
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-slate-50">
-
-        <!-- Header -->
-        <header class="px-6 lg:px-8 py-6 shrink-0 flex items-center gap-4">
-            <button @click="sidebarOpen = true" class="lg:hidden text-slate-500 hover:text-slate-700">
-                <i class="fa-solid fa-bars text-xl"></i>
-            </button>
-            <div>
-                <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Niki Frozen - Condongcatur</h1>
-                <p class="text-slate-500 mt-1 text-sm font-medium">Kelola Harga Produk</p>
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full transition-all duration-300">
+        <div class="flex-1 flex flex-col min-h-0 p-4 lg:p-8 bg-white rounded-tl-none lg:rounded-tl-2xl shadow-sm border-l border-t lg:border-t-0 border-slate-200">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
+                <div class="flex items-center gap-4">
+                    <button @click="sidebarOpen = true" class="lg:hidden text-slate-500 hover:text-slate-700">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-800">Niki Frozen - Condongcatur</h1>
+                        <p class="text-slate-500 font-medium">Kelola Harga Produk</p>
+                    </div>
+                </div>
             </div>
-        </header>
 
-        <!-- Content Area -->
-        <div class="px-6 lg:px-8 pb-8 flex-1 flex flex-col min-h-0">
+            <!-- Content Area -->
+            <div class="flex-1 flex flex-col min-h-0">
 
             <!-- Success Message -->
             @if (session('success'))
@@ -173,7 +175,7 @@ x-data="{
                     <span class="text-xs font-medium text-slate-500">Total {{ $products->count() }} produk</span>
                 </div>
             </div>
+            </div>
         </div>
-
     </main>
 @endsection
