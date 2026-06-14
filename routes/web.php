@@ -46,5 +46,6 @@ Route::prefix('gm')->name('pages.general-manager.')->group(function () {
 
 Route::prefix('owner')->name('pages.owner.')->group(function () {
     Route::get('/', [OwnerController::class, 'dashboard'])->name('dashboard');
+    Route::get('/keuangan', [OwnerController::class, 'keuangan'])->name('keuangan');
     Route::get('/cabang/{branchId}', [OwnerController::class, 'detailCabang'])->name('detail-cabang');
 });
