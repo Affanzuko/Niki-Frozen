@@ -78,19 +78,116 @@ class AdminDashboardController extends Controller
         return view('pages.admin.penjualan', compact('transactions', 'branchId'));
     }
 
-    public function keuangan()
+    public function keuangan(Request $request)
     {
         $branchId = 1;
+        $filter = $request->query('waktu', 'Hari');
 
-        $transactions = Transaction::where('branch_id', $branchId)
-            ->where('status', 'success')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = Transaction::with(['items'])->where('branch_id', $branchId)->where('status', 'success');
+        $expenseQuery = \App\Models\Expense::where('branch_id', $branchId);
+
+        $now = now();
+        if ($filter === 'Hari') {
+            $startDate = $now->copy()->subDays(6)->startOfDay();
+            $dateFormat = 'Y-m-d';
+            $displayFormat = 'l, d M Y';
+            $periodStep = '1 day';
+        } elseif ($filter === 'Minggu') {
+            $startDate = $now->copy()->subWeeks(4)->startOfWeek();
+            $dateFormat = 'o-W';
+            $displayFormat = '\M\i\n\g\g\u W, Y';
+            $periodStep = '1 week';
+        } elseif ($filter === 'Bulan') {
+            $startDate = $now->copy()->startOfYear();
+            $dateFormat = 'Y-m';
+            $displayFormat = 'F Y';
+            $periodStep = '1 month';
+        } elseif ($filter === 'Tahun') {
+            $startDate = $now->copy()->subYears(4)->startOfYear();
+            $dateFormat = 'Y';
+            $displayFormat = 'Y';
+            $periodStep = '1 year';
+        } else {
+            $startDate = $now->copy()->subDays(6)->startOfDay();
+            $dateFormat = 'Y-m-d';
+            $displayFormat = 'l, d M Y';
+            $periodStep = '1 day';
+        }
+
+        $query->where('created_at', '>=', $startDate);
+        $expenseQuery->where('date', '>=', $startDate);
+
+        $transactions = $query->get();
+        $expenses = $expenseQuery->get();
 
         $cashTotal = $transactions->where('payment_method', 'cash')->sum('total_price');
         $qrisTotal = $transactions->where('payment_method', 'qris')->sum('total_price');
         $totalRevenue = $cashTotal + $qrisTotal;
 
-        return view('pages.admin.keuangan', compact('transactions', 'cashTotal', 'qrisTotal', 'totalRevenue', 'branchId'));
+        $groupedTransactions = $transactions->groupBy(function($item) use ($dateFormat) {
+            return $item->created_at->format($dateFormat);
+        });
+        
+        $groupedExpenses = $expenses->groupBy(function($item) use ($dateFormat) {
+            return \Carbon\Carbon::parse($item->date)->format($dateFormat);
+        });
+
+        $latestPurchasePrices = \App\Models\StockIncoming::where('branch_id', $branchId)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('product_id')
+            ->map(function ($incomings) {
+                return $incomings->first()->purchase_price ?? 0;
+            });
+
+        $tableData = collect();
+        $chartData = collect();
+        $saldoAkhir = 0; 
+
+        $period = \Carbon\CarbonPeriod::create($startDate, $periodStep, $now);
+
+        foreach ($period as $date) {
+            $key = $date->format($dateFormat);
+            $displayDate = $date->translatedFormat($displayFormat);
+
+            $trxs = $groupedTransactions->get($key, collect());
+            $exps = $groupedExpenses->get($key, collect());
+
+            $cash = $trxs->where('payment_method', 'cash')->sum('total_price');
+            $qris = $trxs->where('payment_method', 'qris')->sum('total_price');
+            
+            $hpp = 0;
+            foreach ($trxs as $trx) {
+                foreach ($trx->items as $item) {
+                    $purchasePrice = $latestPurchasePrices->get($item->product_id, 0);
+                    $hpp += ($purchasePrice * $item->quantity);
+                }
+            }
+
+            $pengeluaran = $exps->sum('amount') + $hpp;
+            $pendapatan = $cash + $qris;
+            $profit = $pendapatan - $pengeluaran;
+            $saldoAkhir += $profit;
+
+            $tableData->push([
+                'waktu' => $displayDate,
+                'cash' => $cash,
+                'qris' => $qris,
+                'pengeluaran' => $pengeluaran,
+                'saldo_akhir' => $saldoAkhir,
+                'profit' => $profit
+            ]);
+
+            $chartData->push([
+                'label' => $filter === 'Hari' ? $date->translatedFormat('D, d M') : $displayDate,
+                'total' => $pendapatan
+            ]);
+        }
+        
+        $tableData = $tableData->reverse();
+
+        return view('pages.admin.keuangan', compact(
+            'cashTotal', 'qrisTotal', 'totalRevenue', 'tableData', 'chartData', 'filter', 'branchId'
+        ));
     }
 }
