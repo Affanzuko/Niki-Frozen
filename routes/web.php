@@ -31,6 +31,7 @@ Route::prefix('admin')->name('pages.admin.')->group(function () {
     Route::post('stok/barang-masuk', [StockIncomingController::class, 'store'])->name('stok.barang-masuk.store');
     Route::get('stok/edit/{id}', [ProductController::class, 'editProduct'])->name('stok.edit');
     Route::put('stok/edit/{id}', [ProductController::class, 'updateProduct'])->name('stok.update');
+    Route::delete('stok/{id}', [ProductController::class, 'destroy'])->name('stok.destroy');
     Route::get('kelola-harga', [ProductController::class, 'index'])->name('kelola-harga');
     Route::put('kelola-harga/{id}', [ProductController::class, 'update'])->name('kelola-harga.update');
 });
