@@ -62,7 +62,7 @@
 
                 <div class="flex-1"></div>
 
-                <a href="{{ route('pages.admin.barang-masuk.create') }}"
+                <a href="{{ route('pages.admin.stok.barang-masuk.create') }}"
                     class="px-5 py-2 bg-slate-800 text-white text-sm font-bold rounded-xl hover:bg-slate-900 transition-colors shadow-sm flex items-center gap-2">
                     <i class="fa-solid fa-plus"></i> Input Barang Masuk
                 </a>
@@ -174,7 +174,7 @@
                                     </td>
                                     <td class="p-4 pr-6 text-center whitespace-nowrap">
                                         <div class="flex items-center justify-center gap-2">
-                                            <a href="{{ route('pages.general-manager.edit-akun', 1) }}"
+                                            <a href="{{ route('pages.admin.stok.edit', $stock->product->id) }}"
                                                 class="p-1.5 border border-slate-200 text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg transition-all"><svg
                                                     class="w-4 h-4" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">

@@ -64,7 +64,7 @@
                 @endif
 
                 <!-- Form -->
-                <form action="{{ route('pages.admin.barang-masuk.store') }}" method="POST" class="space-y-6">
+                <form action="{{ route('pages.admin.stok.barang-masuk.store') }}" method="POST" class="space-y-6">
                     @csrf
 
                     <!-- Card Form -->

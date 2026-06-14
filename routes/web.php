@@ -27,8 +27,10 @@ Route::prefix('admin')->name('pages.admin.')->group(function () {
     Route::get('stok', [AdminDashboardController::class, 'stok'])->name('stok');
     Route::get('penjualan', [AdminDashboardController::class, 'penjualan'])->name('penjualan');
     Route::get('keuangan', [AdminDashboardController::class, 'keuangan'])->name('keuangan');
-    Route::get('barang-masuk', [StockIncomingController::class, 'create'])->name('barang-masuk.create');
-    Route::post('barang-masuk', [StockIncomingController::class, 'store'])->name('barang-masuk.store');
+    Route::get('stok/barang-masuk', [StockIncomingController::class, 'create'])->name('stok.barang-masuk.create');
+    Route::post('stok/barang-masuk', [StockIncomingController::class, 'store'])->name('stok.barang-masuk.store');
+    Route::get('stok/edit/{id}', [ProductController::class, 'editProduct'])->name('stok.edit');
+    Route::put('stok/edit/{id}', [ProductController::class, 'updateProduct'])->name('stok.update');
     Route::get('kelola-harga', [ProductController::class, 'index'])->name('kelola-harga');
     Route::put('kelola-harga/{id}', [ProductController::class, 'update'])->name('kelola-harga.update');
 });
