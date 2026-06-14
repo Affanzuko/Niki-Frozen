@@ -10,6 +10,19 @@
         sidebarOpen: false,
         toggleDropdown(id) {
             this.activeDropdown = this.activeDropdown === id ? null : id;
+        },
+        init() {
+            this.$watch('stokFilter', value => {
+                const tbody = document.getElementById('stocks-tbody');
+                if(!tbody) return;
+                const rows = Array.from(tbody.querySelectorAll('tr.stock-row'));
+                if (value === 'Status Kedaluwarsa') {
+                    rows.sort((a, b) => parseInt(a.dataset.expiry) - parseInt(b.dataset.expiry));
+                } else {
+                    rows.sort((a, b) => parseInt(a.dataset.index) - parseInt(b.dataset.index));
+                }
+                rows.forEach(row => tbody.appendChild(row));
+            });
         }
     }"
 @endsection
@@ -122,7 +135,7 @@
                             <col class="w-[20%]">
                             <col class="w-[15%]">
                         </colgroup>
-                        <tbody class="divide-y divide-slate-100 text-sm font-medium">
+                        <tbody id="stocks-tbody" class="divide-y divide-slate-100 text-sm font-medium">
                             @forelse ($stocks as $stock)
                                 @php
                                     $expiryDate = $latestExpiries[$stock->product_id] ?? null;
@@ -139,7 +152,9 @@
                                                 ? 'bg-yellow-500'
                                                 : 'bg-green-500');
                                 @endphp
-                                <tr class="{{ $isExpired ? 'bg-red-50/30' : '' }} hover:bg-slate-50 transition-colors group cursor-pointer"
+                                <tr class="stock-row {{ $isExpired ? 'bg-red-50/30' : '' }} hover:bg-slate-50 transition-colors group cursor-pointer"
+                                    data-index="{{ $loop->index }}"
+                                    data-expiry="{{ $expiryDate ? \Carbon\Carbon::parse($expiryDate)->timestamp : 9999999999 }}"
                                     x-show="(stokFilter === 'Semua Barang' || (stokFilter === 'Status Kedaluwarsa' && {{ $isExpired || $isNearExpiry ? 'true' : 'false' }})) && ('{{ strtolower(addslashes($stock->product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($stock->product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase()))">
                                     <td class="p-4 pl-12 flex items-center gap-3">
                                         <div
