@@ -125,15 +125,15 @@
                     <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
                         <table class="w-full text-left border-collapse min-w-[700px] table-fixed">
                             <colgroup>
-                                <col class="w-[20%]">
                                 <col class="w-[25%]">
-                                <col class="w-[20%]">
+                                <col class="w-[25%]">
+                                <col class="w-[25%]">
                                 <col class="w-[15%]">
-                                <col class="w-[20%]">
+                                <col class="w-[10%]">
                             </colgroup>
                             <thead>
                                 <tr class="text-xs text-slate-500 uppercase tracking-wider font-bold">
-                                    <th class="p-4 py-3">Waktu</th>
+                                    <th class="p-4 py-3 pl-12">Waktu</th>
                                     <th class="p-4 py-3">No. Referensi</th>
                                     <th class="p-4 py-3">Total Belanja</th>
                                     <th class="p-4 py-3">Metode</th>
@@ -147,17 +147,17 @@
                     <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
                         <table class="w-full text-left border-collapse min-w-[700px] table-fixed">
                             <colgroup>
-                                <col class="w-[20%]">
                                 <col class="w-[25%]">
-                                <col class="w-[20%]">
+                                <col class="w-[25%]">
+                                <col class="w-[25%]">
                                 <col class="w-[15%]">
-                                <col class="w-[20%]">
+                                <col class="w-[10%]">
                             </colgroup>
                             <tbody class="divide-y divide-slate-100 text-sm">
                                 <template x-for="trx in filteredTransactions" :key="trx.id">
                                     <tr class="transaction-row hover:bg-slate-50 cursor-pointer transition-colors"
                                         :class="activeRowId === trx.id ? 'bg-blue-100' : ''" @click="openDetail(trx.id)">
-                                        <td class="p-4 font-medium text-slate-700 truncate"
+                                        <td class="p-4 pl-12 font-medium text-slate-700 truncate"
                                             x-text="formatDate(trx.created_at)"></td>
                                         <td class="p-4 font-semibold text-blue-600 truncate" x-text="trx.transaction_code">
                                         </td>

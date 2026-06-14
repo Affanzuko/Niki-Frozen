@@ -70,6 +70,13 @@
                 <div class="flex-1 overflow-y-auto no-scrollbar">
                     <div class="overflow-x-auto w-full">
                         <table class="w-full text-left border-collapse">
+                            <colgroup>
+                                <col class="w-[25%]">
+                                <col class="w-[15%]">
+                                <col class="w-[25%]">
+                                <col class="w-[20%]">
+                                <col class="w-[15%]">
+                            </colgroup>
                             <thead>
                                 <tr
                                     class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -276,6 +283,6 @@
     </main>
 
     @push('scripts')
-    @vite('resources/js/pages/general-manager/kelola-akun.js')
+        @vite('resources/js/pages/general-manager/kelola-akun.js')
     @endpush
 @endsection

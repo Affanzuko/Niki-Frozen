@@ -57,7 +57,8 @@
                 <button @click="stokFilter = 'Status Kedaluwarsa'"
                     :class="stokFilter === 'Status Kedaluwarsa' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
                         'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
-                    class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Status Kedaluwarsa</button>
+                    class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Status
+                    Kedaluwarsa</button>
 
                 <div class="flex-1"></div>
 
@@ -68,28 +69,29 @@
             </div>
 
             <!-- Table -->
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0" x-data="{
-                syncScroll(e) {
-                    $refs.headerScroll.scrollLeft = e.target.scrollLeft;
-                }
-            }">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0"
+                x-data="{
+                    syncScroll(e) {
+                        $refs.headerScroll.scrollLeft = e.target.scrollLeft;
+                    }
+                }">
                 <!-- Header Table (Static) -->
                 <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
                     <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
                         <colgroup>
-                            <col class="w-[25%]">
+                            <col class="w-[30%]">
                             <col class="w-[15%]">
-                            <col class="w-[25%]">
+                            <col class="w-[20%]">
                             <col class="w-[20%]">
                             <col class="w-[15%]">
                         </colgroup>
                         <thead>
                             <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                <th class="p-4 py-3">Product</th>
-                                <th class="p-4 py-3">Barcode</th>
+                                <th class="p-4 py-3 pl-12">Product</th>
+                                <th class="p-4 py-3 text-center">Barcode</th>
                                 <th class="p-4 py-3 text-center">Stock Level</th>
-                                <th class="p-4 py-3">Expiry Date</th>
-                                <th class="p-4 py-3 text-right">Actions</th>
+                                <th class="p-4 py-3 text-center">Expiry Date</th>
+                                <th class="p-4 text-center pr-4 whitespace-nowrap">Aksi</th>
                             </tr>
                         </thead>
                     </table>
@@ -99,9 +101,9 @@
                 <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
                     <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
                         <colgroup>
-                            <col class="w-[25%]">
+                            <col class="w-[30%]">
                             <col class="w-[15%]">
-                            <col class="w-[25%]">
+                            <col class="w-[20%]">
                             <col class="w-[20%]">
                             <col class="w-[15%]">
                         </colgroup>
@@ -124,7 +126,7 @@
                                 @endphp
                                 <tr class="{{ $isExpired ? 'bg-red-50/30' : '' }} hover:bg-slate-50 transition-colors group cursor-pointer"
                                     x-show="stokFilter === 'Semua Barang' || (stokFilter === 'Status Kedaluwarsa' && {{ $isExpired || $isNearExpiry ? 'true' : 'false' }})">
-                                    <td class="p-4 flex items-center gap-3">
+                                    <td class="p-4 pl-12 flex items-center gap-3">
                                         <div
                                             class="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center shrink-0">
                                             <i class="fa-solid fa-cube text-slate-400"></i>
@@ -138,9 +140,10 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td class="p-4 text-slate-500 tabular-nums">{{ $stock->product->barcode ?? '-' }}
+                                    <td class="p-4 text-center text-slate-500 tabular-nums">
+                                        {{ $stock->product->barcode ?? '-' }}
                                     </td>
-                                    <td class="p-4 text-slate-900 tabular-nums">
+                                    <td class="p-4 text-center text-slate-900 tabular-nums">
                                         <div class="flex items-center justify-center gap-2">
                                             <span
                                                 class="{{ $stock->quantity < 20 ? 'text-red-600 font-bold' : '' }}">{{ $stock->quantity }}</span>
@@ -150,15 +153,17 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="p-4 text-slate-500 tabular-nums">
+                                    <td class="p-4 text-center text-slate-500 tabular-nums">
                                         @if ($expiryDate)
                                             @if ($isExpired)
                                                 <span class="text-red-600 font-bold">
-                                                    <i class="fa-solid fa-circle-exclamation mr-1"></i>{{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
+                                                    <i
+                                                        class="fa-solid fa-circle-exclamation mr-1"></i>{{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
                                                 </span>
                                             @elseif ($isNearExpiry)
                                                 <span class="text-yellow-600 font-bold">
-                                                    <i class="fa-solid fa-triangle-exclamation mr-1"></i>{{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
+                                                    <i
+                                                        class="fa-solid fa-triangle-exclamation mr-1"></i>{{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
                                                 </span>
                                             @else
                                                 {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
@@ -167,21 +172,25 @@
                                             -
                                         @endif
                                     </td>
-                                    <td class="p-4 text-right relative">
-                                        <button @click.stop="toggleDropdown({{ $stock->id }})"
-                                            class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
-                                            <i class="fa-solid fa-ellipsis-vertical"></i>
-                                        </button>
-                                        <div x-show="activeDropdown === {{ $stock->id }}"
-                                            @click.away="activeDropdown = null" x-cloak x-transition
-                                            class="absolute right-6 top-10 w-40 bg-white rounded-xl shadow-xl border border-slate-100 z-20 py-1 text-left">
-                                            <a href="#"
-                                                class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"><i
-                                                    class="fa-regular fa-pen-to-square w-4 mr-1 text-slate-400"></i> Edit
-                                                Detail</a>
-                                            <a href="#"
-                                                class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50"><i
-                                                    class="fa-regular fa-trash-can w-4 mr-1"></i> Hapus</a>
+                                    <td class="p-4 pr-6 text-center whitespace-nowrap">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <a href="{{ route('pages.general-manager.edit-akun', 1) }}"
+                                                class="p-1.5 border border-slate-200 text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg transition-all"><svg
+                                                    class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                                                    </path>
+                                                </svg></a>
+                                            <button
+                                                onclick="if(confirm('Apakah Anda yakin ingin menghapus akun ini?')) alert('Akun berhasil dihapus.')"
+                                                class="p-1.5 border border-slate-200 text-slate-500 hover:text-red-600 hover:bg-red-50 hover:border-red-200 rounded-lg transition-all"><svg
+                                                    class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                    </path>
+                                                </svg></button>
                                         </div>
                                     </td>
                                 </tr>
