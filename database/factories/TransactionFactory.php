@@ -12,14 +12,18 @@ class TransactionFactory extends Factory
 {
     protected $model = Transaction::class;
 
+    private static $counter = 1;
+
     public function definition(): array
     {
         $statuses = ['pending', 'success', 'failed', 'rollback'];
+        $date = now()->format('dmY');
+        $sequence = str_pad(self::$counter++, 3, '0', STR_PAD_LEFT);
 
         return [
             'cashier_session_id' => null,      // Akan diset saat relasi
             'branch_id' => null,               // Akan diset saat relasi
-            'transaction_code' => 'TRX' . fake()->unique()->numerify('##########'),
+            'transaction_code' => 'TRX-' . $date . '-' . $sequence,
             'payment_method' => fake()->randomElement(['cash', 'qris']),
             'total_price' => fake()->numberBetween(50000, 500000),
             'status' => fake()->randomElement($statuses),

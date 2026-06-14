@@ -17,6 +17,7 @@ class StockIncoming extends Model
         'branch_id',
         'user_id',
         'quantity',
+        'purchase_price',
         'expiry_date',
     ];
 

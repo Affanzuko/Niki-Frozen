@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Stock;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
 use Illuminate\Http\Request;
@@ -27,6 +28,22 @@ class PaymentController extends Controller
         $grossAmount = 0;
         $itemDetails = [];
 
+        // Cek ketersediaan stok sebelum checkout
+        $branchId = $request->branch_id ?? 1; // Default branch
+        foreach ($items as $item) {
+            $stock = Stock::where('product_id', $item['id'])
+                ->where('branch_id', $branchId)
+                ->first();
+
+            if (!$stock || $stock->quantity < $item['jumlah']) {
+                $availableQty = $stock ? $stock->quantity : 0;
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Stok {$item['nama']} tidak mencukupi. Tersedia: {$availableQty}, diminta: {$item['jumlah']}"
+                ], 422);
+            }
+        }
+
         foreach ($items as $item) {
             $grossAmount += ($item['harga'] * $item['jumlah']);
 
@@ -39,16 +56,27 @@ class PaymentController extends Controller
         }
 
         // 4. Generate Kode Transaksi
-        $transactionCode = 'TRX-' . date('Ymd') . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
+        $date = date('Ymd');
+        $lastTransaction = Transaction::where('transaction_code', 'like', "TRX-{$date}-%")
+            ->orderBy('id', 'desc')
+            ->first();
 
-        // $cashierSessionId = $request->cashier_session_id ?? 1;
-        // $branchId         = $request->branch_id ?? 1;
+        $nextSequence = '001';
+        if ($lastTransaction) {
+            $lastSequence = (int) substr($lastTransaction->transaction_code, -3);
+            $nextSequence = str_pad($lastSequence + 1, 3, '0', STR_PAD_LEFT);
+        }
+
+        $transactionCode = "TRX-{$date}-{$nextSequence}";
+
+        $cashierSessionId = $request->cashier_session_id ?? 1;
+        $branchId         = $request->branch_id ?? 1;
 
         DB::beginTransaction();
         try {
             $transaction = Transaction::create([
-                // 'cashier_session_id' => $cashierSessionId,
-                // 'branch_id'          => $branchId,
+                'cashier_session_id' => $cashierSessionId,
+                'branch_id'          => $branchId,
                 'transaction_code'   => $transactionCode,
                 'payment_method'     => 'qris',
                 'total_price'        => $grossAmount,
@@ -119,7 +147,9 @@ class PaymentController extends Controller
             \Log::info('Transaction found:', ['transaction' => $transaction]);
 
             if ($transaction) {
+                $previousStatus = $transaction->status;
                 $status = 'pending';
+
                 if ($request->transaction_status == 'capture' || $request->transaction_status == 'settlement') {
                     $status = 'success';
                 } elseif (in_array($request->transaction_status, ['deny', 'expire', 'cancel'])) {
@@ -128,6 +158,18 @@ class PaymentController extends Controller
 
                 \Log::info('Updating transaction status', ['order_id' => $request->order_id, 'new_status' => $status]);
                 $transaction->update(['status' => $status]);
+
+                // ===== BARANG KELUAR OTOMATIS =====
+                // Kurangi stok saat transaksi berhasil (success)
+                if ($status === 'success' && $previousStatus !== 'success') {
+                    $this->deductStock($transaction);
+                }
+
+                // Kembalikan stok jika transaksi dibatalkan/gagal setelah sukses
+                if (in_array($status, ['failed', 'rollback']) && $previousStatus === 'success') {
+                    $this->restoreStock($transaction);
+                }
+
                 \Log::info('Transaction updated successfully', ['transaction' => $transaction->fresh()]);
             } else {
                 \Log::warning('Transaction not found', ['order_id' => $request->order_id]);
@@ -137,5 +179,71 @@ class PaymentController extends Controller
         }
 
         return response()->json(['message' => 'Callback received']);
+    }
+
+    public function markSuccessLocal(Request $request)
+    {
+        $transaction = \App\Models\Transaction::where('transaction_code', $request->order_id)->first();
+        if ($transaction && $transaction->status !== 'success') {
+            $transaction->update(['status' => 'success']);
+            $this->deductStock($transaction);
+        }
+        return response()->json(['status' => 'success']);
+    }
+
+    /**
+     * Kurangi stok otomatis berdasarkan item transaksi.
+     * Dipanggil saat transaksi berhasil (barang keluar otomatis).
+     */
+    private function deductStock(Transaction $transaction)
+    {
+        $items = $transaction->items()->with('product')->get();
+        $branchId = $transaction->branch_id;
+
+        foreach ($items as $item) {
+            $stock = Stock::where('product_id', $item->product_id)
+                ->where('branch_id', $branchId)
+                ->first();
+
+            if ($stock) {
+                $stock->decrement('quantity', $item->quantity);
+                \Log::info('Stock deducted', [
+                    'product_id' => $item->product_id,
+                    'branch_id' => $branchId,
+                    'quantity_deducted' => $item->quantity,
+                    'remaining_stock' => $stock->fresh()->quantity,
+                ]);
+            } else {
+                \Log::warning('Stock record not found for deduction', [
+                    'product_id' => $item->product_id,
+                    'branch_id' => $branchId,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Kembalikan stok saat transaksi dibatalkan setelah sebelumnya sukses.
+     */
+    private function restoreStock(Transaction $transaction)
+    {
+        $items = $transaction->items()->with('product')->get();
+        $branchId = $transaction->branch_id;
+
+        foreach ($items as $item) {
+            $stock = Stock::where('product_id', $item->product_id)
+                ->where('branch_id', $branchId)
+                ->first();
+
+            if ($stock) {
+                $stock->increment('quantity', $item->quantity);
+                \Log::info('Stock restored', [
+                    'product_id' => $item->product_id,
+                    'branch_id' => $branchId,
+                    'quantity_restored' => $item->quantity,
+                    'new_stock' => $stock->fresh()->quantity,
+                ]);
+            }
+        }
     }
 }
