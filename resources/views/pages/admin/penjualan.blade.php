@@ -133,11 +133,11 @@
                             </colgroup>
                             <thead>
                                 <tr class="text-xs text-slate-500 uppercase tracking-wider font-bold">
-                                    <th class="p-4 py-3 pl-12">Waktu</th>
-                                    <th class="p-4 py-3">No. Referensi</th>
-                                    <th class="p-4 py-3">Total Belanja</th>
-                                    <th class="p-4 py-3">Metode</th>
-                                    <th class="p-4 py-3">Status</th>
+                                    <th class="p-4 py-4 pl-12">Waktu</th>
+                                    <th class="p-4 py-4">No. Referensi</th>
+                                    <th class="p-4 py-4">Total Belanja</th>
+                                    <th class="p-4 py-4">Metode</th>
+                                    <th class="p-4 py-4">Status</th>
                                 </tr>
                             </thead>
                         </table>
