@@ -130,7 +130,7 @@
                                     $isNearExpiry =
                                         $expiryDate &&
                                         !$isExpired &&
-                                        \Carbon\Carbon::parse($expiryDate)->diffInDays(today()) <= 30;
+                                        today()->diffInDays(\Carbon\Carbon::parse($expiryDate), false) <= 7;
                                     $stockPercent = $stock->quantity > 0 ? min(100, ($stock->quantity / 200) * 100) : 0;
                                     $stockColor =
                                         $stock->quantity < 20
@@ -176,9 +176,8 @@
                                                         class="fa-solid fa-circle-exclamation mr-1"></i>{{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
                                                 </span>
                                             @elseif ($isNearExpiry)
-                                                <span class="text-yellow-600 font-bold">
-                                                    <i
-                                                        class="fa-solid fa-triangle-exclamation mr-1"></i>{{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
+                                                <span class="text-orange-600">
+                                                    {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
                                                 </span>
                                             @else
                                                 {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
