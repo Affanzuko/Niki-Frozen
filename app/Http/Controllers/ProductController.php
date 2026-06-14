@@ -102,4 +102,22 @@ class ProductController extends Controller
         return redirect()->route('pages.admin.stok')
             ->with('success', 'Produk "' . $product->name . '" berhasil diperbarui.');
     }
+
+    /**
+     * Hapus produk.
+     */
+    public function destroy($id)
+    {
+        $product = Product::findOrFail($id);
+        $name = $product->name;
+        
+        // Hapus stok, dan riwayat yang terkait
+        \App\Models\Stock::where('product_id', $id)->delete();
+        \App\Models\StockIncoming::where('product_id', $id)->delete();
+        
+        $product->delete();
+
+        return redirect()->route('pages.admin.stok')
+            ->with('success', 'Produk "' . $name . '" berhasil dihapus.');
+    }
 }

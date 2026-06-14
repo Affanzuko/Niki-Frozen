@@ -26,9 +26,9 @@ class AdminDashboardController extends Controller
             ->whereDate('created_at', today())
             ->count();
 
-        // Peringatan stok kadaluarsa (30 hari ke depan)
+        // Peringatan stok kadaluarsa (7 hari ke depan)
         $nearExpiryCount = StockIncoming::where('branch_id', $branchId)
-            ->whereBetween('expiry_date', [today(), today()->addDays(30)])
+            ->whereBetween('expiry_date', [today(), today()->addDays(7)])
             ->count();
 
         // Transaksi terbaru

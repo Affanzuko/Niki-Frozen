@@ -11,7 +11,7 @@
     <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" class="fixed inset-0 bg-slate-900/50 z-20 lg:hidden backdrop-blur-sm" x-transition.opacity></div>
 
     <!-- Sidebar -->
-    <x-sidebar role="owner" active="dashboard" />
+    <x-sidebar role="owner" active="keuangan" />
 
     <!-- Main Content Area -->
     <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full">
@@ -23,7 +23,7 @@
                     <button @click="sidebarOpen = true" class="lg:hidden text-gray-500 hover:text-gray-700">
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
-                    <a href="{{ route('pages.owner.dashboard') }}" class="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-brand-textBlue hover:border-brand-textBlue transition-all shadow-sm">
+                    <a href="{{ route('pages.owner.keuangan') }}" class="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-brand-textBlue hover:border-brand-textBlue transition-all shadow-sm">
                         <i class="fa-solid fa-arrow-left"></i>
                     </a>
                     <div>
@@ -85,14 +85,14 @@
                 </div>
 
                 <!-- Tabs -->
-                <div class="flex gap-2 mb-6">
-                    <button @click="activeTab = 'transaksi'" :class="activeTab === 'transaksi' ? 'bg-brand-blue text-brand-textBlue font-semibold border-brand-blue' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'" class="px-5 py-2 text-sm rounded-lg border transition-all">
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button @click="activeTab = 'transaksi'" :class="activeTab === 'transaksi' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-300'" class="px-5 py-2 text-sm font-bold shadow-sm rounded-xl border transition-all">
                         <i class="fa-solid fa-receipt mr-1.5"></i> Transaksi
                     </button>
-                    <button @click="activeTab = 'stok'" :class="activeTab === 'stok' ? 'bg-brand-blue text-brand-textBlue font-semibold border-brand-blue' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'" class="px-5 py-2 text-sm rounded-lg border transition-all">
+                    <button @click="activeTab = 'stok'" :class="activeTab === 'stok' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-300'" class="px-5 py-2 text-sm font-bold shadow-sm rounded-xl border transition-all">
                         <i class="fa-solid fa-box mr-1.5"></i> Stok Produk
                     </button>
-                    <button @click="activeTab = 'barang-masuk'" :class="activeTab === 'barang-masuk' ? 'bg-brand-blue text-brand-textBlue font-semibold border-brand-blue' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'" class="px-5 py-2 text-sm rounded-lg border transition-all">
+                    <button @click="activeTab = 'barang-masuk'" :class="activeTab === 'barang-masuk' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-300'" class="px-5 py-2 text-sm font-bold shadow-sm rounded-xl border transition-all">
                         <i class="fa-solid fa-truck mr-1.5"></i> Barang Masuk
                     </button>
                 </div>

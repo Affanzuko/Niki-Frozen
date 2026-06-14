@@ -139,4 +139,49 @@ class OwnerController extends Controller
             'qrisRevenue'
         ));
     }
+
+    /**
+     * Halaman Keuangan owner: rincian pemasukan, pengeluaran, laba bersih.
+     */
+    public function keuangan()
+    {
+        $branches = Branch::all();
+        $branchSummaries = [];
+
+        $globalTotalPemasukan = Transaction::where('status', 'success')->sum('total_price');
+        $globalTotalCash = Transaction::where('status', 'success')->where('payment_method', 'cash')->sum('total_price');
+        $globalTotalQris = Transaction::where('status', 'success')->where('payment_method', 'qris')->sum('total_price');
+        $globalTotalTransaksi = Transaction::where('status', 'success')->count();
+
+        foreach ($branches as $branch) {
+            $totalPemasukan = Transaction::where('branch_id', $branch->id)
+                ->where('status', 'success')
+                ->sum('total_price');
+
+            // TODO: Karena database belum mencatat 'harga modal' (cost price) atau 'pengeluaran',
+            // kita menggunakan data dummy untuk pengeluaran (misal 65% dari pendapatan).
+            // Nanti dapat disesuaikan jika tabel pengeluaran/pembelian sudah ada.
+            $totalPengeluaran = $totalPemasukan * 0.65;
+            $labaBersih = $totalPemasukan - $totalPengeluaran;
+            $margin = $totalPemasukan > 0 ? ($labaBersih / $totalPemasukan) * 100 : 0;
+            $status = $labaBersih >= 0 ? 'Profit' : 'Rugi';
+
+            $branchSummaries[] = [
+                'branch' => $branch,
+                'total_pemasukan' => $totalPemasukan,
+                'total_pengeluaran' => $totalPengeluaran,
+                'laba_bersih' => $labaBersih,
+                'margin' => $margin,
+                'status' => $status,
+            ];
+        }
+
+        return view('pages.owner.keuangan', compact(
+            'branchSummaries', 
+            'globalTotalPemasukan', 
+            'globalTotalCash', 
+            'globalTotalQris', 
+            'globalTotalTransaksi'
+        ));
+    }
 }
