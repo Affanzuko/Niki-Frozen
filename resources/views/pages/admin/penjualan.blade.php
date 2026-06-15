@@ -6,39 +6,36 @@
 
 @section('body_data')
     x-data="{
-        transactions: {{ Js::from($transactions ?? []) }},
-        penjualanFilter: 'Semua',
-        searchQuery: '',
+        transactions: {{ Js::from($transactions->items() ?? []) }},
+        penjualanFilter: '{{ request('status', 'Semua') }}',
+        searchQuery: '{{ request('search', '') }}',
         activeRowId: null,
-        get filteredTransactions() {
-            return this.transactions.filter(t => {
-                let matchesFilter = true;
-                if (this.penjualanFilter === 'Berhasil') {
-                    matchesFilter = t.status === 'success' || t.status === 'Selesai';
-                } else if (this.penjualanFilter === 'Batal') {
-                    matchesFilter = t.status === 'failed' || t.status === 'Batal' || t.status === 'refund';
-                } else if (this.penjualanFilter === 'Pending') {
-                    matchesFilter = t.status === 'waiting' || t.status === 'pending';
-                }
-    
-                let matchesSearch = true;
-                if (this.searchQuery) {
-                    const q = this.searchQuery.toLowerCase();
-                    const ref = (t.transaction_code || '').toLowerCase();
-                    const cashier = (t.cashier_session?.user?.name || '').toLowerCase();
-                    matchesSearch = ref.includes(q) || cashier.includes(q);
-                }
-    
-                return matchesFilter && matchesSearch;
-            });
+        showDetailSidebar: false,
+        updateFilter(status) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('status', status);
+            url.searchParams.delete('page');
+            window.location.href = url.toString();
+        },
+        search() {
+            const url = new URL(window.location.href);
+            if (this.searchQuery) {
+                url.searchParams.set('search', this.searchQuery);
+            } else {
+                url.searchParams.delete('search');
+            }
+            url.searchParams.delete('page');
+            window.location.href = url.toString();
         },
         get activeTransaction() {
             return this.transactions.find(t => t.id === this.activeRowId);
         },
         openDetail(id) {
             this.activeRowId = id;
+            this.showDetailSidebar = true;
         },
         closeDetail() {
+            this.showDetailSidebar = false;
             this.activeRowId = null;
         },
         formatDate(dateStr) {
@@ -89,29 +86,34 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                        <input type="text" x-model="searchQuery" placeholder="Cari No. Referensi / Nama Kasir"
+                        <input type="text" x-model="searchQuery" @keydown.enter="search()"
+                            placeholder="Cari No. Referensi / Nama Kasir & Enter"
                             class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-medium placeholder-slate-400">
                     </div>
                 </div>
 
                 {{-- Filters --}}
-                <div class="flex flex-wrap items-center gap-2 mb-6 shrink-0">
-                    <button @click="penjualanFilter = 'Semua'"
+                <div class="flex flex-wrap items-center gap-2 mb-6">
+                    <button @click="updateFilter('Semua')"
                         :class="penjualanFilter === 'Semua' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
                             'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
                         class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Semua</button>
-                    <button @click="penjualanFilter = 'Berhasil'"
+                    <button @click="updateFilter('Berhasil')"
                         :class="penjualanFilter === 'Berhasil' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
                             'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
                         class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Berhasil</button>
-                    <button @click="penjualanFilter = 'Pending'"
+                    <button @click="updateFilter('Pending')"
                         :class="penjualanFilter === 'Pending' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
                             'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
-                        class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Pending</button>
-                    <button @click="penjualanFilter = 'Batal'"
+                        class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Menunggu</button>
+                    <button @click="updateFilter('Batal')"
                         :class="penjualanFilter === 'Batal' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
                             'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
-                        class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Dibatalkan/Refund</button>
+                        class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Gagal</button>
+                    <button @click="updateFilter('Retur')"
+                        :class="penjualanFilter === 'Retur' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                            'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                        class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Retur</button>
                 </div>
 
                 {{-- Table --}}
@@ -127,17 +129,17 @@
                             <colgroup>
                                 <col class="w-[25%]">
                                 <col class="w-[25%]">
-                                <col class="w-[25%]">
+                                <col class="w-[20%]">
                                 <col class="w-[15%]">
-                                <col class="w-[10%]">
+                                <col class="w-[15%]">
                             </colgroup>
                             <thead>
                                 <tr class="text-xs text-slate-500 uppercase tracking-wider font-bold">
-                                    <th class="p-4 py-3 pl-12">Waktu</th>
-                                    <th class="p-4 py-3">No. Referensi</th>
-                                    <th class="p-4 py-3">Total Belanja</th>
-                                    <th class="p-4 py-3">Metode</th>
-                                    <th class="p-4 py-3">Status</th>
+                                    <th class="p-4 py-4 pl-12">Waktu</th>
+                                    <th class="p-4 py-4 pl-12">No. Referensi</th>
+                                    <th class="p-4 py-4 text-center">Total Belanja</th>
+                                    <th class="p-4 py-4 text-center">Metode</th>
+                                    <th class="p-4 py-4 text-center">Status</th>
                                 </tr>
                             </thead>
                         </table>
@@ -149,22 +151,22 @@
                             <colgroup>
                                 <col class="w-[25%]">
                                 <col class="w-[25%]">
-                                <col class="w-[25%]">
+                                <col class="w-[20%]">
                                 <col class="w-[15%]">
-                                <col class="w-[10%]">
+                                <col class="w-[15%]">
                             </colgroup>
                             <tbody class="divide-y divide-slate-100 text-sm">
-                                <template x-for="trx in filteredTransactions" :key="trx.id">
+                                <template x-for="trx in transactions" :key="trx.id">
                                     <tr class="transaction-row hover:bg-slate-50 cursor-pointer transition-colors"
                                         :class="activeRowId === trx.id ? 'bg-blue-100' : ''" @click="openDetail(trx.id)">
                                         <td class="p-4 pl-12 font-medium text-slate-700 truncate"
                                             x-text="formatDate(trx.created_at)"></td>
                                         <td class="p-4 font-semibold text-blue-600 truncate" x-text="trx.transaction_code">
                                         </td>
-                                        <td class="p-4 font-bold text-slate-900 truncate"
+                                        <td class="p-4 font-semibold text-slate-900 truncate text-center"
                                             x-text="formatCurrency(trx.total_price)">
                                         </td>
-                                        <td class="p-4 truncate">
+                                        <td class="p-4 truncate text-center">
                                             <span
                                                 class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase border shadow-sm"
                                                 :class="(trx.payment_method || '').toLowerCase() === 'cash' ?
@@ -173,7 +175,7 @@
                                                 x-text="trx.payment_method">
                                             </span>
                                         </td>
-                                        <td class="p-4">
+                                        <td class="p-4 text-center">
                                             <template x-if="trx.status === 'success' || trx.status === 'Selesai'">
                                                 <span
                                                     class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-green-100 text-green-700">
@@ -195,13 +197,20 @@
                                         </td>
                                     </tr>
                                 </template>
-                                <tr x-show="filteredTransactions.length === 0">
+                                <tr x-show="transactions.length === 0">
                                     <td colspan="5" class="p-4 py-8 text-center text-slate-500 font-medium">Tidak ada
                                         transaksi ditemukan</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Pagination -->
+                    @if ($transactions->hasPages())
+                        <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 shrink-0">
+                            {{ $transactions->onEachSide(0)->links('pagination::tailwind') }}
+                        </div>
+                    @endif
                 </div>
             </div>
         </main>
@@ -318,7 +327,7 @@
         {{-- Mobile Sidebar Container --}}
         <div id="mobile-sidebar"
             class="fixed inset-y-0 left-0 w-64 bg-white z-50 transform -translate-x-full lg:hidden transition-transform duration-300 shadow-2xl flex flex-col">
-            <x-sidebar role="admin" active="penjualan" />
+            <x-sidebar role="kasir" active="penjualan" />
         </div>
     </div>
 @endsection
