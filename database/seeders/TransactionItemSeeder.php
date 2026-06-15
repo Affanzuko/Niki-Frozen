@@ -14,7 +14,7 @@ class TransactionItemSeeder extends Seeder
      */
     public function run(): void
     {
-        $transactions = Transaction::all();
+        $transactions = Transaction::doesntHave('items')->get();
 
         // Create transaction items for each transaction
         foreach ($transactions as $transaction) {
