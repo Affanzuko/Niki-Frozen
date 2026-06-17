@@ -83,12 +83,12 @@
                             </colgroup>
                             <thead>
                                 <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    <th class="p-4 py-4 text-left">Produk</th>
+                                    <th class="p-4 py-4 pl-12 text-left">Produk</th>
                                     <th class="p-4 py-4 text-left">Barcode</th>
                                     <th class="p-4 py-4 text-left">Kategori</th>
                                     <th class="p-4 py-4 text-center">Satuan</th>
                                     <th class="p-4 py-4 text-center">Harga Jual</th>
-                                    <th class="p-4 py-4 text-right">Aksi</th>
+                                    <th class="p-4 py-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
                         </table>
@@ -108,7 +108,7 @@
                             <tbody class="divide-y divide-slate-100 text-sm font-medium">
                                 @forelse ($products as $product)
                                     <tr class="hover:bg-slate-50 transition-colors group cursor-pointer">
-                                        <td class="p-4 text-left truncate">
+                                        <td class="p-4 pl-12 text-left truncate">
                                             <div class="flex items-center gap-3">
                                                 <div
                                                     class="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center shrink-0">
@@ -153,7 +153,7 @@
                                                 </form>
                                             </div>
                                         </td>
-                                        <td class="p-4 text-right">
+                                        <td class="p-4 text-center">
                                             <button x-show="editingProduct !== {{ $product->id }}"
                                                 @click="openEdit({{ $product->id }}, {{ $product->price }})"
                                                 class="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 text-xs font-bold rounded-lg hover:bg-blue-100 transition-colors inline-flex items-center gap-1.5">

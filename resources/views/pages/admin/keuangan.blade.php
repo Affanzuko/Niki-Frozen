@@ -133,7 +133,7 @@
                             </colgroup>
                             <thead>
                                 <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    <th class="p-4 py-4 text-center">Waktu</th>
+                                    <th class="p-4 py-4 pl-12 text-left">Waktu</th>
                                     <th class="p-4 py-4 text-center">Cash</th>
                                     <th class="p-4 py-4 text-center">QRIS</th>
                                     <th class="p-4 py-4 text-center">Pengeluaran</th>
@@ -158,7 +158,7 @@
                             <tbody class="text-sm font-medium">
                                 <template x-for="row in tableData" :key="row.waktu">
                                     <tr class="bg-white shadow-sm hover:shadow-md hover:bg-slate-50 transition-all group">
-                                        <td class="p-4 text-center text-slate-700 border border-r-0 border-slate-100"
+                                        <td class="p-4 pl-12 text-left text-slate-700 border border-r-0 border-slate-100"
                                             x-text="row.waktu"></td>
                                         <td class="p-4 text-center font-semibold text-green-600 tabular-nums border border-l-0 border-r-0 border-slate-100"
                                             x-text="'Rp ' + formatRupiah(row.cash)"></td>
