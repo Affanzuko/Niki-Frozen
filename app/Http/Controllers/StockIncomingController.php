@@ -55,6 +55,8 @@ class StockIncomingController extends Controller
                 'branch_id' => $branchId,
                 'user_id' => $userId,
                 'quantity' => $request->quantity,
+                'current_quantity' => $request->quantity,
+                'purchase_price' => $request->purchase_price ?? 0,
                 'expiry_date' => $request->expiry_date,
             ]);
 

@@ -57,13 +57,14 @@ class AdminDashboardController extends Controller
             ->orderBy('quantity', 'asc')
             ->get();
 
-        // Ambil expiry_date terbaru per produk dari stock_incomings
-        $latestExpiries = StockIncoming::where('branch_id', $branchId)
-            ->selectRaw('product_id, MAX(expiry_date) as latest_expiry, MIN(expiry_date) as earliest_expiry')
-            ->groupBy('product_id')
-            ->pluck('earliest_expiry', 'product_id');
+        // Ambil batch aktif per produk dari stock_incomings
+        $activeBatches = StockIncoming::where('branch_id', $branchId)
+            ->where('current_quantity', '>', 0)
+            ->orderBy('expiry_date', 'asc')
+            ->get()
+            ->groupBy('product_id');
 
-        return view('pages.admin.stok', compact('stocks', 'latestExpiries', 'branchId'));
+        return view('pages.admin.stok', compact('stocks', 'activeBatches', 'branchId'));
     }
 
     public function penjualan()

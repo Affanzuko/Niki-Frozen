@@ -207,7 +207,29 @@ class PaymentController extends Controller
 
             if ($stock) {
                 $stock->decrement('quantity', $item->quantity);
-                \Log::info('Stock deducted', [
+                
+                // FEFO Logic
+                $qtyToDeduct = $item->quantity;
+                $batches = \App\Models\StockIncoming::where('product_id', $item->product_id)
+                    ->where('branch_id', $branchId)
+                    ->where('current_quantity', '>', 0)
+                    ->orderBy('expiry_date', 'asc')
+                    ->orderBy('id', 'asc')
+                    ->get();
+
+                foreach ($batches as $batch) {
+                    if ($qtyToDeduct <= 0) break;
+
+                    if ($batch->current_quantity >= $qtyToDeduct) {
+                        $batch->decrement('current_quantity', $qtyToDeduct);
+                        $qtyToDeduct = 0;
+                    } else {
+                        $qtyToDeduct -= $batch->current_quantity;
+                        $batch->update(['current_quantity' => 0]);
+                    }
+                }
+
+                \Log::info('Stock deducted with FEFO', [
                     'product_id' => $item->product_id,
                     'branch_id' => $branchId,
                     'quantity_deducted' => $item->quantity,
@@ -237,7 +259,30 @@ class PaymentController extends Controller
 
             if ($stock) {
                 $stock->increment('quantity', $item->quantity);
-                \Log::info('Stock restored', [
+
+                // LIFO Reversal Logic
+                $qtyToRestore = $item->quantity;
+                $batches = \App\Models\StockIncoming::where('product_id', $item->product_id)
+                    ->where('branch_id', $branchId)
+                    ->whereColumn('current_quantity', '<', 'quantity')
+                    ->orderBy('expiry_date', 'desc')
+                    ->orderBy('id', 'desc')
+                    ->get();
+
+                foreach ($batches as $batch) {
+                    if ($qtyToRestore <= 0) break;
+
+                    $availableSpace = $batch->quantity - $batch->current_quantity;
+                    if ($availableSpace >= $qtyToRestore) {
+                        $batch->increment('current_quantity', $qtyToRestore);
+                        $qtyToRestore = 0;
+                    } else {
+                        $qtyToRestore -= $availableSpace;
+                        $batch->update(['current_quantity' => $batch->quantity]);
+                    }
+                }
+
+                \Log::info('Stock restored with LIFO', [
                     'product_id' => $item->product_id,
                     'branch_id' => $branchId,
                     'quantity_restored' => $item->quantity,

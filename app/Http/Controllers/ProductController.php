@@ -94,6 +94,7 @@ class ProductController extends Controller
                     'branch_id' => $product->branch_id ?? 1,
                     'user_id' => 1, // Default user
                     'quantity' => $stock ? $stock->quantity : 0,
+                    'current_quantity' => $stock ? $stock->quantity : 0,
                     'expiry_date' => $request->expiry_date,
                 ]);
             }

@@ -13,15 +13,15 @@
         },
         init() {
             this.$watch('stokFilter', value => {
-                const tbody = document.getElementById('stocks-tbody');
-                if(!tbody) return;
-                const rows = Array.from(tbody.querySelectorAll('tr.stock-row'));
+                const container = document.getElementById('stocks-container');
+                if(!container) return;
+                const groups = Array.from(container.querySelectorAll('tbody.stock-group'));
                 if (value === 'Status Kedaluwarsa') {
-                    rows.sort((a, b) => parseInt(a.dataset.expiry) - parseInt(b.dataset.expiry));
+                    groups.sort((a, b) => parseInt(a.dataset.expiry) - parseInt(b.dataset.expiry));
                 } else {
-                    rows.sort((a, b) => parseInt(a.dataset.index) - parseInt(b.dataset.index));
+                    groups.sort((a, b) => parseInt(a.dataset.index) - parseInt(b.dataset.index));
                 }
-                rows.forEach(row => tbody.appendChild(row));
+                groups.forEach(group => container.appendChild(group));
             });
         }
     }"
@@ -127,7 +127,7 @@
 
                 <!-- Body Table (Scrollable) -->
                 <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
-                    <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
+                    <table id="stocks-container" class="w-full text-left border-collapse table-fixed min-w-[900px]">
                         <colgroup>
                             <col class="w-[30%]">
                             <col class="w-[15%]">
@@ -135,31 +135,35 @@
                             <col class="w-[20%]">
                             <col class="w-[15%]">
                         </colgroup>
-                        <tbody id="stocks-tbody" class="divide-y divide-slate-100 text-sm font-medium">
-                            @forelse ($stocks as $stock)
-                                @php
-                                    $expiryDate = $latestExpiries[$stock->product_id] ?? null;
-                                    $isExpired = $expiryDate && \Carbon\Carbon::parse($expiryDate)->isPast();
-                                    $isNearExpiry =
-                                        $expiryDate &&
-                                        !$isExpired &&
-                                        today()->diffInDays(\Carbon\Carbon::parse($expiryDate), false) <= 7;
-                                    $stockPercent = $stock->quantity > 0 ? min(100, ($stock->quantity / 200) * 100) : 0;
-                                    $stockColor =
-                                        $stock->quantity < 20
-                                            ? 'bg-red-500'
-                                            : ($stock->quantity < 50
-                                                ? 'bg-yellow-500'
-                                                : 'bg-green-500');
-                                @endphp
-                                <tr class="stock-row {{ $isExpired ? 'bg-red-50/30' : '' }} hover:bg-slate-50 transition-colors group cursor-pointer"
-                                    data-index="{{ $loop->index }}"
-                                    data-expiry="{{ $expiryDate ? \Carbon\Carbon::parse($expiryDate)->timestamp : 9999999999 }}"
-                                    x-show="(stokFilter === 'Semua Barang' || (stokFilter === 'Status Kedaluwarsa' && {{ $isExpired || $isNearExpiry ? 'true' : 'false' }})) && ('{{ strtolower(addslashes($stock->product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($stock->product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase()))">
+                        @forelse ($stocks as $stock)
+                            @php
+                                $batches = $activeBatches->get($stock->product_id, collect());
+                                $earliestBatch = $batches->first();
+                                $expiryDate = $earliestBatch ? $earliestBatch->expiry_date : null;
+                                $isExpired = $expiryDate && \Carbon\Carbon::parse($expiryDate)->isPast();
+                                $isNearExpiry =
+                                    $expiryDate &&
+                                    !$isExpired &&
+                                    today()->diffInDays(\Carbon\Carbon::parse($expiryDate), false) <= 7;
+                                $stockPercent = $stock->quantity > 0 ? min(100, ($stock->quantity / 200) * 100) : 0;
+                                $stockColor =
+                                    $stock->quantity < 20
+                                        ? 'bg-red-500'
+                                        : ($stock->quantity < 50
+                                            ? 'bg-yellow-500'
+                                            : 'bg-green-500');
+                            @endphp
+                            <tbody class="stock-group border-b border-slate-100 text-sm font-medium"
+                                data-index="{{ $loop->index }}"
+                                data-expiry="{{ $expiryDate ? \Carbon\Carbon::parse($expiryDate)->timestamp : 9999999999 }}"
+                                x-data="{ expanded: false }"
+                                x-show="(stokFilter === 'Semua Barang' || (stokFilter === 'Status Kedaluwarsa' && {{ $isExpired || $isNearExpiry ? 'true' : 'false' }})) && ('{{ strtolower(addslashes($stock->product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($stock->product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase()))">
+                                <tr class="stock-row {{ $isExpired ? 'bg-red-50/30' : '' }} hover:bg-slate-50 transition-colors {{ $batches->count() > 1 ? 'group cursor-pointer' : '' }}"
+                                    @if($batches->count() > 1) @click="expanded = !expanded" @endif>
                                     <td class="p-4 pl-12 flex items-center gap-3">
                                         <div
                                             class="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center shrink-0">
-                                            <i class="fa-solid fa-cube text-slate-400"></i>
+                                            <i class="fa-solid fa-cube text-slate-400 group-hover:text-blue-500 transition-colors"></i>
                                         </div>
                                         <div>
                                             <span
@@ -167,6 +171,9 @@
                                             @if ($stock->product->category)
                                                 <p class="text-xs text-slate-500 mt-0.5">
                                                     {{ $stock->product->category->name }}</p>
+                                            @endif
+                                            @if($batches->count() > 1)
+                                                <span class="inline-block mt-1 text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold"><i class="fa-solid fa-layer-group mr-1"></i> {{ $batches->count() }} Batches</span>
                                             @endif
                                         </div>
                                     </td>
@@ -227,15 +234,50 @@
                                         </div>
                                     </td>
                                 </tr>
+                                <!-- Accordion Details -->
+                                @if($batches->count() > 1)
+                                <tr x-show="expanded" class="bg-slate-50">
+                                    <td colspan="5" class="p-0 border-t border-slate-100">
+                                        <div class="pl-[4.5rem] pr-6 py-5 shadow-inner">
+                                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4"><i class="fa-solid fa-layer-group mr-2"></i> Rincian Batch (FEFO)</h4>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                @forelse($batches as $idx => $batch)
+                                                <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center justify-between">
+                                                    <div>
+                                                        <p class="text-xs font-bold text-slate-800">Batch {{ $idx + 1 }}</p>
+                                                        <p class="text-[10px] text-slate-500 mt-0.5">Sisa: <span class="font-bold text-slate-700">{{ $batch->current_quantity }} pcs</span></p>
+                                                    </div>
+                                                    <div class="text-right">
+                                                        @php
+                                                            $bExp = \Carbon\Carbon::parse($batch->expiry_date);
+                                                            $bIsExp = $bExp->isPast();
+                                                            $bIsNear = !$bIsExp && today()->diffInDays($bExp, false) <= 7;
+                                                        @endphp
+                                                        <span class="text-xs font-bold {{ $bIsExp ? 'text-red-600' : ($bIsNear ? 'text-orange-600' : 'text-slate-600') }}">
+                                                            @if($bIsExp) <i class="fa-solid fa-circle-exclamation mr-1"></i> @endif
+                                                            {{ $bExp->format('d M Y') }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                @empty
+                                                <div class="text-xs text-slate-500 italic">Belum ada batch aktif.</div>
+                                                @endforelse
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endif
+                            </tbody>
                             @empty
+                            <tbody id="stocks-tbody">
                                 <tr>
                                     <td colspan="5" class="p-4 py-12 text-center text-slate-400">
                                         <i class="fa-solid fa-box-open text-4xl mb-3 block"></i>
                                         <p class="font-medium">Belum ada data stok</p>
                                     </td>
                                 </tr>
+                            </tbody>
                             @endforelse
-                        </tbody>
                     </table>
                 </div>
                 <!-- Footer -->
