@@ -20,7 +20,7 @@ class StockFactory extends Factory
         return [
             'product_id' => null, // Akan diset saat relasi
             'branch_id' => null,  // Akan diset saat relasi
-            'quantity' => fake()->numberBetween(10, 500),
+            'quantity' => 0,      // Default 0, akan dihitung dari stock_incomings
         ];
     }
 }

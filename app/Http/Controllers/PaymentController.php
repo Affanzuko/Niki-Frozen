@@ -18,6 +18,99 @@ class PaymentController extends Controller
         \Midtrans\Config::$isSanitized  = config('midtrans.is_sanitized');
         \Midtrans\Config::$is3ds        = config('midtrans.is_3ds');
     }
+
+    /**
+     * Proses pembayaran tunai (cash).
+     * Langsung create transaksi dengan status 'success' dan kurangi stok + current_quantity (FEFO).
+     */
+    public function checkoutCash(Request $request)
+    {
+        $request->validate([
+            'items' => 'required|array',
+            'items.*.id' => 'required|integer',
+            'items.*.nama' => 'required|string',
+            'items.*.harga' => 'required|numeric|min:0',
+            'items.*.jumlah' => 'required|integer|min:1',
+            'received' => 'required|numeric|min:0',
+        ]);
+
+        $items = $request->items;
+        $branchId = $request->branch_id ?? 1;
+        $cashierSessionId = $request->cashier_session_id ?? 1;
+
+        // Cek ketersediaan stok
+        foreach ($items as $item) {
+            $stock = Stock::where('product_id', $item['id'])
+                ->where('branch_id', $branchId)
+                ->first();
+
+            if (!$stock || $stock->quantity < $item['jumlah']) {
+                $availableQty = $stock ? $stock->quantity : 0;
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Stok {$item['nama']} tidak mencukupi. Tersedia: {$availableQty}, diminta: {$item['jumlah']}"
+                ], 422);
+            }
+        }
+
+        $grossAmount = collect($items)->sum(fn($item) => $item['harga'] * $item['jumlah']);
+
+        // Generate kode transaksi
+        $date = date('Ymd');
+        $lastTransaction = Transaction::where('transaction_code', 'like', "TRX-{$date}-%")
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $nextSequence = '001';
+        if ($lastTransaction) {
+            $lastSequence = (int) substr($lastTransaction->transaction_code, -3);
+            $nextSequence = str_pad($lastSequence + 1, 3, '0', STR_PAD_LEFT);
+        }
+
+        $transactionCode = "TRX-{$date}-{$nextSequence}";
+
+        DB::beginTransaction();
+        try {
+            $transaction = Transaction::create([
+                'cashier_session_id' => $cashierSessionId,
+                'branch_id'          => $branchId,
+                'transaction_code'   => $transactionCode,
+                'payment_method'     => 'cash',
+                'total_price'        => $grossAmount,
+                'status'             => 'success',
+            ]);
+
+            foreach ($items as $item) {
+                TransactionItem::create([
+                    'transaction_id'   => $transaction->id,
+                    'product_id'       => $item['id'],
+                    'product_name'     => $item['nama'],
+                    'unit_price'       => $item['harga'],
+                    'quantity'         => $item['jumlah'],
+                    'subtotal'         => $item['harga'] * $item['jumlah']
+                ]);
+            }
+
+            // Kurangi stok + current_quantity pada stock_incomings (FEFO)
+            $this->deductStock($transaction);
+
+            DB::commit();
+
+            return response()->json([
+                'status'           => 'success',
+                'transaction_code' => $transactionCode,
+                'total'            => $grossAmount,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function checkoutKasir(Request $request)
     {
         $request->validate([

@@ -457,26 +457,76 @@ window.recalcKembalian = function() {
     }
 };
 
-window.submitCashPayment = function() {
+window.submitCashPayment = async function() {
     const numericValue = parseInt(window.inputUangDiterima) || 0;
     if (numericValue < window.currentTotal) return;
 
     const kembalian = numericValue - window.currentTotal;
-    window.saveTransactionData('tunai', numericValue, kembalian);
-    window.closeCashModal();
-    window.clearCartAfterPayment();
-    window.showSuccessModal('Tunai', kembalian);
+
+    // Disable button to prevent double-submit
+    const btnSubmit = document.getElementById('btn-submit-cash');
+    const originalText = btnSubmit.innerHTML;
+    btnSubmit.innerHTML = '<span class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span> Memproses...';
+    btnSubmit.disabled = true;
+
+    try {
+        const response = await fetch('/kasir/checkout/cash', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                items: window.cart,
+                received: numericValue,
+                cashier_session_id: 1,
+                branch_id: 1
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.status === 'success') {
+            window.saveTransactionData('tunai', numericValue, kembalian);
+            window.closeCashModal();
+            window.clearCartAfterPayment();
+            window.showSuccessModal('Tunai', kembalian);
+        } else {
+            window.showCustomAlert({
+                title: 'Gagal',
+                message: result.message || 'Gagal memproses pembayaran tunai.',
+                type: 'error'
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        window.showCustomAlert({
+            title: 'Error Jaringan',
+            message: 'Gagal mengirim data transaksi ke server.',
+            type: 'error'
+        });
+    } finally {
+        btnSubmit.innerHTML = originalText;
+        btnSubmit.disabled = false;
+    }
 };
 
 window.showSuccessModal = function(method, kembalian) {
     document.getElementById('success-metode').textContent = method;
     document.getElementById('success-kembalian').textContent = kembalian !== null ? 'Rp ' + kembalian
         .toLocaleString('id-ID') : '-';
+    window._needsReloadAfterSuccess = true;
     document.getElementById('success-modal').classList.remove('hidden');
 };
 
 window.closeSuccessModal = function() {
     document.getElementById('success-modal').classList.add('hidden');
+    // Reload halaman agar stok ter-update dari database
+    if (window._needsReloadAfterSuccess) {
+        window._needsReloadAfterSuccess = false;
+        window.location.reload();
+    }
 };
 
 window.saveTransactionData = function(method, received, kembalian) {
