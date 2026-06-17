@@ -160,8 +160,8 @@
                                     data-expiry="{{ $expiryDate ? \Carbon\Carbon::parse($expiryDate)->timestamp : 9999999999 }}"
                                     x-data="{ expanded: false }"
                                     x-show="(stokFilter === 'Semua Barang' || (stokFilter === 'Status Kedaluwarsa' && {{ $isExpired || $isNearExpiry ? 'true' : 'false' }})) && ('{{ strtolower(addslashes($stock->product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($stock->product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase()))">
-                                    <tr class="stock-row {{ $isExpired ? 'bg-red-50/30' : '' }} hover:bg-slate-50 transition-colors {{ $batches->count() > 1 ? 'group cursor-pointer' : '' }}"
-                                        @if ($batches->count() > 1) @click="expanded = !expanded" @endif>
+                                    <tr class="stock-row {{ $isExpired ? 'bg-red-50/30' : '' }} hover:bg-slate-50 transition-colors {{ $batches->count() > 0 ? 'group cursor-pointer' : '' }}"
+                                        @if ($batches->count() > 0) @click="expanded = !expanded" @endif>
                                         <td class="p-4 pl-12 flex items-center gap-3">
                                             <div
                                                 class="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center shrink-0">
@@ -175,11 +175,12 @@
                                                     <p class="text-xs text-slate-500 mt-0.5">
                                                         {{ $stock->product->category->name }}</p>
                                                 @endif
-                                                @if ($batches->count() > 1)
+                                                @if ($batches->count() > 0)
                                                     <span
                                                         class="inline-block mt-1 text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold"><i
                                                             class="fa-solid fa-layer-group mr-1"></i>
-                                                        {{ $batches->count() }} Batches</span>
+                                                        {{ $batches->count() }}
+                                                        Batch{{ $batches->count() > 1 ? 'es' : '' }}</span>
                                                 @endif
                                             </div>
                                         </td>
@@ -245,7 +246,7 @@
                                         </td>
                                     </tr>
                                     <!-- Accordion Details -->
-                                    @if ($batches->count() > 1)
+                                    @if ($batches->count() > 0)
                                         <tr x-show="expanded" class="bg-slate-50">
                                             <td colspan="5" class="p-0 border-t border-slate-100">
                                                 <div class="pl-[4.5rem] pr-6 py-5 shadow-inner">
@@ -261,13 +262,16 @@
                                                                     <p class="text-xs font-bold text-slate-800">Batch
                                                                         {{ $idx + 1 }}</p>
                                                                     <p class="text-[10px] text-slate-500 mt-0.5">Jumlah
-                                                                        Awal: <span
+                                                                        awal:
+                                                                        <span
                                                                             class="font-bold text-slate-700">{{ $batch->quantity }}
-                                                                            pcs</span></p>
+                                                                            pcs</span>
+                                                                    </p>
                                                                     <p class="text-[10px] text-slate-500 mt-0.5">Sisa:
                                                                         <span
                                                                             class="font-bold text-slate-700">{{ $batch->current_quantity }}
-                                                                            pcs</span></p>
+                                                                            pcs</span>
+                                                                    </p>
                                                                 </div>
                                                                 <div class="text-right">
                                                                     @php
