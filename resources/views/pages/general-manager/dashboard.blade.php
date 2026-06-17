@@ -2,147 +2,172 @@
 
 @section('title', 'Dashboard GM - Niki Frozen')
 
-@section('body_class', 'bg-slate-50 text-slate-800 h-screen overflow-hidden flex flex-col lg:flex-row')
+@section('body_data')
+    x-data="{ sidebarOpen: false }"
+@endsection
 
 @section('content')
-    {{-- Sidebar (Dynamic Role) --}}
+    <!-- Mobile Sidebar Backdrop -->
+    <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" class="fixed inset-0 bg-slate-900/50 z-20 lg:hidden backdrop-blur-sm" x-transition.opacity></div>
+
+    <!-- Sidebar -->
     <x-sidebar role="general-manager" active="dashboard" />
 
-    {{-- Main Content Area --}}
-    <main class="flex-1 flex overflow-hidden relative">
-        <div class="flex-1 flex flex-col bg-white overflow-hidden p-6 relative">
-            {{-- Header --}}
-            <div class="mb-6 flex-shrink-0">
-                <h1 class="text-2xl font-bold text-slate-800">Dashboard</h1>
-                <p class="text-sm text-slate-500">Sistem Manajemen untuk melihat dan memantau semua kegiatan.</p>
-            </div>
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full">
+        
+        <div class="flex-1 flex flex-col h-full overflow-y-auto bg-slate-50">
+            <!-- Header -->
+            <header class="px-6 lg:px-8 py-6 flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-4">
+                    <button @click="sidebarOpen = true" class="lg:hidden text-gray-500 hover:text-gray-700">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Niki Frozen</h1>
+                        <p class="text-gray-500 mt-1 text-sm">Dashboard General Manager — Monitoring Semua Cabang</p>
+                    </div>
+                </div>
+                <div class="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm">
+                    <i class="fa-regular fa-calendar text-brand-textBlue"></i>
+                    <span class="text-sm font-semibold text-gray-700">{{ now()->translatedFormat('l, d F Y') }}</span>
+                </div>
+            </header>
 
-            <div class="flex-1 overflow-y-auto pr-2 no-scrollbar">
-                {{-- Stats Cards --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div onclick="goToKeuanganDetail()"
-                        class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-blue-300 transition-all active:scale-95 group">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3
-                                class="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-blue-600 transition-colors">
-                                PENDAPATAN HARI INI</h3>
-                            <div
-                                class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                    </path>
-                                </svg>
+            <!-- Content Area -->
+            <div class="px-6 lg:px-8 pb-8">
+
+                <!-- Global Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    @php
+                        $globalTodayRevenue = collect($branchSummaries)->sum('today_revenue');
+                        $globalTotalRevenue = collect($branchSummaries)->sum('total_revenue');
+                        $globalTodayTx = collect($branchSummaries)->sum('today_transactions');
+                        $globalTotalTx = collect($branchSummaries)->sum('total_transactions');
+                    @endphp
+
+                    <!-- Total Pendapatan Hari Ini -->
+                    <div class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-brand-textBlue transition-all duration-300 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-brand-blue rounded-bl-full opacity-50 group-hover:scale-110 transition-transform"></div>
+                        <div class="flex justify-between items-start mb-6 relative z-10">
+                            <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Total Pendapatan Hari Ini</p>
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-brand-textBlue group-hover:bg-brand-textBlue group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-money-bills text-lg"></i>
                             </div>
                         </div>
-                        <p class="text-2xl font-bold text-slate-800 mb-1">Rp 24.850.000</p>
-                        <p class="text-xs font-bold text-slate-600">+12.5% dari kemarin</p>
+                        <div class="relative z-10">
+                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">Rp {{ number_format($globalTodayRevenue, 0, ',', '.') }}</h3>
+                            <p class="text-sm text-gray-500 font-medium">Dari {{ count($branchSummaries) }} cabang</p>
+                        </div>
                     </div>
 
-                    <div onclick="goToKeuanganDetail()"
-                        class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-blue-300 transition-all active:scale-95 group">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3
-                                class="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-blue-600 transition-colors">
-                                PEMBAYARAN CASH</h3>
-                            <div
-                                class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
-                                    </path>
-                                </svg>
+                    <!-- Total Transaksi Hari Ini -->
+                    <div class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-brand-textBlue transition-all duration-300 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-brand-blue rounded-bl-full opacity-50 group-hover:scale-110 transition-transform"></div>
+                        <div class="flex justify-between items-start mb-6 relative z-10">
+                            <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Total Transaksi Hari Ini</p>
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-brand-textBlue group-hover:bg-brand-textBlue group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-cart-shopping text-lg"></i>
                             </div>
                         </div>
-                        <p class="text-2xl font-bold text-slate-800 mb-1">Rp 12.000.000</p>
-                        <p class="text-xs font-bold text-slate-600">Rata-rata pembayaran Rp. 15.250.000</p>
+                        <div class="relative z-10">
+                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">{{ $globalTodayTx }}</h3>
+                            <p class="text-sm text-gray-500 font-medium">Total semua transaksi: {{ $globalTotalTx }}</p>
+                        </div>
                     </div>
 
-                    <div onclick="goToKeuanganDetail()"
-                        class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-blue-300 transition-all active:scale-95 group">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3
-                                class="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-blue-600 transition-colors">
-                                PEMBAYARAN QRIS</h3>
-                            <div
-                                class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
-                                    </path>
-                                </svg>
+                    <!-- Total Cabang -->
+                    <div class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-brand-textBlue transition-all duration-300 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-brand-blue rounded-bl-full opacity-50 group-hover:scale-110 transition-transform"></div>
+                        <div class="flex justify-between items-start mb-6 relative z-10">
+                            <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Total Cabang Aktif</p>
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-brand-textBlue group-hover:bg-brand-textBlue group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-store text-lg"></i>
                             </div>
                         </div>
-                        <p class="text-2xl font-bold text-slate-800 mb-1">Rp 12.850.000</p>
-                        <p class="text-xs font-bold text-slate-600">Rata rata pembayaran Rp. 13.150.000</p>
+                        <div class="relative z-10">
+                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">{{ count($branchSummaries) }} Cabang</h3>
+                            <p class="text-sm text-gray-500 font-medium">Terpantau dalam sistem</p>
+                        </div>
                     </div>
                 </div>
 
-                {{-- Chart Area --}}
-                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <p class="text-xs font-bold text-slate-500 mb-1">Pilih Cabang</p>
-                            <select id="pilih-cabang"
-                                class="border border-slate-200 rounded-lg text-sm px-3 py-1.5 outline-none focus:border-blue-500">
-                                <option value="Condongcatur">Condongcatur</option>
-                                <option value="Gejayan">Gejayan</option>
-                                <option value="Depok">Depok</option>
-                            </select>
-                        </div>
-                        <h2 class="text-sm font-bold text-slate-800">Grafik Keuntungan Setiap Cabang</h2>
-                        <div></div> <!-- spacer -->
-                    </div>
+                <!-- Per-Branch Cards -->
+                <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-store text-brand-textBlue"></i>
+                    Performa Per Cabang
+                </h2>
 
-                    <div class="h-72 border-t border-slate-100 pt-6 flex items-end relative mt-2">
-                        <!-- Y-Axis Lines -->
-                        <div
-                            class="absolute left-0 bottom-6 top-6 w-full flex flex-col justify-between text-[10px] text-slate-400 pointer-events-none z-0">
-                            <div class="border-b border-slate-100 border-dashed w-full text-left pb-1">Rp 25 Jt</div>
-                            <div class="border-b border-slate-100 border-dashed w-full text-left pb-1">Rp 20 Jt</div>
-                            <div class="border-b border-slate-100 border-dashed w-full text-left pb-1">Rp 15 Jt</div>
-                            <div class="border-b border-slate-100 border-dashed w-full text-left pb-1">Rp 10 Jt</div>
-                            <div class="border-b border-slate-100 border-dashed w-full text-left pb-1">Rp 5 Jt</div>
-                            <div class="border-b border-slate-100 border-dashed w-full text-left pb-1">0</div>
-                        </div>
-
-                        <!-- Bars -->
-                        <div
-                            class="flex-1 flex items-end justify-around h-full z-10 pl-12 sm:pl-16 pr-2 pb-6 relative w-full overflow-x-auto no-scrollbar">
-                            @php
-                                $chartData = [
-                                    ['day' => 'Senin', 'height' => 40, 'color' => 'bg-slate-300'],
-                                    ['day' => 'Selasa', 'height' => 60, 'color' => 'bg-slate-400'],
-                                    ['day' => 'Rabu', 'height' => 45, 'color' => 'bg-slate-300'],
-                                    ['day' => 'Kamis', 'height' => 80, 'color' => 'bg-slate-900'],
-                                    ['day' => 'Jumat', 'height' => 55, 'color' => 'bg-slate-400'],
-                                    ['day' => 'Sabtu', 'height' => 90, 'color' => 'bg-[#0f172a]'],
-                                    ['day' => 'Minggu', 'height' => 75, 'color' => 'bg-slate-800'],
-                                ];
-                            @endphp
-                            @foreach ($chartData as $data)
-                                <div class="flex flex-col items-center group cursor-pointer w-full max-w-[40px] md:max-w-[50px]"
-                                    style="height: 100%">
-                                    <div class="flex-1 flex items-end w-full justify-center relative">
-                                        {{-- Tooltip --}}
-                                        <div
-                                            class="absolute -top-8 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
-                                            {{ $data['height'] }}%
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    @foreach ($branchSummaries as $summary)
+                        <div class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-brand-textBlue transition-all duration-300 overflow-hidden block">
+                            
+                            <!-- Branch Header -->
+                            <div class="px-6 pt-6 pb-4">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-brand-dark rounded-xl flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
+                                            <i class="fa-solid fa-store text-sm"></i>
                                         </div>
-                                        <div class="w-8 md:w-10 {{ $data['color'] }} rounded-t-md transition-all group-hover:opacity-80"
-                                            style="height: {{ $data['height'] }}%"></div>
+                                        <div>
+                                            <h3 class="font-bold text-gray-900 text-sm leading-tight">{{ $summary['branch']->name }}</h3>
+                                            <p class="text-xs text-gray-400 mt-0.5">{{ $summary['branch']->address }}</p>
+                                        </div>
                                     </div>
-                                    <span
-                                        class="text-[10px] md:text-xs text-slate-500 font-medium mt-2">{{ $data['day'] }}</span>
+                                    <i class="fa-solid fa-arrow-right text-gray-300 group-hover:text-brand-textBlue group-hover:translate-x-1 transition-all"></i>
                                 </div>
-                            @endforeach
+                            </div>
+
+                            <!-- Stats Grid -->
+                            <div class="px-6 pb-6 grid grid-cols-2 gap-4">
+                                <div class="bg-gray-50 rounded-xl p-3">
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Pendapatan Hari Ini</p>
+                                    <p class="text-sm font-bold text-gray-900 tabular-nums">Rp {{ number_format($summary['today_revenue'], 0, ',', '.') }}</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-xl p-3">
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Transaksi Hari Ini</p>
+                                    <p class="text-sm font-bold text-gray-900 tabular-nums">{{ $summary['today_transactions'] }}</p>
+                                </div>
+                            </div>
                         </div>
+                    @endforeach
+                </div>
+
+                <!-- All Branches Comparison Table -->
+                <div class="mt-8 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="px-6 py-5 border-b border-gray-100 bg-white">
+                        <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-bar text-brand-textBlue"></i>
+                            Perbandingan Pendapatan Cabang
+                        </h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-center border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50/50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                                    <th class="px-6 py-4 text-left">Cabang</th>
+                                    <th class="px-6 py-4">Pendapatan Total</th>
+                                    <th class="px-6 py-4">Total Transaksi</th>
+                                    <th class="px-6 py-4">Rata-rata/Transaksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-sm">
+                                @foreach ($branchSummaries as $summary)
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 text-left font-bold text-gray-900">{{ $summary['branch']->name }}</td>
+                                        <td class="px-6 py-4 font-bold text-green-600 tabular-nums">Rp {{ number_format($summary['total_revenue'], 0, ',', '.') }}</td>
+                                        <td class="px-6 py-4 font-bold text-gray-900 tabular-nums">{{ $summary['total_transactions'] }}</td>
+                                        <td class="px-6 py-4 text-gray-600 tabular-nums">
+                                            Rp {{ $summary['total_transactions'] > 0 ? number_format($summary['total_revenue'] / $summary['total_transactions'], 0, ',', '.') : '0' }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
-    </main>
 
-    @push('scripts')
-    @vite('resources/js/pages/general-manager/dashboard.js')
-    @endpush
+            </div>
+        </div>
+    </main>
 @endsection
