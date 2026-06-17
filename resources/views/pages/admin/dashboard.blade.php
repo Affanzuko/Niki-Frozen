@@ -4,7 +4,7 @@
 
 @section('body_data')
     x-data="{
-        selectedDate: 'Hari Ini',
+        selectedDate: '{{ $targetDate->isToday() ? "Hari Ini" : $targetDate->format("d M Y") }}',
         sidebarOpen: false
     }"
 @endsection
@@ -19,7 +19,8 @@
 
     <!-- Main Content Area -->
     <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full transition-all duration-300">
-        <div class="flex-1 flex flex-col min-h-0 p-4 lg:p-8 bg-white rounded-tl-none lg:rounded-tl-2xl shadow-sm border-l border-t lg:border-t-0 border-slate-200 overflow-y-auto">
+        <div
+            class="flex-1 flex flex-col min-h-0 p-4 lg:p-8 bg-white rounded-tl-none lg:rounded-tl-2xl shadow-sm border-l border-t lg:border-t-0 border-slate-200 overflow-y-auto">
 
             <!-- Header -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
@@ -35,10 +36,12 @@
                 <div>
                     <button x-ref="dateBtn" x-init="flatpickr($refs.dateBtn, {
                         dateFormat: 'd M Y',
-                        defaultDate: 'today',
+                        defaultDate: '{{ $targetDate->format("d M Y") }}',
                         onChange: function(selectedDates, dateStr) {
-                            let today = flatpickr.formatDate(new Date(), 'd M Y');
-                            selectedDate = (dateStr === today) ? 'Hari Ini' : dateStr;
+                            if (selectedDates.length > 0) {
+                                let formattedDate = flatpickr.formatDate(selectedDates[0], 'Y-m-d');
+                                window.location.href = '?date=' + formattedDate;
+                            }
                         }
                     })"
                         class="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer focus:ring-2 focus:ring-brand-blue">
@@ -117,65 +120,87 @@
                 </div>
 
                 <!-- Table Section -->
-                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-6">
-                    <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-white">
-                        <h2 class="text-base font-bold text-gray-900">Aktivitas Kasir Terbaru</h2>
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-6 flex flex-col">
+                    <div class="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-white shrink-0">
+                        <h2 class="text-base font-bold text-slate-800">Aktivitas Kasir Terbaru</h2>
                         <button onclick="window.location='{{ route('pages.admin.penjualan') }}'"
-                            class="px-4 py-2 bg-brand-dark text-white text-sm font-semibold rounded-lg hover:bg-gray-800 transition-all shadow-sm hover:shadow-md active:scale-95 cursor-pointer">
+                            class="px-4 py-2 bg-slate-800 text-white text-sm font-semibold rounded-lg hover:bg-slate-900 transition-all shadow-sm hover:shadow-md active:scale-95 cursor-pointer">
                             Lihat Semua Transaksi
                         </button>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr
-                                    class="bg-gray-50/50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">
-                                    <th class="px-6 py-4 w-40 text-center">Waktu</th>
-                                    <th class="px-6 py-4">No. Referensi</th>
-                                    <th class="px-6 py-4 text-center">Total (Rp)</th>
-                                    <th class="px-6 py-4 text-center">Metode</th>
-                                    <th class="px-6 py-4 w-32 text-center">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100 text-sm">
-                                @forelse ($recentTransactions as $trx)
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 text-gray-500 font-medium text-center tabular-nums">
-                                            {{ $trx->created_at->format('H:i:s') }}</td>
-                                        <td class="px-6 py-4 text-gray-500 font-medium font-mono text-xs">
-                                            {{ $trx->transaction_code }}</td>
-                                        <td class="px-6 py-4 text-center font-bold text-gray-900 tabular-nums">
-                                            {{ number_format($trx->total_price, 0, ',', '.') }}</td>
-                                        <td class="px-6 py-4 text-center">
-                                            <span
-                                                class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold {{ $trx->payment_method === 'cash' ? 'bg-green-50 text-green-700' : 'bg-purple-50 text-purple-700' }}">
-                                                {{ strtoupper($trx->payment_method) }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 text-center">
-                                            @if ($trx->status === 'success')
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-50 text-green-700 border border-green-200">Selesai</span>
-                                            @elseif ($trx->status === 'pending')
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-yellow-50 text-yellow-700 border border-yellow-200">Pending</span>
-                                            @else
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">Batal</span>
-                                            @endif
-                                        </td>
+                    <div class="w-full overflow-x-auto" x-data="{
+                        syncScroll(e) {
+                            if ($refs.headerScroll) $refs.headerScroll.scrollLeft = e.target.scrollLeft;
+                        }
+                    }">
+                        <!-- Header Table (Static) -->
+                        <div class="bg-slate-50 border-b border-slate-200 overflow-hidden" x-ref="headerScroll">
+                            <table class="w-full text-left border-collapse min-w-[700px] table-fixed">
+                                <colgroup>
+                                    <col class="w-[15%]">
+                                    <col class="w-[30%]">
+                                    <col class="w-[15%]">
+                                    <col class="w-[20%]">
+                                    <col class="w-[20%]">
+                                </colgroup>
+                                <thead>
+                                    <tr class="text-xs text-slate-500 uppercase tracking-wider font-bold">
+                                        <th class="p-4 py-4 pl-12 text-left">Waktu</th>
+                                        <th class="p-4 py-4 text-center">Kasir</th>
+                                        <th class="p-4 py-4 text-center">Transaksi</th>
+                                        <th class="p-4 py-4 text-center">Total (Rp)</th>
+                                        <th class="p-4 py-4 text-center">Status</th>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-6 py-12 text-center text-gray-400">
-                                            <i class="fa-solid fa-receipt text-3xl mb-2 block"></i>
-                                            <p class="font-medium">Belum ada transaksi hari ini</p>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                                </thead>
+                            </table>
+                        </div>
+
+                        <!-- Body Table (Scrollable) -->
+                        <div class="overflow-auto relative bg-white" @scroll="syncScroll">
+                            <table class="w-full text-left border-collapse min-w-[700px] table-fixed">
+                                <colgroup>
+                                    <col class="w-[15%]">
+                                    <col class="w-[30%]">
+                                    <col class="w-[15%]">
+                                    <col class="w-[20%]">
+                                    <col class="w-[20%]">
+                                </colgroup>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    @forelse ($recentSessions as $session)
+                                        <tr class="hover:bg-slate-50 transition-colors">
+                                            <td class="p-4 pl-12 text-slate-700 font-medium tabular-nums text-left">
+                                                {{ $session->started_at ? $session->started_at->format('H:i') : '-' }}
+                                                -
+                                                {{ $session->ended_at ? $session->ended_at->format('H:i') : 'Sekarang' }}
+                                            </td>
+                                            <td class="p-4 text-slate-800 font-bold text-center truncate">
+                                                {{ $session->user->name ?? '-' }}</td>
+                                            <td class="p-4 text-slate-700 font-semibold tabular-nums text-center">
+                                                {{ $session->total_transactions }}</td>
+                                            <td class="p-4 font-bold text-slate-800 tabular-nums text-center">
+                                                {{ number_format($session->total_revenue ?? 0, 0, ',', '.') }}</td>
+                                            <td class="p-4 text-center">
+                                                @if (is_null($session->ended_at))
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-700">Aktif</span>
+                                                @else
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-green-100 text-green-700">Selesai</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="p-4 py-12 text-center text-slate-400">
+                                                <i class="fa-solid fa-user-clock text-3xl mb-2 block"></i>
+                                                <p class="font-medium">Belum ada aktivitas kasir</p>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

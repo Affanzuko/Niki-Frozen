@@ -23,13 +23,23 @@ class CashierSessionSeeder extends Seeder
             $branchCashiers = $cashiers->where('branch_id', $branch->id);
 
             if ($branchCashiers->count() > 0) {
-                foreach ($branchCashiers as $cashier) {
-                    // Create multiple sessions for each cashier
-                    CashierSession::factory(3)
-                        ->create([
+                // Re-index to ensure alternating shifts
+                $branchCashiers = $branchCashiers->values();
+                
+                foreach ($branchCashiers as $index => $cashier) {
+                    // Alternate shifts between cashiers
+                    $shift = ($index % 2 == 0) ? 'pagi' : 'siang';
+
+                    // Create sessions for the past 3 days + today
+                    for ($i = 0; $i < 90; $i++) {
+                        $date = today()->subDays($i);
+                        CashierSession::factory()->create([
                             'user_id' => $cashier->id,
                             'branch_id' => $branch->id,
+                            'shift' => $shift,
+                            'date' => $date->format('Y-m-d'),
                         ]);
+                    }
                 }
             }
         }
