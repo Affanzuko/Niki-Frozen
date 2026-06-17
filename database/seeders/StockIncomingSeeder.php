@@ -33,11 +33,15 @@ class StockIncomingSeeder extends Seeder
             $selectedProducts = $branchProducts->random(min(5, $branchProducts->count()));
 
             foreach ($selectedProducts as $product) {
+                $quantity = fake()->numberBetween(50, 500);
+
                 StockIncoming::factory()
                     ->create([
-                        'product_id' => $product->id,
-                        'branch_id' => $branch->id,
-                        'user_id' => $branchAdmin->id,
+                        'product_id'       => $product->id,
+                        'branch_id'        => $branch->id,
+                        'user_id'          => $branchAdmin->id,
+                        'quantity'         => $quantity,
+                        'current_quantity' => $quantity, // Batch baru, sisa = jumlah awal
                     ]);
             }
         }

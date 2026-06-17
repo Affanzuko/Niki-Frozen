@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // admin yang input
             $table->integer('quantity');
+            $table->integer('current_quantity'); // sisa stok batch setelah penjualan (FEFO)
             $table->date('expiry_date'); // wajib diisi manual (AC-40)
             $table->timestamps();
         });

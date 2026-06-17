@@ -17,6 +17,7 @@ Route::prefix('kasir')->name('pages.kasir.')->group(function () {
     Route::get('/', [KasirController::class,'index'])->name('dashboard');
     Route::get('penjualan', [KasirController::class, 'penjualan'])->name('penjualan');
     Route::post('checkout', [PaymentController::class, 'checkoutKasir'])->name('checkout');
+    Route::post('checkout/cash', [PaymentController::class, 'checkoutCash'])->name('checkout.cash');
     Route::post('checkout/success', [PaymentController::class, 'markSuccessLocal'])->name('checkout.success');
     Route::post('midtrans-callback', [PaymentController::class, 'callback'])->name('midtrans.callback');
     Route::post('cetak-struk', [KasirController::class, 'cetakStruk'])->name('cetakStruk');
