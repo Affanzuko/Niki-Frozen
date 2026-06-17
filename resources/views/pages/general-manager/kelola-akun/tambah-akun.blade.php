@@ -27,21 +27,30 @@
                         </div>
 
                         <div class="mb-5">
-                            <label class="block text-sm font-bold text-slate-800 mb-2">Email</label>
+                            <label class="block text-sm font-bold text-slate-800 mb-2">Username / Email</label>
                             <input type="email" placeholder="Email@example.com"
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
                         </div>
 
                         <div class="mb-5">
                             <label class="block text-sm font-bold text-slate-800 mb-2">Role</label>
-                            <input type="text" placeholder="Admin cabang"
+                            <select
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
+                                <option value="" disabled selected>Pilih Role</option>
+                                <option value="Admin">Admin</option>
+                                <option value="Kasir">Kasir</option>
+                            </select>
                         </div>
 
                         <div class="mb-8">
                             <label class="block text-sm font-bold text-slate-800 mb-2">Cabang</label>
-                            <input type="text" placeholder="Contoh:Condongcatur, Depok, Seturan"
+                            <select
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
+                                <option value="" disabled selected>Pilih Cabang</option>
+                                <option value="Toko satu">Toko satu</option>
+                                <option value="Toko dua">Toko dua</option>
+                                <option value="Condongcatur">Condongcatur</option>
+                            </select>
                         </div>
 
                         <div class="flex gap-3">
