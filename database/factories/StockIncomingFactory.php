@@ -17,12 +17,15 @@ class StockIncomingFactory extends Factory
      */
     public function definition(): array
     {
+        $quantity = fake()->numberBetween(50, 500);
+
         return [
-            'product_id' => null,  // Akan diset saat relasi
-            'branch_id' => null,   // Akan diset saat relasi
-            'user_id' => null,     // Akan diset saat relasi
-            'quantity' => fake()->numberBetween(50, 500),
-            'expiry_date' => fake()->dateTimeBetween(now()->addMonths(1), now()->addMonths(12)),
+            'product_id'       => null,  // Akan diset saat relasi
+            'branch_id'        => null,  // Akan diset saat relasi
+            'user_id'          => null,  // Akan diset saat relasi
+            'quantity'         => $quantity,
+            'current_quantity' => $quantity, // Batch baru, sisa = jumlah awal
+            'expiry_date'      => fake()->dateTimeBetween(now()->addMonths(1), now()->addMonths(12)),
         ];
     }
 }
