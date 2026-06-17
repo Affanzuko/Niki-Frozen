@@ -14,7 +14,7 @@
         init() {
             this.$watch('stokFilter', value => {
                 const container = document.getElementById('stocks-container');
-                if(!container) return;
+                if (!container) return;
                 const groups = Array.from(container.querySelectorAll('tbody.stock-group'));
                 if (value === 'Status Kedaluwarsa') {
                     groups.sort((a, b) => parseInt(a.dataset.expiry) - parseInt(b.dataset.expiry));
@@ -37,7 +37,8 @@
 
     <!-- Main Content Area -->
     <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full transition-all duration-300">
-        <div class="flex-1 flex flex-col min-h-0 p-4 lg:p-8 bg-white rounded-tl-none lg:rounded-tl-2xl shadow-sm border-l border-t lg:border-t-0 border-slate-200">
+        <div
+            class="flex-1 flex flex-col min-h-0 p-4 lg:p-8 bg-white rounded-tl-none lg:rounded-tl-2xl shadow-sm border-l border-t lg:border-t-0 border-slate-200">
 
             <!-- Header -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
@@ -65,226 +66,260 @@
             <!-- Content Area -->
             <div class="flex-1 flex flex-col min-h-0">
 
-            <!-- Success Message -->
-            @if (session('success'))
-                <div
-                    class="mb-4 bg-green-50 border border-green-200 text-green-700 px-5 py-3 rounded-xl flex items-center gap-3">
-                    <i class="fa-solid fa-check-circle text-green-500"></i>
-                    <p class="text-sm font-medium">{{ session('success') }}</p>
-                </div>
-            @endif
+                <!-- Success Message -->
+                @if (session('success'))
+                    <div
+                        class="mb-4 bg-green-50 border border-green-200 text-green-700 px-5 py-3 rounded-xl flex items-center gap-3">
+                        <i class="fa-solid fa-check-circle text-green-500"></i>
+                        <p class="text-sm font-medium">{{ session('success') }}</p>
+                    </div>
+                @endif
 
-            <!-- Filters -->
-            <div class="flex flex-wrap items-center gap-2 mb-6 shrink-0">
-                <button @click="stokFilter = 'Semua Barang'"
-                    :class="stokFilter === 'Semua Barang' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
-                        'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
-                    class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Semua Barang</button>
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-2 mb-6 shrink-0">
+                    <button @click="stokFilter = 'Semua Barang'"
+                        :class="stokFilter === 'Semua Barang' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                            'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                        class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Semua
+                        Barang</button>
 
-                <button @click="stokFilter = 'Status Kedaluwarsa'"
-                    :class="stokFilter === 'Status Kedaluwarsa' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
-                        'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
-                    class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Status
-                    Kedaluwarsa</button>
+                    <button @click="stokFilter = 'Status Kedaluwarsa'"
+                        :class="stokFilter === 'Status Kedaluwarsa' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                            'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                        class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Status
+                        Kedaluwarsa</button>
 
 
-                <div class="flex-1"></div>
+                    <div class="flex-1"></div>
 
-                <a href="{{ route('pages.admin.stok.barang-masuk.create') }}"
-                    class="px-5 py-2 bg-slate-800 text-white text-sm font-bold rounded-xl hover:bg-slate-900 transition-colors shadow-sm flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Input Barang Masuk
-                </a>
-            </div>
-
-            <!-- Table -->
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0"
-                x-data="{
-                    syncScroll(e) {
-                        $refs.headerScroll.scrollLeft = e.target.scrollLeft;
-                    }
-                }">
-                <!-- Header Table (Static) -->
-                <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
-                    <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
-                        <colgroup>
-                            <col class="w-[30%]">
-                            <col class="w-[15%]">
-                            <col class="w-[20%]">
-                            <col class="w-[20%]">
-                            <col class="w-[15%]">
-                        </colgroup>
-                        <thead>
-                            <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                <th class="p-4 py-3 pl-12">Product</th>
-                                <th class="p-4 py-3 text-center">Barcode</th>
-                                <th class="p-4 py-3 text-center">Stock Level</th>
-                                <th class="p-4 py-3 text-center">Expiry Date</th>
-                                <th class="p-4 text-center pr-4 whitespace-nowrap">Aksi</th>
-                            </tr>
-                        </thead>
-                    </table>
+                    <a href="{{ route('pages.admin.stok.barang-masuk.create') }}"
+                        class="px-5 py-2 bg-slate-800 text-white text-sm font-bold rounded-xl hover:bg-slate-900 transition-colors shadow-sm flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Input Barang Masuk
+                    </a>
                 </div>
 
-                <!-- Body Table (Scrollable) -->
-                <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
-                    <table id="stocks-container" class="w-full text-left border-collapse table-fixed min-w-[900px]">
-                        <colgroup>
-                            <col class="w-[30%]">
-                            <col class="w-[15%]">
-                            <col class="w-[20%]">
-                            <col class="w-[20%]">
-                            <col class="w-[15%]">
-                        </colgroup>
-                        @forelse ($stocks as $stock)
-                            @php
-                                $batches = $activeBatches->get($stock->product_id, collect());
-                                $earliestBatch = $batches->first();
-                                $expiryDate = $earliestBatch ? $earliestBatch->expiry_date : null;
-                                $isExpired = $expiryDate && \Carbon\Carbon::parse($expiryDate)->isPast();
-                                $isNearExpiry =
-                                    $expiryDate &&
-                                    !$isExpired &&
-                                    today()->diffInDays(\Carbon\Carbon::parse($expiryDate), false) <= 7;
-                                $stockPercent = $stock->quantity > 0 ? min(100, ($stock->quantity / 200) * 100) : 0;
-                                $stockColor =
-                                    $stock->quantity < 20
-                                        ? 'bg-red-500'
-                                        : ($stock->quantity < 50
-                                            ? 'bg-yellow-500'
-                                            : 'bg-green-500');
-                            @endphp
-                            <tbody class="stock-group border-b border-slate-100 text-sm font-medium"
-                                data-index="{{ $loop->index }}"
-                                data-expiry="{{ $expiryDate ? \Carbon\Carbon::parse($expiryDate)->timestamp : 9999999999 }}"
-                                x-data="{ expanded: false }"
-                                x-show="(stokFilter === 'Semua Barang' || (stokFilter === 'Status Kedaluwarsa' && {{ $isExpired || $isNearExpiry ? 'true' : 'false' }})) && ('{{ strtolower(addslashes($stock->product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($stock->product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase()))">
-                                <tr class="stock-row {{ $isExpired ? 'bg-red-50/30' : '' }} hover:bg-slate-50 transition-colors {{ $batches->count() > 0 ? 'group cursor-pointer' : '' }}"
-                                    @if($batches->count() > 0) @click="expanded = !expanded" @endif>
-                                    <td class="p-4 pl-12 flex items-center gap-3">
-                                        <div
-                                            class="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center shrink-0">
-                                            <i class="fa-solid fa-cube text-slate-400 group-hover:text-blue-500 transition-colors"></i>
-                                        </div>
-                                        <div>
-                                            <span
-                                                class="text-slate-800 font-bold group-hover:text-blue-600 transition-colors">{{ $stock->product->name }}</span>
-                                            @if ($stock->product->category)
-                                                <p class="text-xs text-slate-500 mt-0.5">
-                                                    {{ $stock->product->category->name }}</p>
-                                            @endif
-                                            @if($batches->count() > 0)
-                                                <span class="inline-block mt-1 text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold"><i class="fa-solid fa-layer-group mr-1"></i> {{ $batches->count() }} Batch{{ $batches->count() > 1 ? 'es' : '' }}</span>
-                                            @endif
-                                        </div>
-                                    </td>
-                                    <td class="p-4 text-center text-slate-500 tabular-nums">
-                                        {{ $stock->product->barcode ?? '-' }}
-                                    </td>
-                                    <td class="p-4 text-center text-slate-900 tabular-nums">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <span
-                                                class="{{ $stock->quantity < 20 ? 'text-red-600 font-bold' : '' }}">{{ $stock->quantity }}</span>
-                                            <div class="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                                <div class="h-full {{ $stockColor }} rounded-full"
-                                                    style="width: {{ $stockPercent }}%"></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="p-4 text-center text-slate-500 tabular-nums">
-                                        @if ($expiryDate)
-                                            @if ($isExpired)
-                                                <span class="text-red-600 font-bold">
-                                                    <i
-                                                        class="fa-solid fa-circle-exclamation mr-1"></i>{{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
-                                                </span>
-                                            @elseif ($isNearExpiry)
-                                                <span class="text-orange-600">
-                                                    {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
-                                                </span>
-                                            @else
-                                                {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
-                                            @endif
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-                                    <td class="p-4 pr-6 text-center whitespace-nowrap">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <a href="{{ route('pages.admin.stok.edit', $stock->product->id) }}"
-                                                class="p-1.5 border border-slate-200 text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg transition-all"><svg
-                                                    class="w-4 h-4" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
-                                                    </path>
-                                                </svg></a>
-                                            <button type="button"
-                                                onclick="confirmDeleteProduct({{ $stock->product->id }}, '{{ addslashes($stock->product->name) }}')"
-                                                class="p-1.5 border border-slate-200 text-slate-500 hover:text-red-600 hover:bg-red-50 hover:border-red-200 rounded-lg transition-all"><svg
-                                                    class="w-4 h-4" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                    </path>
-                                                </svg></button>
-                                            <form id="delete-form-{{ $stock->product->id }}" action="{{ route('pages.admin.stok.destroy', $stock->product->id) }}" method="POST" class="hidden">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
-                                        </div>
-                                    </td>
+                <!-- Table -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0"
+                    x-data="{
+                        syncScroll(e) {
+                            $refs.headerScroll.scrollLeft = e.target.scrollLeft;
+                        }
+                    }">
+                    <!-- Header Table (Static) -->
+                    <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
+                        <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
+                            <colgroup>
+                                <col class="w-[30%]">
+                                <col class="w-[15%]">
+                                <col class="w-[20%]">
+                                <col class="w-[20%]">
+                                <col class="w-[15%]">
+                            </colgroup>
+                            <thead>
+                                <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                    <th class="p-4 py-3 pl-12">Product</th>
+                                    <th class="p-4 py-3 text-center">Barcode</th>
+                                    <th class="p-4 py-3 text-center">Stock Level</th>
+                                    <th class="p-4 py-3 text-center">Expiry Date</th>
+                                    <th class="p-4 text-center pr-4 whitespace-nowrap">Aksi</th>
                                 </tr>
-                                <!-- Accordion Details -->
-                                @if($batches->count() > 0)
-                                <tr x-show="expanded" class="bg-slate-50">
-                                    <td colspan="5" class="p-0 border-t border-slate-100">
-                                        <div class="pl-[4.5rem] pr-6 py-5 shadow-inner">
-                                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4"><i class="fa-solid fa-layer-group mr-2"></i> Rincian Batch (FEFO)</h4>
-                                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                                @forelse($batches as $idx => $batch)
-                                                <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center justify-between">
-                                                    <div>
-                                                        <p class="text-xs font-bold text-slate-800">Batch {{ $idx + 1 }}</p>
-                                                        <p class="text-[10px] text-slate-500 mt-0.5">Sisa: <span class="font-bold text-slate-700">{{ $batch->current_quantity }} pcs</span></p>
-                                                    </div>
-                                                    <div class="text-right">
-                                                        @php
-                                                            $bExp = \Carbon\Carbon::parse($batch->expiry_date);
-                                                            $bIsExp = $bExp->isPast();
-                                                            $bIsNear = !$bIsExp && today()->diffInDays($bExp, false) <= 7;
-                                                        @endphp
-                                                        <span class="text-xs font-bold {{ $bIsExp ? 'text-red-600' : ($bIsNear ? 'text-orange-600' : 'text-slate-600') }}">
-                                                            @if($bIsExp) <i class="fa-solid fa-circle-exclamation mr-1"></i> @endif
-                                                            {{ $bExp->format('d M Y') }}
-                                                        </span>
+                            </thead>
+                        </table>
+                    </div>
+
+                    <!-- Body Table (Scrollable) -->
+                    <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
+                        <table id="stocks-container" class="w-full text-left border-collapse table-fixed min-w-[900px]">
+                            <colgroup>
+                                <col class="w-[30%]">
+                                <col class="w-[15%]">
+                                <col class="w-[20%]">
+                                <col class="w-[20%]">
+                                <col class="w-[15%]">
+                            </colgroup>
+                            @forelse ($stocks as $stock)
+                                @php
+                                    $batches = $activeBatches->get($stock->product_id, collect());
+                                    $earliestBatch = $batches->first();
+                                    $expiryDate = $earliestBatch ? $earliestBatch->expiry_date : null;
+                                    $isExpired = $expiryDate && \Carbon\Carbon::parse($expiryDate)->isPast();
+                                    $isNearExpiry =
+                                        $expiryDate &&
+                                        !$isExpired &&
+                                        today()->diffInDays(\Carbon\Carbon::parse($expiryDate), false) <= 7;
+                                    $stockPercent = $stock->quantity > 0 ? min(100, ($stock->quantity / 200) * 100) : 0;
+                                    $stockColor =
+                                        $stock->quantity < 20
+                                            ? 'bg-red-500'
+                                            : ($stock->quantity < 50
+                                                ? 'bg-yellow-500'
+                                                : 'bg-green-500');
+                                @endphp
+                                <tbody class="stock-group border-b border-slate-100 text-sm font-medium"
+                                    data-index="{{ $loop->index }}"
+                                    data-expiry="{{ $expiryDate ? \Carbon\Carbon::parse($expiryDate)->timestamp : 9999999999 }}"
+                                    x-data="{ expanded: false }"
+                                    x-show="(stokFilter === 'Semua Barang' || (stokFilter === 'Status Kedaluwarsa' && {{ $isExpired || $isNearExpiry ? 'true' : 'false' }})) && ('{{ strtolower(addslashes($stock->product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($stock->product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase()))">
+                                    <tr class="stock-row {{ $isExpired ? 'bg-red-50/30' : '' }} hover:bg-slate-50 transition-colors {{ $batches->count() > 0 ? 'group cursor-pointer' : '' }}"
+                                        @if ($batches->count() > 0) @click="expanded = !expanded" @endif>
+                                        <td class="p-4 pl-12 flex items-center gap-3">
+                                            <div
+                                                class="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center shrink-0">
+                                                <i
+                                                    class="fa-solid fa-cube text-slate-400 group-hover:text-blue-500 transition-colors"></i>
+                                            </div>
+                                            <div>
+                                                <span
+                                                    class="text-slate-800 font-bold group-hover:text-blue-600 transition-colors">{{ $stock->product->name }}</span>
+                                                @if ($stock->product->category)
+                                                    <p class="text-xs text-slate-500 mt-0.5">
+                                                        {{ $stock->product->category->name }}</p>
+                                                @endif
+                                                @if ($batches->count() > 0)
+                                                    <span
+                                                        class="inline-block mt-1 text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold"><i
+                                                            class="fa-solid fa-layer-group mr-1"></i>
+                                                        {{ $batches->count() }}
+                                                        Batch{{ $batches->count() > 1 ? 'es' : '' }}</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td class="p-4 text-center text-slate-500 tabular-nums">
+                                            {{ $stock->product->barcode ?? '-' }}
+                                        </td>
+                                        <td class="p-4 text-center text-slate-900 tabular-nums">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <span
+                                                    class="{{ $stock->quantity < 20 ? 'text-red-600 font-bold' : '' }}">{{ $stock->quantity }}</span>
+                                                <div class="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                    <div class="h-full {{ $stockColor }} rounded-full"
+                                                        style="width: {{ $stockPercent }}%"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="p-4 text-center text-slate-500 tabular-nums">
+                                            @if ($expiryDate)
+                                                @if ($isExpired)
+                                                    <span class="text-red-600 font-bold">
+                                                        <i
+                                                            class="fa-solid fa-circle-exclamation mr-1"></i>{{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
+                                                    </span>
+                                                @elseif ($isNearExpiry)
+                                                    <span class="text-orange-600">
+                                                        {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
+                                                    </span>
+                                                @else
+                                                    {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
+                                                @endif
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="p-4 pr-6 text-center whitespace-nowrap">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <a href="{{ route('pages.admin.stok.edit', $stock->product->id) }}"
+                                                    class="p-1.5 border border-slate-200 text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg transition-all"><svg
+                                                        class="w-4 h-4" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                                                        </path>
+                                                    </svg></a>
+                                                <button type="button"
+                                                    onclick="confirmDeleteProduct({{ $stock->product->id }}, '{{ addslashes($stock->product->name) }}')"
+                                                    class="p-1.5 border border-slate-200 text-slate-500 hover:text-red-600 hover:bg-red-50 hover:border-red-200 rounded-lg transition-all"><svg
+                                                        class="w-4 h-4" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                        </path>
+                                                    </svg></button>
+                                                <form id="delete-form-{{ $stock->product->id }}"
+                                                    action="{{ route('pages.admin.stok.destroy', $stock->product->id) }}"
+                                                    method="POST" class="hidden">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- Accordion Details -->
+                                    @if ($batches->count() > 0)
+                                        <tr x-show="expanded" class="bg-slate-50">
+                                            <td colspan="5" class="p-0 border-t border-slate-100">
+                                                <div class="pl-[4.5rem] pr-6 py-5 shadow-inner">
+                                                    <h4
+                                                        class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">
+                                                        <i class="fa-solid fa-layer-group mr-2"></i> Rincian Batch (FEFO)
+                                                    </h4>
+                                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                        @forelse($batches as $idx => $batch)
+                                                            <div
+                                                                class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center justify-between">
+                                                                <div>
+                                                                    <p class="text-xs font-bold text-slate-800">Batch
+                                                                        {{ $idx + 1 }}</p>
+                                                                    <p class="text-[10px] text-slate-500 mt-0.5">Jumlah
+                                                                        awal:
+                                                                        <span
+                                                                            class="font-bold text-slate-700">{{ $batch->quantity }}
+                                                                            pcs</span>
+                                                                    </p>
+                                                                    <p class="text-[10px] text-slate-500 mt-0.5">Sisa:
+                                                                        <span
+                                                                            class="font-bold text-slate-700">{{ $batch->current_quantity }}
+                                                                            pcs</span>
+                                                                    </p>
+                                                                </div>
+                                                                <div class="text-right">
+                                                                    @php
+                                                                        $bExp = \Carbon\Carbon::parse(
+                                                                            $batch->expiry_date,
+                                                                        );
+                                                                        $bIsExp = $bExp->isPast();
+                                                                        $bIsNear =
+                                                                            !$bIsExp &&
+                                                                            today()->diffInDays($bExp, false) <= 7;
+                                                                    @endphp
+                                                                    <span
+                                                                        class="text-xs font-bold {{ $bIsExp ? 'text-red-600' : ($bIsNear ? 'text-orange-600' : 'text-slate-600') }}">
+                                                                        @if ($bIsExp)
+                                                                            <i
+                                                                                class="fa-solid fa-circle-exclamation mr-1"></i>
+                                                                        @endif
+                                                                        {{ $bExp->format('d M Y') }}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        @empty
+                                                            <div class="text-xs text-slate-500 italic">Belum ada batch
+                                                                aktif.</div>
+                                                        @endforelse
                                                     </div>
                                                 </div>
-                                                @empty
-                                                <div class="text-xs text-slate-500 italic">Belum ada batch aktif.</div>
-                                                @endforelse
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endif
-                            </tbody>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
                             @empty
-                            <tbody id="stocks-tbody">
-                                <tr>
-                                    <td colspan="5" class="p-4 py-12 text-center text-slate-400">
-                                        <i class="fa-solid fa-box-open text-4xl mb-3 block"></i>
-                                        <p class="font-medium">Belum ada data stok</p>
-                                    </td>
-                                </tr>
-                            </tbody>
+                                <tbody id="stocks-tbody">
+                                    <tr>
+                                        <td colspan="5" class="p-4 py-12 text-center text-slate-400">
+                                            <i class="fa-solid fa-box-open text-4xl mb-3 block"></i>
+                                            <p class="font-medium">Belum ada data stok</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
                             @endforelse
-                    </table>
+                        </table>
+                    </div>
+                    <!-- Footer -->
+                    <div class="px-6 py-4 border-t border-slate-200 flex justify-between items-center bg-slate-50">
+                        <span class="text-xs font-medium text-slate-500">Showing {{ $stocks->count() }} items</span>
+                    </div>
                 </div>
-                <!-- Footer -->
-                <div class="px-6 py-4 border-t border-slate-200 flex justify-between items-center bg-slate-50">
-                    <span class="text-xs font-medium text-slate-500">Showing {{ $stocks->count() }} items</span>
-                </div>
-            </div>
             </div>
         </div>
 
@@ -296,81 +331,81 @@
 @endsection
 
 @push('scripts')
-<script>
-    function confirmDeleteProduct(id, name) {
-        window.showCustomAlert({
-            title: 'Hapus Produk?',
-            message: `Apakah Anda yakin ingin menghapus produk "${name}"? Tindakan ini tidak dapat dibatalkan.`,
-            type: 'error',
-            showCancel: true,
-            cancelText: 'Batal',
-            confirmText: 'Ya, Hapus',
-            confirmColorClass: 'bg-red-500 hover:bg-red-600',
-            onConfirm: () => {
-                document.getElementById('delete-form-' + id).submit();
+    <script>
+        function confirmDeleteProduct(id, name) {
+            window.showCustomAlert({
+                title: 'Hapus Produk?',
+                message: `Apakah Anda yakin ingin menghapus produk "${name}"? Tindakan ini tidak dapat dibatalkan.`,
+                type: 'error',
+                showCancel: true,
+                cancelText: 'Batal',
+                confirmText: 'Ya, Hapus',
+                confirmColorClass: 'bg-red-500 hover:bg-red-600',
+                onConfirm: () => {
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            });
+        }
+
+        // Custom Alert Logic
+        window.showCustomAlert = function(options) {
+            const modal = document.getElementById('custom-alert-modal');
+            if (!modal) return;
+            const titleEl = document.getElementById('custom-alert-title');
+            const messageEl = document.getElementById('custom-alert-message');
+            const iconContainer = document.getElementById('custom-alert-icon-container');
+            const buttonsContainer = document.getElementById('custom-alert-buttons');
+
+            titleEl.textContent = options.title || 'Perhatian';
+            messageEl.textContent = options.message || '';
+
+            if (options.type === 'warning') {
+                iconContainer.className =
+                    'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-amber-100 text-amber-500';
+                iconContainer.innerHTML =
+                    '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
+            } else if (options.type === 'error') {
+                iconContainer.className =
+                    'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-red-100 text-red-500';
+                iconContainer.innerHTML =
+                    '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+            } else {
+                iconContainer.className =
+                    'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-blue-100 text-blue-500';
+                iconContainer.innerHTML =
+                    '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
             }
-        });
-    }
 
-    // Custom Alert Logic
-    window.showCustomAlert = function(options) {
-        const modal = document.getElementById('custom-alert-modal');
-        if (!modal) return;
-        const titleEl = document.getElementById('custom-alert-title');
-        const messageEl = document.getElementById('custom-alert-message');
-        const iconContainer = document.getElementById('custom-alert-icon-container');
-        const buttonsContainer = document.getElementById('custom-alert-buttons');
+            buttonsContainer.innerHTML = '';
 
-        titleEl.textContent = options.title || 'Perhatian';
-        messageEl.textContent = options.message || '';
+            if (options.showCancel) {
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className =
+                    'flex-1 py-3 px-4 rounded-xl border-2 border-slate-200 text-slate-700 font-bold text-[13px] hover:bg-slate-50 transition-colors active:scale-95';
+                cancelBtn.textContent = options.cancelText || 'Batal';
+                cancelBtn.onclick = () => {
+                    window.closeCustomAlert();
+                    if (options.onCancel) options.onCancel();
+                };
+                buttonsContainer.appendChild(cancelBtn);
+            }
 
-        if (options.type === 'warning') {
-            iconContainer.className =
-                'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-amber-100 text-amber-500';
-            iconContainer.innerHTML =
-                '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
-        } else if (options.type === 'error') {
-            iconContainer.className =
-                'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-red-100 text-red-500';
-            iconContainer.innerHTML =
-                '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
-        } else {
-            iconContainer.className =
-                'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-blue-100 text-blue-500';
-            iconContainer.innerHTML =
-                '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
-        }
-
-        buttonsContainer.innerHTML = '';
-
-        if (options.showCancel) {
-            const cancelBtn = document.createElement('button');
-            cancelBtn.className =
-                'flex-1 py-3 px-4 rounded-xl border-2 border-slate-200 text-slate-700 font-bold text-[13px] hover:bg-slate-50 transition-colors active:scale-95';
-            cancelBtn.textContent = options.cancelText || 'Batal';
-            cancelBtn.onclick = () => {
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className =
+                `flex-1 py-3 px-4 rounded-xl text-white font-bold text-[13px] transition-colors active:scale-95 shadow-md ${options.confirmColorClass || 'bg-[#0f172a] hover:bg-slate-800'}`;
+            confirmBtn.textContent = options.confirmText || 'Oke';
+            confirmBtn.onclick = () => {
                 window.closeCustomAlert();
-                if (options.onCancel) options.onCancel();
+                if (options.onConfirm) options.onConfirm();
             };
-            buttonsContainer.appendChild(cancelBtn);
-        }
+            buttonsContainer.appendChild(confirmBtn);
 
-        const confirmBtn = document.createElement('button');
-        confirmBtn.className =
-            `flex-1 py-3 px-4 rounded-xl text-white font-bold text-[13px] transition-colors active:scale-95 shadow-md ${options.confirmColorClass || 'bg-[#0f172a] hover:bg-slate-800'}`;
-        confirmBtn.textContent = options.confirmText || 'Oke';
-        confirmBtn.onclick = () => {
-            window.closeCustomAlert();
-            if (options.onConfirm) options.onConfirm();
+            modal.classList.remove('hidden');
         };
-        buttonsContainer.appendChild(confirmBtn);
 
-        modal.classList.remove('hidden');
-    };
-
-    window.closeCustomAlert = function() {
-        const modal = document.getElementById('custom-alert-modal');
-        if (modal) modal.classList.add('hidden');
-    };
-</script>
+        window.closeCustomAlert = function() {
+            const modal = document.getElementById('custom-alert-modal');
+            if (modal) modal.classList.add('hidden');
+        };
+    </script>
 @endpush
