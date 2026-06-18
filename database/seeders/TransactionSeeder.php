@@ -15,25 +15,29 @@ class TransactionSeeder extends Seeder
     {
         $cashierSessions = CashierSession::all();
 
-        // Buat transaksi untuk 30 hari terakhir agar chart lebih hidup
+        // Buat transaksi sesuai dengan hari sesi kasir beroperasi
         foreach ($cashierSessions as $session) {
-            for ($i = 0; $i <= 30; $i++) {
-                $targetDate = now()->subDays($i);
-                
-                // Random jumlah transaksi per hari (2 - 8 transaksi per sesi)
-                $txCount = rand(2, 8);
-                
-                for ($j = 0; $j < $txCount; $j++) {
-                    $randomTime = $targetDate->copy()->addHours(rand(8, 21))->addMinutes(rand(0, 59));
-                    
-                    Transaction::factory()->create([
-                        'cashier_session_id' => $session->id,
-                        'branch_id' => $session->branch_id,
-                        'transaction_code' => 'TRX-' . $randomTime->format('dmY') . '-' . strtoupper(substr(uniqid(), -5)),
-                        'created_at' => $randomTime,
-                        'updated_at' => $randomTime,
-                    ]);
+            $targetDate = \Carbon\Carbon::parse($session->date);
+            
+            // Random jumlah transaksi per sesi (misal: 5 - 15 transaksi)
+            $txCount = rand(5, 15);
+            
+            for ($j = 0; $j < $txCount; $j++) {
+                if ($session->shift === 'pagi') {
+                    // Pagi: 07:00 - 13:59
+                    $randomTime = $targetDate->copy()->addHours(rand(7, 13))->addMinutes(rand(0, 59));
+                } else {
+                    // Siang: 14:00 - 20:59
+                    $randomTime = $targetDate->copy()->addHours(rand(14, 20))->addMinutes(rand(0, 59));
                 }
+                
+                Transaction::factory()->create([
+                    'cashier_session_id' => $session->id,
+                    'branch_id' => $session->branch_id,
+                    'transaction_code' => 'TRX-' . $randomTime->format('dmY') . '-' . strtoupper(substr(uniqid(), -5)),
+                    'created_at' => $randomTime,
+                    'updated_at' => $randomTime,
+                ]);
             }
         }
     }

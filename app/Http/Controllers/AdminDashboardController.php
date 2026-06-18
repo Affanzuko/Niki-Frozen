@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CashierSession;
 use App\Models\Expense;
 use App\Models\Product;
 use App\Models\Stock;
@@ -15,20 +16,23 @@ use Illuminate\Pagination\Paginator;
 
 class AdminDashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $branchId = 1; // Hardcode, belum ada auth
+
+        $dateParam = $request->query('date', today()->format('Y-m-d'));
+        $targetDate = Carbon::parse($dateParam);
 
         // Pendapatan hari ini
         $todayRevenue = Transaction::where('branch_id', $branchId)
             ->where('status', 'success')
-            ->whereDate('created_at', today())
+            ->whereDate('created_at', $targetDate)
             ->sum('total_price');
 
         // Transaksi hari ini
         $todayTransactions = Transaction::where('branch_id', $branchId)
             ->where('status', 'success')
-            ->whereDate('created_at', today())
+            ->whereDate('created_at', $targetDate)
             ->count();
 
         // Peringatan stok kadaluarsa (7 hari ke depan)
@@ -36,10 +40,19 @@ class AdminDashboardController extends Controller
             ->whereBetween('expiry_date', [today(), today()->addDays(7)])
             ->count();
 
-        // Transaksi terbaru
-        $recentTransactions = Transaction::where('branch_id', $branchId)
-            ->with('cashierSession.user')
-            ->orderBy('created_at', 'desc')
+        // Aktivitas kasir terbaru (per sesi)
+        $recentSessions = CashierSession::where('branch_id', $branchId)
+            ->whereDate('date', $targetDate)
+            ->with('user')
+            ->withCount(['transactions as total_transactions' => function ($q) use ($targetDate) {
+                $q->where('status', 'success')
+                  ->whereDate('created_at', $targetDate);
+            }])
+            ->withSum(['transactions as total_revenue' => function ($q) use ($targetDate) {
+                $q->where('status', 'success')
+                  ->whereDate('created_at', $targetDate);
+            }], 'total_price')
+            ->orderBy('started_at', 'desc')
             ->limit(5)
             ->get();
 
@@ -47,8 +60,9 @@ class AdminDashboardController extends Controller
             'todayRevenue',
             'todayTransactions',
             'nearExpiryCount',
-            'recentTransactions',
-            'branchId'
+            'recentSessions',
+            'branchId',
+            'targetDate'
         ));
     }
 

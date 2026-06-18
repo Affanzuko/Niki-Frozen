@@ -14,32 +14,23 @@ class CashierSessionFactory extends Factory
 
     public function definition(): array
     {
-        $date = fake()->dateTimeBetween('-30 days', 'now');
-        $dateStr = $date->format('d-m-Y');
-
-        $shift = fake()->randomElement(['pagi', 'siang']);
-
-        // Morning shift: 07:00-14:00, Evening shift: 14:00-21:00
-        if ($shift === 'pagi') {
-            $hour = fake()->numberBetween(7, 9);
-        } else {
-            $hour = fake()->numberBetween(14, 16);
-        }
-
-        $startedAt = \Carbon\Carbon::parse($dateStr)->setHour($hour)->setMinute(0)->setSecond(0);
-
-        // 70% chance session is closed
-        $endedAt = fake()->boolean(70)
-            ? (clone $startedAt)->addHours(fake()->numberBetween(6, 8))
-            : null;
-
         return [
             'user_id' => null,           // Akan diset saat relasi
             'branch_id' => null,         // Akan diset saat relasi
-            'shift' => $shift,
-            'date' => $dateStr,
-            'started_at' => $startedAt,
-            'ended_at' => $endedAt,
+            'shift' => fake()->randomElement(['pagi', 'siang']),
+            'date' => fake()->dateTimeBetween('-30 days', 'now')->format('Y-m-d'),
+            'started_at' => function (array $attributes) {
+                $startHour = ($attributes['shift'] === 'pagi') ? 7 : 14;
+                return \Carbon\Carbon::parse($attributes['date'])->setHour($startHour)->setMinute(0)->setSecond(0);
+            },
+            'ended_at' => function (array $attributes) {
+                // 70% chance session is closed
+                if (fake()->boolean(70)) {
+                    $endHour = ($attributes['shift'] === 'pagi') ? 14 : 21;
+                    return \Carbon\Carbon::parse($attributes['date'])->setHour($endHour)->setMinute(0)->setSecond(0);
+                }
+                return null;
+            },
         ];
     }
 
@@ -51,18 +42,5 @@ class CashierSessionFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'ended_at' => null,
         ]);
-    }
-
-    /**
-     * Indicate that the cashier session is closed.
-     */
-    public function closed(): static
-    {
-        return $this->state(function (array $attributes) {
-            $startedAt = \Carbon\Carbon::parse($attributes['started_at']);
-            return [
-                'ended_at' => (clone $startedAt)->addHours(fake()->numberBetween(6, 8)),
-            ];
-        });
     }
 }
