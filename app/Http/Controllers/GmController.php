@@ -8,20 +8,23 @@ class GmController extends Controller
 {
 
 
-    public function dashboard()
+    public function dashboard(Request $request)
     {
+        $dateStr = $request->query('tanggal', today()->format('Y-m-d'));
+        $dateObj = \Carbon\Carbon::parse($dateStr);
+        
         $branches = \App\Models\Branch::all();
         $branchSummaries = [];
 
         foreach ($branches as $branch) {
             $todayRevenue = \App\Models\Transaction::where('branch_id', $branch->id)
                 ->where('status', 'success')
-                ->whereDate('created_at', today())
+                ->whereDate('created_at', $dateObj)
                 ->sum('total_price');
 
             $todayTransactions = \App\Models\Transaction::where('branch_id', $branch->id)
                 ->where('status', 'success')
-                ->whereDate('created_at', today())
+                ->whereDate('created_at', $dateObj)
                 ->count();
 
             $totalRevenue = \App\Models\Transaction::where('branch_id', $branch->id)
@@ -41,7 +44,13 @@ class GmController extends Controller
             ];
         }
 
-        return view('pages.general-manager.dashboard', compact('branchSummaries'));
+        if ($request->ajax()) {
+            return response()->json([
+                'branchSummaries' => $branchSummaries,
+            ]);
+        }
+
+        return view('pages.general-manager.dashboard', compact('branchSummaries', 'dateObj'));
     }
 
     public function keuangan(Request $request)
