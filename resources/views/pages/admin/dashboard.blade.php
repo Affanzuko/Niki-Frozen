@@ -4,7 +4,7 @@
 
 @section('body_data')
     x-data="{
-        selectedDate: '{{ $targetDate->isToday() ? "Hari Ini" : $targetDate->format("d M Y") }}',
+        selectedDate: '{{ $targetDate->isToday() ? 'Hari Ini - ' . $targetDate->translatedFormat('l, d M Y') : $targetDate->translatedFormat('l, d M Y') }}',
         sidebarOpen: false
     }"
 @endsection
@@ -35,11 +35,11 @@
                 </div>
                 <div>
                     <button x-ref="dateBtn" x-init="flatpickr($refs.dateBtn, {
-                        dateFormat: 'd M Y',
-                        defaultDate: '{{ $targetDate->format("d M Y") }}',
+                        dateFormat: 'l, d M Y',
+                        defaultDate: '{{ $targetDate->translatedFormat('l, d M Y') }}',
                         onChange: function(selectedDates, dateStr) {
                             if (selectedDates.length > 0) {
-                                let formattedDate = flatpickr.formatDate(selectedDates[0], 'Y-m-d');
+                                let formattedDate = flatpickr.formatDate(selectedDates[0], 'l, Y-m-d');
                                 window.location.href = '?date=' + formattedDate;
                             }
                         }
