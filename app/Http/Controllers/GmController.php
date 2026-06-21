@@ -35,22 +35,28 @@ class GmController extends Controller
                 ->where('status', 'success')
                 ->count();
 
+            $todayPengeluaran = $todayRevenue * 0.65; // Estimated expense based on keuangan overview logic
+
             $branchSummaries[] = [
                 'branch' => $branch,
                 'today_revenue' => $todayRevenue,
+                'today_pengeluaran' => $todayPengeluaran,
                 'today_transactions' => $todayTransactions,
                 'total_revenue' => $totalRevenue,
                 'total_transactions' => $totalTransactions,
             ];
         }
 
+        $totalKaryawan = \App\Models\User::where('role', '!=', 'owner')->count();
+
         if ($request->ajax()) {
             return response()->json([
                 'branchSummaries' => $branchSummaries,
+                'totalKaryawan' => $totalKaryawan,
             ]);
         }
 
-        return view('pages.general-manager.dashboard', compact('branchSummaries', 'dateObj'));
+        return view('pages.general-manager.dashboard', compact('branchSummaries', 'dateObj', 'totalKaryawan'));
     }
 
     public function keuangan(Request $request)
