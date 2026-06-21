@@ -6,14 +6,16 @@
 
 @section('content')
     <!-- Mobile Sidebar Backdrop -->
-    <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" class="fixed inset-0 bg-slate-900/50 z-20 lg:hidden backdrop-blur-sm" x-transition.opacity></div>
+    <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
+        class="fixed inset-0 bg-slate-900/50 z-20 lg:hidden backdrop-blur-sm" x-transition.opacity></div>
 
     {{-- Sidebar --}}
     <x-sidebar role="general-manager" active="keuangan" />
 
     <!-- Main Content Area -->
     <main class="flex-1 overflow-y-auto relative w-full transition-all duration-300 bg-[#f8fafc]">
-        <div class="min-h-full p-4 lg:p-8 bg-[#f8fafc] rounded-tl-none lg:rounded-tl-2xl flex flex-col" x-data="keuanganGlobal()">
+        <div class="min-h-full p-4 lg:p-8 bg-[#f8fafc] rounded-tl-none lg:rounded-tl-2xl flex flex-col"
+            x-data="keuanganGlobal()">
             <!-- Header -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
                 <div class="flex items-center gap-4">
@@ -21,33 +23,26 @@
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Keuangan</h1>
+                        <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Keuangan</h1>
                         <p class="text-gray-500 mt-1 text-sm">Sistem Manajemen untuk Mengelola Keuangan.</p>
                     </div>
                 </div>
-                <div class="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm">
+                <div
+                    class="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm">
                     <i class="fa-regular fa-calendar text-brand-textBlue"></i>
                     <span class="text-sm font-semibold text-gray-700">{{ now()->translatedFormat('l, d F Y') }}</span>
                 </div>
             </div>
 
             <div class="flex-1 flex flex-col relative gap-6">
-                
-                <!-- Loading Overlay -->
-                <div x-show="isLoading" x-cloak class="absolute inset-0 z-50 bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-2xl">
-                    <div class="flex flex-col items-center">
-                        <div class="w-10 h-10 border-4 border-brand-blue border-t-transparent rounded-full animate-spin"></div>
-                        <p class="mt-2 text-sm font-bold text-brand-textBlue">Memuat data...</p>
-                    </div>
-                </div>
-
                 <!-- Filter Section -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="flex flex-wrap items-center gap-2 relative">
                         <template x-for="tab in ['Hari', 'Minggu', 'Bulan', 'Tahun']">
                             <button @click="fetchData(tab)"
                                 class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors"
-                                :class="filterWaktu === tab ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                                :class="filterWaktu === tab ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                                    'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
                                 x-text="tab">
                             </button>
                         </template>
@@ -56,14 +51,18 @@
                 </div>
 
                 <!-- Visualization & Summary Cards -->
-                <div class="flex flex-col lg:flex-row gap-6 mb-6">
+                <div class="flex flex-col lg:flex-row gap-6">
                     <!-- Trend Chart Container -->
                     <div class="flex-1 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-                        <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-chart-line text-brand-textBlue"></i>
-                            Tren Pendapatan Gabungan
-                        </h2>
-                        <div class="relative w-full h-[300px] lg:h-[400px]">
+                        <div class="px-1">
+                            <h2
+                                class="text-base font-bold text-slate-800 mb-8 flex
+                            items-center gap-4">
+                                <i class="fa-solid fa-chart-line text-brand-textBlue"></i>
+                                Tren Pendapatan Gabungan
+                            </h2>
+                        </div>
+                        <div class="relative w-full h-[350px] lg:h-[450px]">
                             <canvas id="trendPendapatanChart"></canvas>
                         </div>
                     </div>
@@ -97,7 +96,8 @@
                                 </div>
                             </div>
                             <h3 class="text-2xl font-bold text-green-600 tabular-nums"
-                                x-text="'Rp ' + formatRupiah(globalTotalCash)">Rp {{ number_format($globalTotalCash, 0, ',', '.') }}
+                                x-text="'Rp ' + formatRupiah(globalTotalCash)">Rp
+                                {{ number_format($globalTotalCash, 0, ',', '.') }}
                             </h3>
                         </div>
                         <div @click="activeFilter = 'qris'; updateChartData('qris')"
@@ -111,25 +111,30 @@
                                 </div>
                             </div>
                             <h3 class="text-2xl font-bold text-blue-600 tabular-nums"
-                                x-text="'Rp ' + formatRupiah(globalTotalQris)">Rp {{ number_format($globalTotalQris, 0, ',', '.') }}
+                                x-text="'Rp ' + formatRupiah(globalTotalQris)">Rp
+                                {{ number_format($globalTotalQris, 0, ',', '.') }}
                             </h3>
                         </div>
                         <!-- Tambahan: Total Transaksi -->
-                        <div class="rounded-xl p-5 border border-slate-200 bg-white shadow-sm flex-1 flex flex-col justify-center transition-all duration-300 hover:shadow-md hover:border-orange-500">
+                        <div
+                            class="rounded-xl p-5 border border-slate-200 bg-white shadow-sm flex-1 flex flex-col justify-center transition-all duration-300 hover:shadow-md hover:border-orange-500">
                             <div class="flex items-center justify-between mb-3">
                                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Transaksi</p>
-                                <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
+                                <div
+                                    class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
                                     <i class="fa-solid fa-receipt text-lg"></i>
                                 </div>
                             </div>
-                            <h3 class="text-2xl font-bold text-slate-700 tabular-nums" x-text="formatRupiah(globalTotalTransaksi)">{{ number_format($globalTotalTransaksi, 0, ',', '.') }}</h3>
+                            <h3 class="text-2xl font-bold text-slate-700 tabular-nums"
+                                x-text="formatRupiah(globalTotalTransaksi)">
+                                {{ number_format($globalTotalTransaksi, 0, ',', '.') }}</h3>
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex-1 flex flex-col">
-                    <div class="px-6 py-5 border-b border-gray-100 bg-white">
-                        <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                    <div class="px-6 py-5">
+                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-4">
                             <i class="fa-solid fa-store text-brand-textBlue"></i>
                             Rincian Keuangan per Cabang
                         </h2>
@@ -137,7 +142,8 @@
                     <div class="overflow-x-auto flex-1">
                         <table class="w-full text-center border-collapse">
                             <thead>
-                                <tr class="bg-gray-50/50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                                <tr
+                                    class="bg-gray-50/50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">
                                     <th class="px-6 py-4 text-left">Cabang</th>
                                     <th class="px-6 py-4">Total Pemasukan</th>
                                     <th class="px-6 py-4">Total Pengeluaran</th>
@@ -152,57 +158,68 @@
                                     <tr class="hover:bg-gray-50 transition-colors">
                                         <td class="px-6 py-4">
                                             <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 bg-brand-dark rounded-xl flex items-center justify-center text-white shrink-0">
+                                                <div
+                                                    class="w-10 h-10 bg-brand-dark rounded-xl flex items-center justify-center text-white shrink-0">
                                                     <i class="fa-solid fa-store text-sm"></i>
                                                 </div>
                                                 <div class="text-left">
-                                                    <p class="font-bold text-gray-900" x-text="summary.branch.name"></p>
-                                                    <p class="text-[11px] text-gray-500" x-text="summary.branch.address"></p>
+                                                    <p class="font-bold text-slate-800" x-text="summary.branch.name"></p>
+                                                    <p class="text-[11px] text-gray-500" x-text="summary.branch.address">
+                                                    </p>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 font-bold text-green-600 tabular-nums" x-text="'Rp ' + formatRupiah(summary.total_pemasukan)"></td>
-                                        <td class="px-6 py-4 font-bold text-red-500 tabular-nums" x-text="'Rp ' + formatRupiah(summary.total_pengeluaran)"></td>
-                                        <td class="px-6 py-4 font-bold text-blue-600 tabular-nums" x-text="'Rp ' + formatRupiah(summary.laba_bersih)"></td>
+                                        <td class="px-6 py-4 font-bold text-green-600 tabular-nums"
+                                            x-text="'Rp ' + formatRupiah(summary.total_pemasukan)"></td>
+                                        <td class="px-6 py-4 font-bold text-red-500 tabular-nums"
+                                            x-text="'Rp ' + formatRupiah(summary.total_pengeluaran)"></td>
+                                        <td class="px-6 py-4 font-bold text-slate-800 tabular-nums"
+                                            x-text="'Rp ' + formatRupiah(summary.laba_bersih)"></td>
                                         <td class="px-6 py-4">
                                             <div class="flex flex-col items-center">
-                                                <span class="font-bold text-gray-900" x-text="Number(summary.margin).toFixed(1) + '%'"></span>
+                                                <span class="font-bold text-slate-800"
+                                                    x-text="Number(summary.margin).toFixed(1) + '%'"></span>
                                                 <div class="w-16 h-1.5 bg-gray-200 rounded-full mt-1 overflow-hidden">
-                                                    <div class="h-full" 
-                                                         :class="summary.margin >= 30 ? 'bg-green-500' : (summary.margin > 15 ? 'bg-yellow-400' : 'bg-red-500')"
-                                                         :style="'width: ' + Math.min(summary.margin, 100) + '%'"></div>
+                                                    <div class="h-full"
+                                                        :class="summary.margin >= 30 ? 'bg-green-500' : (summary.margin > 15 ?
+                                                            'bg-yellow-400' : 'bg-red-500')"
+                                                        :style="'width: ' + Math.min(summary.margin, 100) + '%'"></div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4">
                                             <template x-if="summary.margin >= 30">
-                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-600 border border-green-200">
+                                                <span
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-600 border border-green-200">
                                                     <i class="fa-solid fa-arrow-trend-up"></i>
                                                     Sangat Baik
                                                 </span>
                                             </template>
                                             <template x-if="summary.margin > 15 && summary.margin < 30">
-                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-yellow-50 text-yellow-600 border border-yellow-200">
+                                                <span
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-yellow-50 text-yellow-600 border border-yellow-200">
                                                     <i class="fa-solid fa-minus"></i>
                                                     Normal
                                                 </span>
                                             </template>
                                             <template x-if="summary.margin <= 15">
-                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-200">
+                                                <span
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-200">
                                                     <i class="fa-solid fa-arrow-trend-down"></i>
                                                     Perlu Evaluasi
                                                 </span>
                                             </template>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <a :href="'/gm/keuangan/' + encodeURIComponent(summary.branch.name)" 
-                                               class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-brand-textBlue hover:bg-brand-blue hover:text-white transition-colors" title="Detail Cabang">
+                                            <a :href="'/gm/keuangan/' + encodeURIComponent(summary.branch.name)"
+                                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-brand-textBlue hover:bg-brand-blue hover:text-white transition-colors"
+                                                title="Detail Cabang">
                                                 <i class="fa-solid fa-arrow-right"></i>
                                             </a>
                                         </td>
                                     </tr>
                                 </template>
-                                
+
                                 <tr x-show="branchSummaries.length === 0" x-cloak>
                                     <td colspan="7" class="p-8 text-center text-gray-500">
                                         <div class="flex flex-col items-center justify-center">
@@ -228,13 +245,13 @@
             Alpine.data('keuanganGlobal', () => ({
                 filterWaktu: '{{ $filter ?? 'Hari' }}',
 
-                
+
                 globalTotalPemasukan: {{ $globalTotalPemasukan }},
                 globalTotalCash: {{ $globalTotalCash }},
                 globalTotalQris: {{ $globalTotalQris }},
                 globalTotalTransaksi: {{ $globalTotalTransaksi }},
                 branchSummaries: @json($branchSummaries),
-                
+
                 trendChartData: @json($trendChartData),
 
                 activeFilter: 'total',
@@ -252,7 +269,7 @@
                     if (newFilter) {
                         this.filterWaktu = newFilter;
                     }
-                    
+
                     this.isLoading = true;
                     try {
                         const url = new URL(window.location.href);
@@ -274,7 +291,7 @@
                             this.globalTotalTransaksi = data.globalTotalTransaksi;
                             this.branchSummaries = data.branchSummaries;
                             this.trendChartData = data.trendChartData;
-                            
+
                             this.updateChartDataObj(data.trendChartData);
                             window.history.pushState({}, '', url);
                         }
@@ -316,7 +333,7 @@
 
                 initCharts() {
                     const trendCtx = document.getElementById('trendPendapatanChart').getContext('2d');
-                    
+
                     window.trendChartInstance = new Chart(trendCtx, {
                         type: 'line',
                         data: {
@@ -325,10 +342,13 @@
                                 label: window.chartDatasets['total'].label,
                                 data: window.chartDatasets['total'].data,
                                 borderColor: window.chartDatasets['total'].borderColor,
-                                backgroundColor: window.chartDatasets['total'].backgroundColor,
+                                backgroundColor: window.chartDatasets['total']
+                                    .backgroundColor,
                                 borderWidth: 2,
-                                pointBackgroundColor: window.chartDatasets['total'].pointBackgroundColor,
-                                pointBorderColor: window.chartDatasets['total'].pointBorderColor,
+                                pointBackgroundColor: window.chartDatasets['total']
+                                    .pointBackgroundColor,
+                                pointBorderColor: window.chartDatasets['total']
+                                    .pointBorderColor,
                                 pointRadius: 4,
                                 fill: true,
                                 tension: 0.4
@@ -351,10 +371,16 @@
                                         }
                                     }
                                 },
-                                x: { grid: { display: false } }
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
                             },
                             plugins: {
-                                legend: { display: false }
+                                legend: {
+                                    display: false
+                                }
                             }
                         }
                     });
@@ -372,7 +398,8 @@
                     window.trendChartInstance.data.datasets[0].data = ds.data;
                     window.trendChartInstance.data.datasets[0].borderColor = ds.borderColor;
                     window.trendChartInstance.data.datasets[0].backgroundColor = ds.backgroundColor;
-                    window.trendChartInstance.data.datasets[0].pointBackgroundColor = ds.pointBackgroundColor;
+                    window.trendChartInstance.data.datasets[0].pointBackgroundColor = ds
+                        .pointBackgroundColor;
                     window.trendChartInstance.data.datasets[0].pointBorderColor = ds.pointBorderColor;
 
                     window.trendChartInstance.update();
@@ -381,14 +408,15 @@
                 updateChartData(source) {
                     this.activeFilter = source;
                     if (!window.trendChartInstance) return;
-                    
+
                     const ds = window.chartDatasets[source];
 
                     window.trendChartInstance.data.datasets[0].label = ds.label;
                     window.trendChartInstance.data.datasets[0].data = ds.data;
                     window.trendChartInstance.data.datasets[0].borderColor = ds.borderColor;
                     window.trendChartInstance.data.datasets[0].backgroundColor = ds.backgroundColor;
-                    window.trendChartInstance.data.datasets[0].pointBackgroundColor = ds.pointBackgroundColor;
+                    window.trendChartInstance.data.datasets[0].pointBackgroundColor = ds
+                        .pointBackgroundColor;
                     window.trendChartInstance.data.datasets[0].pointBorderColor = ds.pointBorderColor;
 
                     window.trendChartInstance.update();

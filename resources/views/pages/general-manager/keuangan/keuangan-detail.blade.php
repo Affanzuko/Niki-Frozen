@@ -57,8 +57,8 @@
                 <!-- Visualization & Summary Cards -->
                 <div class="flex flex-col lg:flex-row gap-6">
                     <!-- Line Chart -->
-                    <div class="flex-1 bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-                        <div class="relative w-full h-[300px] lg:h-[400px]">
+                    <div class="flex-1 bg-white rounded-xl p-8 py-10 border border-slate-200 shadow-sm">
+                        <div class="relative w-full h-[350px] lg:h-[500px]">
                             <canvas id="keuanganChart"></canvas>
                         </div>
                     </div>
@@ -110,14 +110,17 @@
                             </h3>
                         </div>
                         <!-- Tambahan: Total Transaksi -->
-                        <div class="rounded-xl p-5 border border-slate-200 bg-white shadow-sm flex-1 flex flex-col justify-center transition-all duration-300 hover:shadow-md hover:border-orange-500">
+                        <div
+                            class="rounded-xl p-5 border border-slate-200 bg-white shadow-sm flex-1 flex flex-col justify-center transition-all duration-300 hover:shadow-md hover:border-orange-500">
                             <div class="flex items-center justify-between mb-3">
                                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Transaksi</p>
-                                <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
+                                <div
+                                    class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
                                     <i class="fa-solid fa-receipt text-lg"></i>
                                 </div>
                             </div>
-                            <h3 class="text-2xl font-bold text-slate-700 tabular-nums" x-text="formatRupiah(totalTransaksi)">{{ number_format($totalTransaksi, 0, ',', '.') }}</h3>
+                            <h3 class="text-2xl font-bold text-slate-700 tabular-nums"
+                                x-text="formatRupiah(totalTransaksi)">{{ number_format($totalTransaksi, 0, ',', '.') }}</h3>
                         </div>
                     </div>
                 </div>
