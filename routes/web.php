@@ -43,7 +43,10 @@ Route::prefix('gm')->name('pages.general-manager.')->group(function () {
     Route::get('keuangan/{cabang}', [GmController::class, 'detailKeuangan'])->name('keuangan-detail');
     Route::get('kelola-akun', [GmController::class, 'kelolaAkun'])->name('kelola-akun');
     Route::get('tambah-akun', [GmController::class, 'tambahAkun'])->name('tambah-akun');
+    Route::post('tambah-akun', [GmController::class, 'storeAkun'])->name('store-akun');
     Route::get('edit-akun/{id}', [GmController::class, 'editAkun'])->name('edit-akun');
+    Route::put('edit-akun/{id}', [GmController::class, 'updateAkun'])->name('update-akun');
+    Route::delete('hapus-akun/{id}', [GmController::class, 'destroyAkun'])->name('hapus-akun');
 });
 
 Route::prefix('owner')->name('pages.owner.')->group(function () {
