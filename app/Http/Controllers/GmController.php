@@ -310,18 +310,91 @@ class GmController extends Controller
         ));
     }
 
-    public function kelolaAkun()
+    public function kelolaAkun(Request $request)
     {
-        return view('pages.general-manager.kelola-akun');
+        $query = \App\Models\User::where('role', '!=', 'owner')->with('branch');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('role') && $request->role !== 'Semua Role') {
+            $query->where('role', $request->role);
+        }
+
+        $users = $query->paginate(10)->withQueryString();
+
+        return view('pages.general-manager.kelola-akun', compact('users'));
     }
 
     public function tambahAkun()
     {
-        return view('pages.general-manager.kelola-akun.tambah-akun');
+        $branches = \App\Models\Branch::all();
+        return view('pages.general-manager.kelola-akun.tambah-akun', compact('branches'));
+    }
+
+    public function storeAkun(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
+            'password' => 'required|string|min:6',
+            'role' => 'required|in:general_manager,admin,cashier',
+            'branch_id' => 'nullable|exists:branches,id'
+        ]);
+
+        \App\Models\User::create([
+            'name' => $request->name,
+            'username' => $request->username,
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+            'role' => $request->role,
+            'branch_id' => $request->branch_id,
+        ]);
+
+        return redirect()->route('pages.general-manager.kelola-akun')->with('success', 'Akun berhasil ditambahkan');
     }
 
     public function editAkun($id)
     {
-        return view('pages.general-manager.kelola-akun.edit-akun', compact('id'));
+        $user = \App\Models\User::findOrFail($id);
+        $branches = \App\Models\Branch::all();
+        return view('pages.general-manager.kelola-akun.edit-akun', compact('user', 'branches'));
+    }
+
+    public function updateAkun(Request $request, $id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $id,
+            'role' => 'required|in:general_manager,admin,cashier',
+            'branch_id' => 'nullable|exists:branches,id'
+        ]);
+
+        $user->name = $request->name;
+        $user->username = $request->username;
+        $user->role = $request->role;
+        $user->branch_id = $request->branch_id;
+
+        if ($request->filled('password')) {
+            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return redirect()->route('pages.general-manager.kelola-akun')->with('success', 'Akun berhasil diperbarui');
+    }
+
+    public function destroyAkun($id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+        $user->delete();
+
+        return redirect()->route('pages.general-manager.kelola-akun')->with('success', 'Akun berhasil dihapus');
     }
 }
