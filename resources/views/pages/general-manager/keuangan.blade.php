@@ -233,6 +233,99 @@
                     </div>
                 </div>
 
+                <!-- Rincian Pendapatan Keseluruhan Cabang -->
+                <div class="w-full border border-slate-200 rounded-xl shadow-sm overflow-hidden bg-white flex-1 flex flex-col min-h-0"
+                    x-data="{
+                        syncScroll(e) {
+                            $refs.globalHeaderScroll.scrollLeft = e.target.scrollLeft;
+                        }
+                    }">
+
+                    <div class="px-6 py-5 bg-[#f8fafc]">
+                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-4">
+                            <i class="fa-solid fa-table-list text-brand-textBlue"></i>
+                            Rincian Pendapatan Keseluruhan Cabang
+                        </h2>
+                    </div>
+
+                    <!-- Header Table (Static) -->
+                    <div class="bg-[#f8fafc] overflow-hidden" x-ref="globalHeaderScroll">
+                        <table class="w-full text-left border-collapse table-fixed min-w-[800px]">
+                            <colgroup>
+                                <col class="w-[20%]">
+                                <col class="w-[16%]">
+                                <col class="w-[16%]">
+                                <col class="w-[16%]">
+                                <col class="w-[16%]">
+                                <col class="w-[16%]">
+                            </colgroup>
+                            <thead>
+                                <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                    <th class="p-4 py-4 pl-12 text-left">Waktu</th>
+                                    <th class="p-4 py-4 text-center">Cash</th>
+                                    <th class="p-4 py-4 text-center">QRIS</th>
+                                    <th class="p-4 py-4 text-center">Pengeluaran</th>
+                                    <th class="p-4 py-4 text-center">Saldo Akhir</th>
+                                    <th class="p-4 py-4 text-center whitespace-nowrap">Profit</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+
+                    <!-- Body Table (Scrollable) -->
+                    <div class="overflow-auto relative" @scroll="syncScroll">
+                        <table class="w-full text-left table-fixed min-w-[800px] shadow-sm rounded-xl">
+                            <colgroup>
+                                <col class="w-[20%]">
+                                <col class="w-[16%]">
+                                <col class="w-[16%]">
+                                <col class="w-[16%]">
+                                <col class="w-[16%]">
+                                <col class="w-[16%]">
+                            </colgroup>
+                            <tbody class="text-sm font-medium">
+                                <template x-for="row in globalTableData" :key="row.waktu">
+                                    <tr class="bg-white shadow-sm hover:shadow-md hover:bg-slate-50 transition-all group">
+                                        <td class="p-4 pl-12 text-left text-slate-700 border border-r-0 border-slate-100"
+                                            x-text="row.waktu"></td>
+                                        <td class="p-4 text-center font-semibold text-green-600 tabular-nums border border-l-0 border-r-0 border-slate-100"
+                                            x-text="'Rp ' + formatRupiah(row.cash)"></td>
+                                        <td class="p-4 text-center font-semibold text-blue-600 tabular-nums"
+                                            x-text="'Rp ' + formatRupiah(row.qris)"></td>
+                                        <td class="p-4 text-center font-semibold text-red-600 tabular-nums"
+                                            x-text="'Rp ' + formatRupiah(row.pengeluaran)"></td>
+                                        <td class="p-4 text-center font-semibold text-slate-800 tabular-nums"
+                                            x-text="'Rp ' + formatRupiah(row.saldo_akhir)"></td>
+                                        <td class="p-4 text-center font-semibold tabular-nums border border-l-0 border-slate-100"
+                                            :class="row.profit > 0 ? 'text-green-600' : (row.profit < 0 ? 'text-red-500' :
+                                                'text-slate-400')">
+                                            <span x-show="row.profit > 0"
+                                                x-text="'+ Rp ' + formatRupiah(row.profit)"></span>
+                                            <span x-show="row.profit < 0"
+                                                x-text="'- Rp ' + formatRupiah(Math.abs(row.profit))"></span>
+                                            <span x-show="row.profit == 0">-</span>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <tr x-show="globalTableData.length === 0" style="display: none;">
+                                    <td colspan="6" class="p-4 py-12 text-center text-slate-400">
+                                        <i class="fa-solid fa-chart-line text-3xl mb-2 block"></i>
+                                        <p class="font-medium">Belum ada data keuangan</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div id="global-pagination-container"
+                        class="px-4 py-3 border-t border-slate-200 bg-slate-50 shrink-0">
+                        @if ($globalTablePaginated->hasPages())
+                            {{ $globalTablePaginated->onEachSide(0)->links('pagination::tailwind') }}
+                        @endif
+                    </div>
+                </div>
+
             </div>
         </div>
     </main>
@@ -251,6 +344,7 @@
                 globalTotalQris: {{ $globalTotalQris }},
                 globalTotalTransaksi: {{ $globalTotalTransaksi }},
                 branchSummaries: @json($branchSummaries),
+                globalTableData: @json(collect($globalTablePaginated->items())->values()),
 
                 trendChartData: @json($trendChartData),
 
@@ -291,6 +385,14 @@
                             this.globalTotalTransaksi = data.globalTotalTransaksi;
                             this.branchSummaries = data.branchSummaries;
                             this.trendChartData = data.trendChartData;
+                            this.globalTableData = data.globalTableData;
+
+                            const globalPaginationContainer = document.getElementById(
+                                'global-pagination-container');
+                            if (globalPaginationContainer && data.globalTablePagination !==
+                                undefined) {
+                                globalPaginationContainer.innerHTML = data.globalTablePagination;
+                            }
 
                             this.updateChartDataObj(data.trendChartData);
                             window.history.pushState({}, '', url);

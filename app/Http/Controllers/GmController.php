@@ -75,30 +75,35 @@ class GmController extends Controller
             $startDate = $now->copy()->subDays(14)->startOfDay();
             $dateFormat = 'Y-m-d';
             $displayFormat = 'd/m';
+            $tableDisplayFormat = 'l, d m Y';
             $periodStep = '1 day';
         } elseif ($filter === 'Minggu') {
             $startDate = $now->copy()->subWeeks(7)->startOfWeek();
             $dateFormat = 'o-W';
             $displayFormat = '\M\i\n\g\g\u W';
+            $tableDisplayFormat = '\M\i\n\g\g\u W, Y';
             $periodStep = '1 week';
         } elseif ($filter === 'Bulan') {
             $startDate = $now->copy()->startOfYear();
             $dateFormat = 'Y-m';
             $displayFormat = 'M Y';
+            $tableDisplayFormat = 'F Y';
             $periodStep = '1 month';
         } elseif ($filter === 'Tahun') {
             $startDate = $now->copy()->subYears(4)->startOfYear();
             $dateFormat = 'Y';
             $displayFormat = 'Y';
+            $tableDisplayFormat = 'Y';
             $periodStep = '1 year';
         } else {
             $startDate = $now->copy()->subDays(14)->startOfDay();
             $dateFormat = 'Y-m-d';
             $displayFormat = 'd/m';
+            $tableDisplayFormat = 'l, d m Y';
             $periodStep = '1 day';
         }
 
-        $globalTransactions = \App\Models\Transaction::where('status', 'success')
+        $globalTransactions = \App\Models\Transaction::with(['items'])->where('status', 'success')
             ->whereBetween('created_at', [$startDate, $now])
             ->get();
 
@@ -130,17 +135,47 @@ class GmController extends Controller
             return $item->created_at->format($dateFormat);
         });
 
+        // Fetch all expenses across all branches for the period
+        $globalExpenses = \App\Models\Expense::whereBetween('date', [$startDate, $now])->get();
+        $groupedExpenses = $globalExpenses->groupBy(function($item) use ($dateFormat) {
+            return \Carbon\Carbon::parse($item->date)->format($dateFormat);
+        });
+
+        // Fetch latest purchase prices for HPP calculation
+        $latestPurchasePrices = \App\Models\StockIncoming::orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('product_id')
+            ->map(function ($incomings) {
+                return $incomings->first()->purchase_price ?? 0;
+            });
+
         $trendChartData = collect();
+        $globalTableData = collect();
+        $saldoAkhir = 0;
         $period = \Carbon\CarbonPeriod::create($startDate, $periodStep, $now);
 
         foreach ($period as $date) {
             $key = $date->format($dateFormat);
             $displayDate = $date->translatedFormat($displayFormat);
             $trxs = $groupedGlobal->get($key, collect());
+            $exps = $groupedExpenses->get($key, collect());
             
-            $pendapatan = $trxs->sum('total_price');
             $cash = $trxs->where('payment_method', 'cash')->sum('total_price');
             $qris = $trxs->where('payment_method', 'qris')->sum('total_price');
+            $pendapatan = $cash + $qris;
+
+            // Calculate HPP (Harga Pokok Penjualan)
+            $hpp = 0;
+            foreach ($trxs as $trx) {
+                foreach ($trx->items as $item) {
+                    $purchasePrice = $latestPurchasePrices->get($item->product_id, 0);
+                    $hpp += ($purchasePrice * $item->quantity);
+                }
+            }
+
+            $pengeluaran = $exps->sum('amount') + $hpp;
+            $profit = $pendapatan - $pengeluaran;
+            $saldoAkhir += $profit;
             
             $trendChartData->push([
                 'label' => $filter === 'Hari' ? $date->format('d/m') : $displayDate,
@@ -148,7 +183,32 @@ class GmController extends Controller
                 'cash' => $cash,
                 'qris' => $qris
             ]);
+
+            $tableDisplayDate = $date->translatedFormat($tableDisplayFormat);
+
+            $globalTableData->push([
+                'waktu' => $tableDisplayDate,
+                'cash' => $cash,
+                'qris' => $qris,
+                'pengeluaran' => $pengeluaran,
+                'saldo_akhir' => $saldoAkhir,
+                'profit' => $profit,
+            ]);
         }
+
+        // Reverse so newest is first
+        $globalTableData = $globalTableData->reverse()->values();
+
+        // Paginate globalTableData
+        $page = $request->input('page', 1);
+        $perPage = 10;
+        $globalTablePaginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $globalTableData->forPage($page, $perPage)->values(),
+            $globalTableData->count(),
+            $perPage,
+            $page,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => request()->query()]
+        );
 
         if ($request->ajax()) {
             return response()->json([
@@ -158,6 +218,8 @@ class GmController extends Controller
                 'globalTotalTransaksi' => $globalTotalTransaksi,
                 'branchSummaries' => $branchSummaries,
                 'trendChartData' => $trendChartData,
+                'globalTableData' => collect($globalTablePaginated->items())->values(),
+                'globalTablePagination' => (string) $globalTablePaginated->onEachSide(0)->links('pagination::tailwind'),
                 'filter' => $filter
             ]);
         }
@@ -169,6 +231,7 @@ class GmController extends Controller
             'globalTotalQris', 
             'globalTotalTransaksi',
             'trendChartData',
+            'globalTablePaginated',
             'filter'
         ));
     }
