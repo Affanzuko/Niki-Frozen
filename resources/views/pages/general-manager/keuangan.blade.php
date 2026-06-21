@@ -241,7 +241,7 @@
                         }
                     }">
 
-                    <div class="px-6 py-5 bg-[#f8fafc]">
+                    <div class="px-6 py-5 ">
                         <h2 class="text-base font-bold text-slate-800 flex items-center gap-4">
                             <i class="fa-solid fa-table-list text-brand-textBlue"></i>
                             Rincian Pendapatan Keseluruhan Cabang
