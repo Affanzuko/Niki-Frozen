@@ -22,19 +22,20 @@ class UserSeeder extends Seeder
             'branch_id' => null,
             'name' => 'Pemilik NikiFrozen',
             'username' => 'owner',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('owner123'),
             'role' => 'owner',
         ]);
 
         // Create general manager for each branch
-        foreach ($branches as $branch) {
-            User::factory()
-                ->manager()
-                ->create([
-                    'branch_id' => $branch->id,
-                    'name' => 'Manager ' . $branch->name,
-                ]);
-        }
+
+        User::create([
+            'branch_id' => null,
+            'name' => 'General Manager NikiFrozen',
+            'username' => 'general-manager',
+            'password' => Hash::make('gm123'),
+            'role' => 'general_manager',
+        ]);
+
 
         // Create admin for each branch (1 admin per branch)
         foreach ($branches as $branch) {
