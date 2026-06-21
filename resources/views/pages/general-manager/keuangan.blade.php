@@ -12,10 +12,10 @@
     <x-sidebar role="general-manager" active="keuangan" />
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full">
-        <div class="flex-1 flex flex-col h-full overflow-y-auto" x-data="keuanganGlobal()">
+    <main class="flex-1 overflow-y-auto relative w-full transition-all duration-300 bg-[#f8fafc]">
+        <div class="min-h-full p-4 lg:p-8 bg-[#f8fafc] rounded-tl-none lg:rounded-tl-2xl flex flex-col" x-data="keuanganGlobal()">
             <!-- Header -->
-            <header class="px-6 lg:px-8 py-6 flex justify-between items-center shrink-0">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
                 <div class="flex items-center gap-4">
                     <button x-data @click="$dispatch('open-sidebar')" class="lg:hidden text-gray-500 hover:text-gray-700">
                         <i class="fa-solid fa-bars text-xl"></i>
@@ -29,9 +29,9 @@
                     <i class="fa-regular fa-calendar text-brand-textBlue"></i>
                     <span class="text-sm font-semibold text-gray-700">{{ now()->translatedFormat('l, d F Y') }}</span>
                 </div>
-            </header>
+            </div>
 
-            <div class="px-6 lg:px-8 pb-8 flex-1 flex flex-col relative">
+            <div class="flex-1 flex flex-col relative gap-6">
                 
                 <!-- Loading Overlay -->
                 <div x-show="isLoading" x-cloak class="absolute inset-0 z-50 bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-2xl">
