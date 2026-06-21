@@ -8,14 +8,16 @@
 
 @section('content')
     <!-- Mobile Sidebar Backdrop -->
-    <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" class="fixed inset-0 bg-slate-900/50 z-20 lg:hidden backdrop-blur-sm" x-transition.opacity></div>
+    <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
+        class="fixed inset-0 bg-slate-900/50 z-20 lg:hidden backdrop-blur-sm" x-transition.opacity></div>
 
     <!-- Sidebar -->
     <x-sidebar role="general-manager" active="dashboard" />
 
     <!-- Main Content Area -->
     <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full transition-all duration-300">
-        <div class="flex-1 flex flex-col min-h-0 p-4 lg:p-8 bg-white rounded-tl-none lg:rounded-tl-2xl shadow-sm border-l border-t lg:border-t-0 border-slate-200 overflow-y-auto">
+        <div
+            class="flex-1 flex flex-col min-h-0 p-4 lg:p-8 bg-white rounded-tl-none lg:rounded-tl-2xl shadow-sm border-l border-t lg:border-t-0 border-slate-200 overflow-y-auto">
             <!-- Header -->
             <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
                 <div class="flex items-center gap-4">
@@ -41,7 +43,8 @@
                     })"
                         class="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer focus:ring-2 focus:ring-brand-blue">
                         <i class="fa-regular fa-calendar text-brand-textBlue"></i>
-                        <span x-text="selectedDate">{{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M Y') }}</span>
+                        <span
+                            x-text="selectedDate">{{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M Y') }}</span>
                         <i class="fa-solid fa-chevron-down text-[10px] ml-1 text-gray-400"></i>
                     </button>
                 </div>
@@ -61,46 +64,63 @@
                     @endphp
 
                     <!-- Total Pendapatan Hari Ini -->
-                    <a href="{{ route('pages.general-manager.keuangan') }}" class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-brand-textBlue transition-all duration-300 relative overflow-hidden block">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-brand-blue rounded-bl-full opacity-50 group-hover:scale-110 transition-transform"></div>
+                    <a href="{{ route('pages.general-manager.keuangan') }}"
+                        class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-brand-textBlue transition-all duration-300 relative overflow-hidden block">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-brand-blue rounded-bl-full opacity-50 group-hover:scale-110 transition-transform">
+                        </div>
                         <div class="flex justify-between items-start mb-6 relative z-10">
-                            <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Total Pendapatan {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-brand-textBlue group-hover:bg-brand-textBlue group-hover:text-white transition-colors">
+                            <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Total Pendapatan
+                                {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
+                            <div
+                                class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-brand-textBlue group-hover:bg-brand-textBlue group-hover:text-white transition-colors">
                                 <i class="fa-solid fa-money-bills text-lg"></i>
                             </div>
                         </div>
                         <div class="relative z-10">
-                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">Rp {{ number_format($globalTodayRevenue, 0, ',', '.') }}</h3>
+                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">Rp
+                                {{ number_format($globalTodayRevenue, 0, ',', '.') }}</h3>
                             <p class="text-sm text-gray-500 font-medium">Dari {{ count($branchSummaries) }} cabang</p>
                         </div>
                     </a>
 
                     <!-- Total Pengeluaran Hari Ini -->
-                    <div class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-red-500 transition-all duration-300 relative overflow-hidden block">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform"></div>
+                    <div
+                        class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-red-500 transition-all duration-300 relative overflow-hidden block">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform">
+                        </div>
                         <div class="flex justify-between items-start mb-6 relative z-10">
-                            <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Total Pengeluaran {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
-                            <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-colors">
+                            <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Total Pengeluaran
+                                {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
+                            <div
+                                class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-colors">
                                 <i class="fa-solid fa-money-bill-transfer text-lg"></i>
                             </div>
                         </div>
                         <div class="relative z-10">
-                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">Rp {{ number_format($globalTodayPengeluaran, 0, ',', '.') }}</h3>
+                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">Rp
+                                {{ number_format($globalTodayPengeluaran, 0, ',', '.') }}</h3>
                             <p class="text-sm text-gray-500 font-medium">Estimasi pengeluaran dari seluruh cabang</p>
                         </div>
                     </div>
 
                     <!-- Total Karyawan -->
-                    <a href="{{ route('pages.general-manager.kelola-akun') }}" class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-brand-textBlue transition-all duration-300 relative overflow-hidden block">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-brand-blue rounded-bl-full opacity-50 group-hover:scale-110 transition-transform"></div>
+                    <a href="{{ route('pages.general-manager.kelola-akun') }}"
+                        class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-brand-textBlue transition-all duration-300 relative overflow-hidden block">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-brand-blue rounded-bl-full opacity-50 group-hover:scale-110 transition-transform">
+                        </div>
                         <div class="flex justify-between items-start mb-6 relative z-10">
                             <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Total Karyawan</p>
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-brand-textBlue group-hover:bg-brand-textBlue group-hover:text-white transition-colors">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-brand-textBlue group-hover:bg-brand-textBlue group-hover:text-white transition-colors">
                                 <i class="fa-solid fa-users text-lg"></i>
                             </div>
                         </div>
                         <div class="relative z-10">
-                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">{{ $totalKaryawan }} Akun</h3>
+                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">
+                                {{ $totalKaryawan }} Akun</h3>
                             <p class="text-sm text-gray-500 font-medium">Terpantau dalam sistem</p>
                         </div>
                     </a>
@@ -114,33 +134,41 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                     @foreach ($branchSummaries as $summary)
-                        <a href="{{ route('pages.general-manager.keuangan-detail', ['cabang' => $summary['branch']->name]) }}" class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-brand-textBlue transition-all duration-300 overflow-hidden block">
-                            
+                        <a href="{{ route('pages.general-manager.keuangan-detail', ['cabang' => $summary['branch']->name]) }}"
+                            class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-brand-textBlue transition-all duration-300 overflow-hidden block">
+
                             <!-- Branch Header -->
                             <div class="px-6 pt-6 pb-4">
                                 <div class="flex items-center justify-between mb-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 bg-brand-dark rounded-xl flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
+                                        <div
+                                            class="w-10 h-10 bg-brand-dark rounded-xl flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
                                             <i class="fa-solid fa-store text-sm"></i>
                                         </div>
                                         <div>
-                                            <h3 class="font-bold text-gray-900 text-sm leading-tight">{{ $summary['branch']->name }}</h3>
+                                            <h3 class="font-bold text-gray-900 text-sm leading-tight">
+                                                {{ $summary['branch']->name }}</h3>
                                             <p class="text-xs text-gray-400 mt-0.5">{{ $summary['branch']->address }}</p>
                                         </div>
                                     </div>
-                                    <i class="fa-solid fa-arrow-right text-gray-300 group-hover:text-brand-textBlue group-hover:translate-x-1 transition-all"></i>
+                                    <i
+                                        class="fa-solid fa-arrow-right text-gray-300 group-hover:text-brand-textBlue group-hover:translate-x-1 transition-all"></i>
                                 </div>
                             </div>
 
                             <!-- Stats Grid -->
                             <div class="px-6 pb-6 grid grid-cols-2 gap-4">
                                 <div class="bg-gray-50 rounded-xl p-3">
-                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Pendapatan {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
-                                    <p class="text-sm font-bold text-gray-900 tabular-nums">Rp {{ number_format($summary['today_revenue'], 0, ',', '.') }}</p>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Pendapatan
+                                        {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
+                                    <p class="text-sm font-bold text-gray-900 tabular-nums">Rp
+                                        {{ number_format($summary['today_revenue'], 0, ',', '.') }}</p>
                                 </div>
                                 <div class="bg-gray-50 rounded-xl p-3">
-                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Transaksi {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
-                                    <p class="text-sm font-bold text-gray-900 tabular-nums">{{ $summary['today_transactions'] }}</p>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Transaksi
+                                        {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
+                                    <p class="text-sm font-bold text-gray-900 tabular-nums">
+                                        {{ $summary['today_transactions'] }}</p>
                                 </div>
                             </div>
                         </a>
@@ -152,15 +180,16 @@
                     <div class="px-6 py-5 border-b border-gray-100 bg-white">
                         <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
                             <i class="fa-solid fa-chart-bar text-brand-textBlue"></i>
-                            Perbandingan Pendapatan Cabang
+                            Perbandingan Pendapatan Cabang - {{ $dateObj->translatedFormat('F Y') }}
                         </h2>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-center border-collapse">
                             <thead>
-                                <tr class="bg-gray-50/50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                                <tr
+                                    class="bg-gray-50/50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">
                                     <th class="px-6 py-4 text-left">Cabang</th>
-                                    <th class="px-6 py-4">Pendapatan Total</th>
+                                    <th class="px-6 py-4">Profit</th>
                                     <th class="px-6 py-4">Total Transaksi</th>
                                     <th class="px-6 py-4">Rata-rata/Transaksi</th>
                                 </tr>
@@ -168,11 +197,15 @@
                             <tbody class="divide-y divide-gray-100 text-sm">
                                 @foreach ($branchSummaries as $summary)
                                     <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 text-left font-bold text-gray-900">{{ $summary['branch']->name }}</td>
-                                        <td class="px-6 py-4 font-bold text-green-600 tabular-nums">Rp {{ number_format($summary['total_revenue'], 0, ',', '.') }}</td>
-                                        <td class="px-6 py-4 font-bold text-gray-900 tabular-nums">{{ $summary['total_transactions'] }}</td>
+                                        <td class="px-6 py-4 text-left font-bold text-gray-900">
+                                            {{ $summary['branch']->name }}</td>
+                                        <td class="px-6 py-4 font-bold text-green-600 tabular-nums">Rp
+                                            {{ number_format($summary['total_revenue'], 0, ',', '.') }}</td>
+                                        <td class="px-6 py-4 font-bold text-gray-900 tabular-nums">
+                                            {{ $summary['total_transactions'] }}</td>
                                         <td class="px-6 py-4 text-gray-600 tabular-nums">
-                                            Rp {{ $summary['total_transactions'] > 0 ? number_format($summary['total_revenue'] / $summary['total_transactions'], 0, ',', '.') : '0' }}
+                                            Rp
+                                            {{ $summary['total_transactions'] > 0 ? number_format($summary['total_revenue'] / $summary['total_transactions'], 0, ',', '.') : '0' }}
                                         </td>
                                     </tr>
                                 @endforeach
