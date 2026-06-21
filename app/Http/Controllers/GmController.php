@@ -29,10 +29,14 @@ class GmController extends Controller
 
             $totalRevenue = \App\Models\Transaction::where('branch_id', $branch->id)
                 ->where('status', 'success')
+                ->whereMonth('created_at', $dateObj->month)
+                ->whereYear('created_at', $dateObj->year)
                 ->sum('total_price');
 
             $totalTransactions = \App\Models\Transaction::where('branch_id', $branch->id)
                 ->where('status', 'success')
+                ->whereMonth('created_at', $dateObj->month)
+                ->whereYear('created_at', $dateObj->year)
                 ->count();
 
             $todayPengeluaran = $todayRevenue * 0.65; // Estimated expense based on keuangan overview logic
