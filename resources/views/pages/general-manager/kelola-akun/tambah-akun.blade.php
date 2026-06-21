@@ -23,23 +23,31 @@
                         @csrf
                         <div class="mb-5">
                             <label class="block text-sm font-bold text-slate-800 mb-2">Nama Lengkap</label>
-                            <input type="text" name="name" value="{{ old('name') }}" placeholder="Nama Lengkap" required
+                            <input type="text" name="name" value="{{ old('name') }}" placeholder="Nama Lengkap"
+                                required
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all @error('name') border-red-500 @enderror">
-                            @error('name') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                            @error('name')
+                                <span class="text-xs text-red-500">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="mb-5">
                             <label class="block text-sm font-bold text-slate-800 mb-2">Username</label>
-                            <input type="text" name="username" value="{{ old('username') }}" placeholder="username" required
+                            <input type="text" name="username" value="{{ old('username') }}" placeholder="username"
+                                required
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all @error('username') border-red-500 @enderror">
-                            @error('username') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                            @error('username')
+                                <span class="text-xs text-red-500">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="mb-5">
                             <label class="block text-sm font-bold text-slate-800 mb-2">Password</label>
                             <input type="password" name="password" placeholder="Password (min 6 karakter)" required
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all @error('password') border-red-500 @enderror">
-                            @error('password') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                            @error('password')
+                                <span class="text-xs text-red-500">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="mb-5">
@@ -47,23 +55,28 @@
                             <select name="role" required
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all @error('role') border-red-500 @enderror">
                                 <option value="" disabled {{ old('role') ? '' : 'selected' }}>Pilih Role</option>
-                                <option value="general_manager" {{ old('role') == 'general_manager' ? 'selected' : '' }}>General Manager</option>
                                 <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                                 <option value="cashier" {{ old('role') == 'cashier' ? 'selected' : '' }}>Kasir</option>
                             </select>
-                            @error('role') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                            @error('role')
+                                <span class="text-xs text-red-500">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="mb-8">
-                            <label class="block text-sm font-bold text-slate-800 mb-2">Cabang (Opsional untuk GM)</label>
+                            <label class="block text-sm font-bold text-slate-800 mb-2">Cabang</label>
                             <select name="branch_id"
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all @error('branch_id') border-red-500 @enderror">
                                 <option value="">Pilih Cabang (Semua Cabang)</option>
-                                @foreach($branches as $branch)
-                                    <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                                @foreach ($branches as $branch)
+                                    <option value="{{ $branch->id }}"
+                                        {{ old('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}
+                                    </option>
                                 @endforeach
                             </select>
-                            @error('branch_id') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                            @error('branch_id')
+                                <span class="text-xs text-red-500">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="flex gap-3">

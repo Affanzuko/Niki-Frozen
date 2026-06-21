@@ -347,7 +347,7 @@ class GmController extends Controller
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
             'password' => 'required|string|min:6',
-            'role' => 'required|in:general_manager,admin,cashier',
+            'role' => 'required|in:admin,cashier',
             'branch_id' => 'nullable|exists:branches,id'
         ]);
 
@@ -356,7 +356,7 @@ class GmController extends Controller
             'username' => $request->username,
             'password' => \Illuminate\Support\Facades\Hash::make($request->password),
             'role' => $request->role,
-            'branch_id' => $request->branch_id,
+            'branch_id' => $request->role === 'general_manager' ? null : $request->branch_id,
         ]);
 
         return redirect()->route('pages.general-manager.kelola-akun')->with('success', 'Akun berhasil ditambahkan');
@@ -376,14 +376,21 @@ class GmController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username,' . $id,
-            'role' => 'required|in:general_manager,admin,cashier',
+            'role' => $user->role === 'general_manager' ? 'required|in:general_manager' : 'required|in:admin,cashier',
             'branch_id' => 'nullable|exists:branches,id'
         ]);
 
         $user->name = $request->name;
         $user->username = $request->username;
-        $user->role = $request->role;
-        $user->branch_id = $request->branch_id;
+        
+        if ($user->role === 'general_manager') {
+            // Role GM tidak bisa diubah menjadi role lain
+            $user->role = 'general_manager';
+        } else {
+            $user->role = $request->role;
+        }
+
+        $user->branch_id = $user->role === 'general_manager' ? null : $request->branch_id;
 
         if ($request->filled('password')) {
             $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
