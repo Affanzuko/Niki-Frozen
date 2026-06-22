@@ -1,0 +1,1 @@
+<!-- Placeholder untuk halaman error 500 (Kesalahan Server Internal) -->
