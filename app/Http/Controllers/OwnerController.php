@@ -15,8 +15,11 @@ class OwnerController extends Controller
      * Dashboard owner: ringkasan semua cabang.
      * Data transaksi, keuangan, dan stok terpisah per cabang.
      */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
+        $dateStr = $request->query('tanggal', today()->format('Y-m-d'));
+        $dateObj = \Carbon\Carbon::parse($dateStr);
+
         $branches = Branch::all();
 
         $branchSummaries = [];
@@ -25,23 +28,27 @@ class OwnerController extends Controller
             // Total pendapatan hari ini (transaksi sukses)
             $todayRevenue = Transaction::where('branch_id', $branch->id)
                 ->where('status', 'success')
-                ->whereDate('created_at', today())
+                ->whereDate('created_at', $dateObj)
                 ->sum('total_price');
 
             // Total transaksi hari ini
             $todayTransactions = Transaction::where('branch_id', $branch->id)
                 ->where('status', 'success')
-                ->whereDate('created_at', today())
+                ->whereDate('created_at', $dateObj)
                 ->count();
 
-            // Total semua pendapatan (all time)
+            // Total semua pendapatan bulan ini
             $totalRevenue = Transaction::where('branch_id', $branch->id)
                 ->where('status', 'success')
+                ->whereMonth('created_at', $dateObj->month)
+                ->whereYear('created_at', $dateObj->year)
                 ->sum('total_price');
 
-            // Total semua transaksi
+            // Total semua transaksi bulan ini
             $totalTransactions = Transaction::where('branch_id', $branch->id)
                 ->where('status', 'success')
+                ->whereMonth('created_at', $dateObj->month)
+                ->whereYear('created_at', $dateObj->year)
                 ->count();
 
             // Stok rendah (quantity < 20)
@@ -51,7 +58,7 @@ class OwnerController extends Controller
 
             // Barang mendekati kadaluarsa (dalam 30 hari ke depan)
             $nearExpiryCount = StockIncoming::where('branch_id', $branch->id)
-                ->whereBetween('expiry_date', [today(), today()->addDays(30)])
+                ->whereBetween('expiry_date', [$dateObj, $dateObj->copy()->addDays(30)])
                 ->count();
 
             // Total produk
@@ -73,7 +80,7 @@ class OwnerController extends Controller
             ];
         }
 
-        return view('pages.owner.dashboard', compact('branchSummaries'));
+        return view('pages.owner.dashboard', compact('branchSummaries', 'dateObj'));
     }
 
     /**
@@ -183,5 +190,39 @@ class OwnerController extends Controller
             'globalTotalQris', 
             'globalTotalTransaksi'
         ));
+    }
+
+    public function stok(Request $request)
+    {
+        $branches = Branch::all();
+        $selectedBranchId = $request->query('cabang', 'Semua');
+
+        $query = Stock::with(['product.category', 'product.unit', 'branch']);
+
+        if ($selectedBranchId !== 'Semua') {
+            $query->where('branch_id', $selectedBranchId);
+        }
+
+        $stocks = $query->orderBy('quantity', 'asc')->get();
+
+        $activeBatchesQuery = StockIncoming::where('current_quantity', '>', 0)
+            ->with('branch')
+            ->orderBy('expiry_date', 'asc');
+
+        if ($selectedBranchId !== 'Semua') {
+            $activeBatchesQuery->where('branch_id', $selectedBranchId);
+        }
+
+        $activeBatches = $activeBatchesQuery->get()->groupBy(function($item) {
+            return $item->product_id . '-' . $item->branch_id;
+        });
+
+        $incomingsQuery = StockIncoming::with(['product', 'branch', 'user'])->orderBy('created_at', 'desc');
+        if ($selectedBranchId !== 'Semua') {
+            $incomingsQuery->where('branch_id', $selectedBranchId);
+        }
+        $incomings = $incomingsQuery->get();
+
+        return view('pages.owner.stok', compact('stocks', 'activeBatches', 'branches', 'selectedBranchId', 'incomings'));
     }
 }
