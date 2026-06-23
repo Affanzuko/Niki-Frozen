@@ -56,6 +56,7 @@
                     @php
                         $globalTodayRevenue = collect($branchSummaries)->sum('today_revenue');
                         $globalTotalRevenue = collect($branchSummaries)->sum('total_revenue');
+                        $globalTodayPengeluaran = collect($branchSummaries)->sum('today_pengeluaran');
                         $globalTodayTx = collect($branchSummaries)->sum('today_transactions');
                         $globalTotalTx = collect($branchSummaries)->sum('total_transactions');
                         $globalLowStock = collect($branchSummaries)->sum('low_stock_count');
@@ -63,49 +64,63 @@
                     @endphp
 
                     <!-- Total Pendapatan Hari Ini -->
-                    <div class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-brand-blue rounded-bl-full opacity-50 group-hover:scale-110 transition-transform"></div>
+                    <a href="{{ route('pages.owner.keuangan') }}"
+                        class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-brand-textBlue transition-all duration-300 relative overflow-hidden block">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-brand-blue rounded-bl-full opacity-50 group-hover:scale-110 transition-transform">
+                        </div>
                         <div class="flex justify-between items-start mb-6 relative z-10">
-                            <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Total Pendapatan Hari Ini</p>
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-brand-textBlue">
+                            <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Total Pendapatan
+                                {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
+                            <div
+                                class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-brand-textBlue group-hover:bg-brand-textBlue group-hover:text-white transition-colors">
                                 <i class="fa-solid fa-money-bills text-lg"></i>
                             </div>
                         </div>
                         <div class="relative z-10">
-                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">Rp {{ number_format($globalTodayRevenue, 0, ',', '.') }}</h3>
+                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">Rp
+                                {{ number_format($globalTodayRevenue, 0, ',', '.') }}</h3>
                             <p class="text-sm text-gray-500 font-medium">Dari {{ count($branchSummaries) }} cabang</p>
                         </div>
-                    </div>
+                    </a>
 
-                    <!-- Total Transaksi Hari Ini -->
-                    <div class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-brand-blue rounded-bl-full opacity-50 group-hover:scale-110 transition-transform"></div>
+                    <!-- Total Pengeluaran Hari Ini -->
+                    <a href="{{ route('pages.owner.keuangan') }}" class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-red-500 transition-all duration-300 relative overflow-hidden block">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full opacity-50 group-hover:scale-110 transition-transform"></div>
                         <div class="flex justify-between items-start mb-6 relative z-10">
-                            <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Total Transaksi Hari Ini</p>
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-brand-textBlue">
-                                <i class="fa-solid fa-cart-shopping text-lg"></i>
+                            <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Total Pengeluaran
+                                {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
+                            <div
+                                class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-money-bill-transfer text-lg"></i>
                             </div>
                         </div>
                         <div class="relative z-10">
-                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">{{ $globalTodayTx }}</h3>
-                            <p class="text-sm text-gray-500 font-medium">Total semua transaksi: {{ $globalTotalTx }}</p>
+                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">Rp
+                                {{ number_format($globalTodayPengeluaran, 0, ',', '.') }}</h3>
+                            <p class="text-sm text-gray-500 font-medium">Estimasi pengeluaran dari seluruh cabang</p>
                         </div>
-                    </div>
+                    </a>
 
                     <!-- Total Stok Semua Cabang -->
-                    <div class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-brand-blue rounded-bl-full opacity-50 group-hover:scale-110 transition-transform"></div>
+                    <a href="{{ route('pages.owner.stok') }}"
+                        class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-brand-textBlue transition-all duration-300 relative overflow-hidden block">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-brand-blue rounded-bl-full opacity-50 group-hover:scale-110 transition-transform">
+                        </div>
                         <div class="flex justify-between items-start mb-6 relative z-10">
                             <p class="text-xs font-bold text-gray-500 tracking-wider uppercase">Total Stok Semua Cabang</p>
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-brand-textBlue group-hover:bg-brand-textBlue group-hover:text-white transition-colors">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-brand-textBlue group-hover:bg-brand-textBlue group-hover:text-white transition-colors">
                                 <i class="fa-solid fa-boxes-stacked text-lg"></i>
                             </div>
                         </div>
                         <div class="relative z-10">
-                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">{{ number_format($globalTotalStock, 0, ',', '.') }} Unit</h3>
+                            <h3 class="text-3xl font-bold text-gray-900 mb-1 tracking-tight tabular-nums">
+                                {{ number_format($globalTotalStock, 0, ',', '.') }} Unit</h3>
                             <p class="text-sm text-gray-500 font-medium">Dari {{ count($branchSummaries) }} cabang</p>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
                 <!-- Per-Branch Cards -->
@@ -138,11 +153,13 @@
                             <!-- Stats Grid -->
                             <div class="px-6 pb-4 grid grid-cols-2 gap-4">
                                 <div class="bg-gray-50 rounded-xl p-3">
-                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Pendapatan Hari Ini</p>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Pendapatan
+                                        {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
                                     <p class="text-sm font-bold text-gray-900 tabular-nums">Rp {{ number_format($summary['today_revenue'], 0, ',', '.') }}</p>
                                 </div>
                                 <div class="bg-gray-50 rounded-xl p-3">
-                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Transaksi Hari Ini</p>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Transaksi
+                                        {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
                                     <p class="text-sm font-bold text-gray-900 tabular-nums">{{ $summary['today_transactions'] }}</p>
                                 </div>
                                 <div class="bg-gray-50 rounded-xl p-3">
