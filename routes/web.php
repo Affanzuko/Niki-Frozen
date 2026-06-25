@@ -33,6 +33,8 @@ Route::prefix('admin')->name('pages.admin.')->group(function () {
     Route::get('stok/edit/{id}', [ProductController::class, 'editProduct'])->name('stok.edit');
     Route::put('stok/edit/{id}', [ProductController::class, 'updateProduct'])->name('stok.update');
     Route::delete('stok/{id}', [ProductController::class, 'destroy'])->name('stok.destroy');
+    Route::put('stok/batch/{id}', [\App\Http\Controllers\StockBatchController::class, 'update'])->name('stok.batch.update');
+    Route::delete('stok/batch/{id}', [\App\Http\Controllers\StockBatchController::class, 'destroy'])->name('stok.batch.destroy');
     Route::get('kelola-harga', [ProductController::class, 'index'])->name('kelola-harga');
     Route::put('kelola-harga/{id}', [ProductController::class, 'update'])->name('kelola-harga.update');
 });

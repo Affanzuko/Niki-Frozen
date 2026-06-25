@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    if (typeof flatpickr !== 'undefined' && document.getElementById('expiry_date')) {
-        flatpickr('#expiry_date', {
+    if (typeof flatpickr !== 'undefined' && document.querySelector('.flatpickr-date')) {
+        flatpickr('.flatpickr-date', {
             dateFormat: 'Y-m-d',
             altInput: true,
             altFormat: 'j F Y',

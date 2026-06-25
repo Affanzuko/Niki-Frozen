@@ -55,10 +55,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $categories = \App\Models\ProductCategory::all();
         $units = \App\Models\ProductUnit::all();
-        $stockIncoming = \App\Models\StockIncoming::where('product_id', $id)->orderBy('expiry_date', 'asc')->first();
-        $expiry_date = $stockIncoming ? $stockIncoming->expiry_date : null;
-
-        return view('pages.admin.stok.edit', compact('product', 'categories', 'units', 'expiry_date'));
+        return view('pages.admin.stok.edit', compact('product', 'categories', 'units'));
     }
 
     /**
@@ -70,7 +67,6 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'product_category_id' => 'nullable|exists:product_categories,id',
             'product_unit_id' => 'nullable|exists:product_units,id',
-            'expiry_date' => 'nullable|date',
         ]);
 
         $product = Product::findOrFail($id);
@@ -80,25 +76,6 @@ class ProductController extends Controller
             'product_category_id' => $request->product_category_id,
             'product_unit_id' => $request->product_unit_id,
         ]);
-
-        if ($request->filled('expiry_date')) {
-            $affected = \App\Models\StockIncoming::where('product_id', $id)->update([
-                'expiry_date' => $request->expiry_date
-            ]);
-
-            // Jika sebelumnya belum ada riwayat barang masuk (misal dari data seeder), buat record baru
-            if ($affected === 0) {
-                $stock = \App\Models\Stock::where('product_id', $id)->first();
-                \App\Models\StockIncoming::create([
-                    'product_id' => $id,
-                    'branch_id' => $product->branch_id ?? 1,
-                    'user_id' => 1, // Default user
-                    'quantity' => $stock ? $stock->quantity : 0,
-                    'current_quantity' => $stock ? $stock->quantity : 0,
-                    'expiry_date' => $request->expiry_date,
-                ]);
-            }
-        }
 
         return redirect()->route('pages.admin.stok')
             ->with('success', 'Produk "' . $product->name . '" berhasil diperbarui.');
