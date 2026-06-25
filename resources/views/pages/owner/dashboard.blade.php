@@ -29,7 +29,7 @@
                     </div>
                 </div>
                 <div x-data="{
-                    selectedDate: '{{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M Y') }}'
+                    selectedDate: '{{ $dateObj->isToday() ? 'Hari Ini - ' . $dateObj->translatedFormat('l, d M Y') : $dateObj->translatedFormat('l, d M Y') }}'
                 }">
                     <button x-ref="dateBtn" x-init="flatpickr($refs.dateBtn, {
                         dateFormat: 'Y-m-d',
@@ -42,7 +42,7 @@
                     })"
                         class="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer focus:ring-2 focus:ring-brand-blue">
                         <i class="fa-regular fa-calendar text-brand-textBlue"></i>
-                        <span x-text="selectedDate">{{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M Y') }}</span>
+                        <span x-text="selectedDate">{{ $dateObj->isToday() ? 'Hari Ini - ' . $dateObj->translatedFormat('l, d M Y') : $dateObj->translatedFormat('l, d M Y') }}</span>
                         <i class="fa-solid fa-chevron-down text-[10px] ml-1 text-gray-400"></i>
                     </button>
                 </div>
