@@ -3,20 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\Stock;
+use App\Models\StockIncoming;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Midtrans\Snap;
+use Illuminate\Support\Facades\Log;
+use Midtrans\Config;
 
 class PaymentController extends Controller
 {
     public function __construct()
     {
         // Set konfigurasi Midtrans
-        \Midtrans\Config::$serverKey    = config('midtrans.server_key');
-        \Midtrans\Config::$isProduction = config('midtrans.is_production');
-        \Midtrans\Config::$isSanitized  = config('midtrans.is_sanitized');
-        \Midtrans\Config::$is3ds        = config('midtrans.is_3ds');
+        Config::$serverKey    = config('midtrans.server_key');
+        Config::$isProduction = config('midtrans.is_production');
+        Config::$isSanitized  = config('midtrans.is_sanitized');
+        Config::$is3ds        = config('midtrans.is_3ds');
     }
 
     /**
@@ -40,7 +45,7 @@ class PaymentController extends Controller
 
         // Cek ketersediaan stok
         foreach ($items as $item) {
-            $stock = Stock::where('product_id', $item['id'])
+            $stock = Stock::query()->where('product_id', $item['id'])
                 ->where('branch_id', $branchId)
                 ->first();
 
@@ -56,8 +61,8 @@ class PaymentController extends Controller
         $grossAmount = collect($items)->sum(fn($item) => $item['harga'] * $item['jumlah']);
 
         // Generate kode transaksi
-        $date = date('Ymd');
-        $lastTransaction = Transaction::where('transaction_code', 'like', "TRX-{$date}-%")
+        $date = date('dmY');
+        $lastTransaction = Transaction::query()->where('transaction_code', 'like', "TRXF-{$date}-%")
             ->orderBy('id', 'desc')
             ->first();
 
@@ -67,11 +72,11 @@ class PaymentController extends Controller
             $nextSequence = str_pad($lastSequence + 1, 3, '0', STR_PAD_LEFT);
         }
 
-        $transactionCode = "TRX-{$date}-{$nextSequence}";
+        $transactionCode = "TRXF-{$date}-{$nextSequence}";
 
         DB::beginTransaction();
         try {
-            $transaction = Transaction::create([
+            $transaction = Transaction::query()->create([
                 'cashier_session_id' => $cashierSessionId,
                 'branch_id'          => $branchId,
                 'transaction_code'   => $transactionCode,
@@ -81,7 +86,7 @@ class PaymentController extends Controller
             ]);
 
             foreach ($items as $item) {
-                TransactionItem::create([
+                TransactionItem::query()->create([
                     'transaction_id'   => $transaction->id,
                     'product_id'       => $item['id'],
                     'product_name'     => $item['nama'],
@@ -102,7 +107,7 @@ class PaymentController extends Controller
                 'total'            => $grossAmount,
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status'  => 'error',
@@ -124,7 +129,7 @@ class PaymentController extends Controller
         // Cek ketersediaan stok sebelum checkout
         $branchId = $request->branch_id ?? 1; // Default branch
         foreach ($items as $item) {
-            $stock = Stock::where('product_id', $item['id'])
+            $stock = Stock::query()->where('product_id', $item['id'])
                 ->where('branch_id', $branchId)
                 ->first();
 
@@ -149,8 +154,8 @@ class PaymentController extends Controller
         }
 
         // 4. Generate Kode Transaksi
-        $date = date('Ymd');
-        $lastTransaction = Transaction::where('transaction_code', 'like', "TRX-{$date}-%")
+        $date = date('dmY');
+        $lastTransaction = Transaction::query()->where('transaction_code', 'like', "TRXF-{$date}-%")
             ->orderBy('id', 'desc')
             ->first();
 
@@ -160,14 +165,14 @@ class PaymentController extends Controller
             $nextSequence = str_pad($lastSequence + 1, 3, '0', STR_PAD_LEFT);
         }
 
-        $transactionCode = "TRX-{$date}-{$nextSequence}";
+        $transactionCode = "TRXF-{$date}-{$nextSequence}";
 
         $cashierSessionId = $request->cashier_session_id ?? 1;
         $branchId         = $request->branch_id ?? 1;
 
         DB::beginTransaction();
         try {
-            $transaction = Transaction::create([
+            $transaction = Transaction::query()->create([
                 'cashier_session_id' => $cashierSessionId,
                 'branch_id'          => $branchId,
                 'transaction_code'   => $transactionCode,
@@ -177,7 +182,7 @@ class PaymentController extends Controller
             ]);
 
             foreach ($items as $item) {
-                TransactionItem::create([
+                TransactionItem::query()->create([
                     'transaction_id'   => $transaction->id,
                     'product_id'       => $item['id'],
                     'product_name'     => $item['nama'],
@@ -204,10 +209,10 @@ class PaymentController extends Controller
                 ],
             ];
 
-            \Log::info('Midtrans params:', $params);
+            Log::info('Midtrans params:', $params);
 
             // Dapatkan dan simpan Snap Token
-            $snapToken = \Midtrans\Snap::getSnapToken($params);
+            $snapToken = Snap::getSnapToken($params);
 
             // Simpan token ke database
             $transaction->update(['snap_token' => $snapToken]);
@@ -220,7 +225,7 @@ class PaymentController extends Controller
                 'order_id'   => $transactionCode
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status'  => 'error',
@@ -230,14 +235,14 @@ class PaymentController extends Controller
     }
     public function callback(Request $request)
     {
-        \Log::info('Midtrans callback received:', $request->all());
+        Log::info('Midtrans callback received:', $request->all());
 
         $serverKey = config('midtrans.server_key');
         $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
 
         if ($hashed == $request->signature_key) {
-            $transaction = \App\Models\Transaction::where('transaction_code', $request->order_id)->first();
-            \Log::info('Transaction found:', ['transaction' => $transaction]);
+            $transaction = Transaction::query()->where('transaction_code', $request->order_id)->first();
+            Log::info('Transaction found:', ['transaction' => $transaction]);
 
             if ($transaction) {
                 $previousStatus = $transaction->status;
@@ -249,7 +254,7 @@ class PaymentController extends Controller
                     $status = 'failed';
                 }
 
-                \Log::info('Updating transaction status', ['order_id' => $request->order_id, 'new_status' => $status]);
+                Log::info('Updating transaction status', ['order_id' => $request->order_id, 'new_status' => $status]);
                 $transaction->update(['status' => $status]);
 
                 // ===== BARANG KELUAR OTOMATIS =====
@@ -263,12 +268,12 @@ class PaymentController extends Controller
                     $this->restoreStock($transaction);
                 }
 
-                \Log::info('Transaction updated successfully', ['transaction' => $transaction->fresh()]);
+                Log::info('Transaction updated successfully', ['transaction' => $transaction->fresh()]);
             } else {
-                \Log::warning('Transaction not found', ['order_id' => $request->order_id]);
+                Log::warning('Transaction not found', ['order_id' => $request->order_id]);
             }
         } else {
-            \Log::warning('Signature verification failed', ['hashed' => $hashed, 'signature_key' => $request->signature_key]);
+            Log::warning('Signature verification failed', ['hashed' => $hashed, 'signature_key' => $request->signature_key]);
         }
 
         return response()->json(['message' => 'Callback received']);
@@ -276,7 +281,7 @@ class PaymentController extends Controller
 
     public function markSuccessLocal(Request $request)
     {
-        $transaction = \App\Models\Transaction::where('transaction_code', $request->order_id)->first();
+        $transaction = Transaction::query()->where('transaction_code', $request->order_id)->first();
         if ($transaction && $transaction->status !== 'success') {
             $transaction->update(['status' => 'success']);
             $this->deductStock($transaction);
@@ -294,16 +299,16 @@ class PaymentController extends Controller
         $branchId = $transaction->branch_id;
 
         foreach ($items as $item) {
-            $stock = Stock::where('product_id', $item->product_id)
+            $stock = Stock::query()->where('product_id', $item->product_id)
                 ->where('branch_id', $branchId)
                 ->first();
 
             if ($stock) {
                 $stock->decrement('quantity', $item->quantity);
-                
+
                 // FEFO Logic
                 $qtyToDeduct = $item->quantity;
-                $batches = \App\Models\StockIncoming::where('product_id', $item->product_id)
+                $batches = StockIncoming::query()->where('product_id', $item->product_id)
                     ->where('branch_id', $branchId)
                     ->where('current_quantity', '>', 0)
                     ->orderBy('expiry_date', 'asc')
@@ -322,14 +327,14 @@ class PaymentController extends Controller
                     }
                 }
 
-                \Log::info('Stock deducted with FEFO', [
+                Log::info('Stock deducted with FEFO', [
                     'product_id' => $item->product_id,
                     'branch_id' => $branchId,
                     'quantity_deducted' => $item->quantity,
                     'remaining_stock' => $stock->fresh()->quantity,
                 ]);
             } else {
-                \Log::warning('Stock record not found for deduction', [
+                Log::warning('Stock record not found for deduction', [
                     'product_id' => $item->product_id,
                     'branch_id' => $branchId,
                 ]);
@@ -346,7 +351,7 @@ class PaymentController extends Controller
         $branchId = $transaction->branch_id;
 
         foreach ($items as $item) {
-            $stock = Stock::where('product_id', $item->product_id)
+            $stock = Stock::query()->where('product_id', $item->product_id)
                 ->where('branch_id', $branchId)
                 ->first();
 
@@ -355,7 +360,7 @@ class PaymentController extends Controller
 
                 // LIFO Reversal Logic
                 $qtyToRestore = $item->quantity;
-                $batches = \App\Models\StockIncoming::where('product_id', $item->product_id)
+                $batches = StockIncoming::query()->where('product_id', $item->product_id)
                     ->where('branch_id', $branchId)
                     ->whereColumn('current_quantity', '<', 'quantity')
                     ->orderBy('expiry_date', 'desc')
@@ -375,7 +380,7 @@ class PaymentController extends Controller
                     }
                 }
 
-                \Log::info('Stock restored with LIFO', [
+                Log::info('Stock restored with LIFO', [
                     'product_id' => $item->product_id,
                     'branch_id' => $branchId,
                     'quantity_restored' => $item->quantity,
