@@ -136,6 +136,19 @@ window.updateQty = function(id, delta) {
     }
 };
 
+window.setQty = function(id, value) {
+    const item = window.cart.find(i => i.id === id);
+    if (item) {
+        let val = parseInt(value);
+        if (isNaN(val) || val <= 0) {
+            window.removeFromCart(id);
+        } else {
+            item.jumlah = val;
+            window.renderCart();
+        }
+    }
+};
+
 window.renderCart = function() {
     const container = document.getElementById('cart-items');
 
@@ -160,10 +173,17 @@ window.renderCart = function() {
             </div>
             <div class="flex justify-between items-center">
                 <p class="text-[11px] font-medium text-slate-500">Rp ${item.harga.toLocaleString('id-ID')} / item</p>
-                <div class="flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 shadow-sm">
-                    <button onclick="updateQty(${item.id}, -1)" class="w-7 h-6 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition-colors font-medium active:scale-95">−</button>
-                    <span class="w-8 text-center text-xs font-bold text-slate-800">${item.jumlah}</span>
-                    <button onclick="updateQty(${item.id}, 1)" class="w-7 h-6 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition-colors font-medium active:scale-95">+</button>
+                <div class="flex items-center gap-2">
+                    <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors border border-red-200" title="Hapus Item">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                    <div class="flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 shadow-sm">
+                        <button onclick="updateQty(${item.id}, -1)" class="w-7 h-6 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition-colors font-medium active:scale-95">−</button>
+                        <input type="number" min="1" value="${item.jumlah}" onchange="setQty(${item.id}, this.value)" class="w-8 text-center text-xs font-bold text-slate-800 bg-transparent border-none outline-none p-0 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                        <button onclick="updateQty(${item.id}, 1)" class="w-7 h-6 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition-colors font-medium active:scale-95">+</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -210,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
 window.applyFilters = function() {
     const searchProduk = document.getElementById('search-produk');
     if (!searchProduk) return;
-    
+
     const keyword = searchProduk.value.toLowerCase();
     const cards = document.querySelectorAll('.product-card');
 
@@ -286,7 +306,7 @@ window.processPayment = async function(method) {
                         } catch (e) {
                             console.error('Failed to update status locally', e);
                         }
-                        
+
                         window.saveTransactionData('qris', null, null);
                         window.clearCartAfterPayment();
                         window.showSuccessModal('QRIS', null);
@@ -583,7 +603,7 @@ window.cetakStruk = function() {
 window.clearCartAfterPayment = function() {
     window.cart = [];
     window.renderCart();
-    
+
     const searchProduk = document.getElementById('search-produk');
     if (searchProduk) {
         searchProduk.value = '';
