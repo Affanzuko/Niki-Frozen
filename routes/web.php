@@ -13,6 +13,8 @@ Route::get('/', function () {
     return redirect()->route('pages.kasir.dashboard');
 });
 
+Route::view('/login', 'auth.login')->name('login');
+
 Route::prefix('kasir')->name('pages.kasir.')->group(function () {
     Route::get('/', [KasirController::class,'index'])->name('dashboard');
     Route::get('penjualan', [KasirController::class, 'penjualan'])->name('penjualan');
