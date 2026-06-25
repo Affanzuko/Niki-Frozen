@@ -25,19 +25,8 @@ class RoleMiddleware
         $user = Auth::user();
 
         if (!in_array($user->role, $roles)) {
-            // Redirect based on role if they try to access unauthorized pages
-            switch ($user->role) {
-                case 'owner':
-                    return redirect()->route('pages.owner.dashboard');
-                case 'general_manager':
-                    return redirect()->route('pages.general-manager.dashboard');
-                case 'admin':
-                    return redirect()->route('pages.admin.dashboard');
-                case 'cashier':
-                    return redirect()->route('pages.kasir.dashboard');
-                default:
-                    return redirect('/login');
-            }
+            // Tampilkan halaman error 403
+            abort(403, 'Akses ditolak.');
         }
 
         return $next($request);
