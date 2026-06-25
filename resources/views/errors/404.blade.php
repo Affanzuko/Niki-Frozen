@@ -53,8 +53,18 @@
             Brrr... Sepertinya halaman yang Anda cari sudah hilang atau membeku di suatu tempat. Mari kita kembali ke tempat yang lebih hangat!
         </p>
 
+        @php
+            $homeUrl = url('/');
+            if (auth()->check()) {
+                $role = auth()->user()->role;
+                if ($role === 'owner') $homeUrl = route('pages.owner.dashboard');
+                elseif ($role === 'general_manager') $homeUrl = route('pages.general-manager.dashboard');
+                elseif ($role === 'admin') $homeUrl = route('pages.admin.dashboard');
+                elseif ($role === 'cashier') $homeUrl = route('pages.kasir.dashboard');
+            }
+        @endphp
         <div class="flex justify-center">
-            <a href="{{ url('/') }}"
+            <a href="{{ $homeUrl }}"
                 class="group flex items-center justify-center gap-2 px-8 py-3.5 bg-brand-textBlue text-white rounded-2xl font-bold hover:bg-brand-textBlue/90 hover:shadow-lg hover:-translate-y-1 transition-all shadow-md">
                 <span class="group-hover:-translate-y-0.5 transition-transform inline-block"><i class="fa-solid fa-home"></i></span>
                 Halaman Utama

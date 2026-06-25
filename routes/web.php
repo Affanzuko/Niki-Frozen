@@ -10,10 +10,20 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GmController;
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        $role = auth()->user()->role;
+        if ($role === 'owner') return redirect()->route('pages.owner.dashboard');
+        if ($role === 'general_manager') return redirect()->route('pages.general-manager.dashboard');
+        if ($role === 'admin') return redirect()->route('pages.admin.dashboard');
+        if ($role === 'cashier') return redirect()->route('pages.kasir.dashboard');
+    }
     return redirect()->route('login');
 });
 
 Route::get('/login', function () {
+    if (auth()->check()) {
+        return redirect('/');
+    }
     return view('auth.login');
 })->name('login');
 Route::post('/login', [App\Http\Controllers\AuthController::class, 'login'])->name('login.post');
