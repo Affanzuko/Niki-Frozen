@@ -10,10 +10,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GmController;
 
 Route::get('/', function () {
-    return redirect()->route('pages.kasir.dashboard');
+    return redirect()->route('login');
 });
 
-Route::view('/login', 'auth.login')->name('login');
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+Route::post('/login', [App\Http\Controllers\AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
 Route::prefix('kasir')->name('pages.kasir.')->group(function () {
     Route::get('/', [KasirController::class,'index'])->name('dashboard');

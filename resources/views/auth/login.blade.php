@@ -199,7 +199,7 @@
                 </div>
                 @endif
                 
-                <form action="#" method="POST" class="flex flex-col gap-md">
+                <form action="{{ route('login.post') }}" method="POST" class="flex flex-col gap-md">
                     @csrf
                     
                     <!-- Username Field -->
@@ -215,7 +215,6 @@
                     <div class="flex flex-col gap-xs" x-data="{ show: false }">
                         <div class="flex justify-between items-center ml-xs pr-xs">
                             <label class="font-label-md text-label-md text-on-surface-variant" for="password">Kata Sandi</label>
-                            <a class="font-label-md text-label-md text-primary hover:text-primary-fixed-dim transition-colors" href="#">Lupa?</a>
                         </div>
                         <div class="input-group bg-surface rounded-lg flex items-center h-touch-target overflow-hidden px-md gap-sm transition-colors hover:bg-surface-container-low">
                             <i class="fa-solid fa-lock text-outline"></i>
