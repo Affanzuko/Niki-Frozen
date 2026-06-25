@@ -355,7 +355,8 @@
                             </colgroup>
                             <tbody class="text-sm font-medium">
                                 @forelse ($incomings as $in)
-                                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                    <tr x-show="'{{ strtolower(addslashes($in->product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($in->product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase())" 
+                                        class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                                         <td class="p-4 pl-8 text-slate-500">
                                             {{ \Carbon\Carbon::parse($in->created_at)->format('d M Y, H:i') }}
                                         </td>
