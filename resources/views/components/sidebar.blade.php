@@ -112,11 +112,8 @@
     {{-- Header / Brand --}}
     <div class="p-6">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-[#0f172a] rounded-full flex items-center justify-center text-white shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
-                    </path>
-                </svg>
+            <div class="w-12 h-12 flex items-center justify-center shrink-0">
+                <img src="{{ asset('images/Logo nikifrozen.png') }}" alt="Logo" class="w-full h-full object-contain">
             </div>
             <div>
                 <h2 class="text-xl font-bold text-slate-800 leading-tight">Niki Frozen</h2>

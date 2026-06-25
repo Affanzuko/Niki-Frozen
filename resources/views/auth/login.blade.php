@@ -153,8 +153,8 @@
             <!-- Branding Content -->
             <div class="relative z-10 p-xl flex flex-col items-center text-center max-w-md">
                 <!-- Decorative Icon representing supply chain/frozen -->
-                <div class="w-20 h-20 mb-lg rounded-xl bg-surface/10 border border-surface/20 flex items-center justify-center backdrop-blur-sm shadow-sm">
-                    <i class="fa-solid fa-snowflake text-[40px] text-on-primary"></i>
+                <div class="w-32 h-32 mb-lg flex items-center justify-center drop-shadow-md">
+                    <img src="{{ asset('images/Logo nikifrozen.png') }}" alt="Logo Niki Frozen" class="w-full h-full object-contain">
                 </div>
                 <h1 class="font-display text-display text-on-primary mb-sm">Niki Frozen</h1>
                 <p class="font-headline-md text-headline-md text-primary-fixed-dim">Sistem ERP & Inventaris</p>
@@ -175,8 +175,8 @@
         <section class="w-full md:w-1/2 lg:w-[45%] flex flex-col justify-center items-center bg-surface-bright relative p-margin">
             <!-- Mobile Header (Only visible on small screens) -->
             <div class="md:hidden flex flex-col items-center mb-xl w-full">
-                <div class="w-16 h-16 mb-md rounded-xl bg-primary flex items-center justify-center shadow-md">
-                    <i class="fa-solid fa-snowflake text-[32px] text-on-primary"></i>
+                <div class="w-24 h-24 mb-md flex items-center justify-center drop-shadow-md">
+                    <img src="{{ asset('images/Logo nikifrozen.png') }}" alt="Logo Niki Frozen" class="w-full h-full object-contain">
                 </div>
                 <h1 class="font-display text-display text-primary text-center">Niki Frozen</h1>
             </div>
