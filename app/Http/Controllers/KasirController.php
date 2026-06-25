@@ -14,8 +14,9 @@ class KasirController extends Controller
     {
         $products = Product::with('category')->orderBy('name', 'asc')->get();
 
-        $stocks = Stock::with('product')->where('branch_id', 1)->orderBy('product_id', 'asc')->get();
-        
+        $branchId = auth()->user()->branch_id;
+        $stocks = Stock::with('product')->where('branch_id', $branchId)->orderBy('product_id', 'asc')->get();
+
         $categories = ProductCategory::orderBy('name', 'asc')->get();
         // Pindahkan "Lainnya" ke urutan paling akhir
         $lainnya = $categories->firstWhere('name', 'Lainnya');
@@ -32,7 +33,10 @@ class KasirController extends Controller
 
     public function penjualan(Request $request)
     {
-        $query = Transaction::with(['items.product', 'cashierSession.user'])
+        $branchId = auth()->user()->branch_id;
+
+        $query = Transaction::where('branch_id', $branchId)
+            ->with(['items.product', 'cashierSession.user'])
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('search')) {
