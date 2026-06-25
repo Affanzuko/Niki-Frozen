@@ -31,8 +31,8 @@ class UserSeeder extends Seeder
         User::create([
             'branch_id' => null,
             'name' => 'General Manager NikiFrozen',
-            'username' => 'gm',
-            'password' => Hash::make('gm'),
+            'username' => 'gm1',
+            'password' => Hash::make('gm1'),
             'role' => 'general_manager',
         ]);
 

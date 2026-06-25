@@ -149,21 +149,23 @@
                 </svg>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-bold text-slate-800 truncate">Budi Santoso</p>
-                <p
-                    class="text-[11px] font-semibold text-blue-600 bg-blue-50 inline-block px-2 py-0.5 rounded-full mt-0.5">
-                    Shift Pagi</p>
+                <p class="text-sm font-bold text-slate-800 truncate">{{ auth()->user() ? auth()->user()->name : 'Budi Santoso' }}</p>
+                <p class="text-[11px] font-semibold text-blue-600 bg-blue-50 inline-block px-2 py-0.5 rounded-full mt-0.5 capitalize">
+                    {{ auth()->user() ? str_replace('_', ' ', auth()->user()->role) : 'Shift Pagi' }}
+                </p>
             </div>
         </div>
 
-        <button
-            class="w-full bg-[#0f172a] hover:bg-slate-800 text-white flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-colors shadow-md">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                </path>
-            </svg>
-            Logout
-        </button>
+        <form action="{{ route('logout') }}" method="POST" class="w-full">
+            @csrf
+            <button type="submit" class="w-full bg-[#0f172a] hover:bg-slate-800 text-white flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-colors shadow-md">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                    </path>
+                </svg>
+                Keluar
+            </button>
+        </form>
     </div>
 </div>

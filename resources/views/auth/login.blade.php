@@ -193,8 +193,8 @@
                 <div class="bg-error-container border border-error/20 rounded-lg p-md flex items-start gap-sm">
                     <i class="fa-solid fa-circle-exclamation text-error text-[20px] shrink-0 mt-xs"></i>
                     <div class="flex flex-col">
-                        <span class="font-label-md text-label-md text-on-error-container">Autentikasi Gagal</span>
-                        <span class="font-body-md text-body-md text-on-error-container text-[13px]">Username atau kata sandi tidak valid. Silakan coba lagi atau hubungi IT.</span>
+                        <span class="font-label-md text-label-md text-on-error-container">Peringatan</span>
+                        <span class="font-body-md text-body-md text-on-error-container text-[13px]">{{ $errors->first() }}</span>
                     </div>
                 </div>
                 @endif
