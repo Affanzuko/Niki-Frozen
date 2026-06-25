@@ -53,6 +53,7 @@ Route::prefix('gm')->middleware(['role:general_manager'])->name('pages.general-m
     Route::get('edit-akun/{id}', [GmController::class, 'editAkun'])->name('edit-akun');
     Route::put('edit-akun/{id}', [GmController::class, 'updateAkun'])->name('update-akun');
     Route::delete('hapus-akun/{id}', [GmController::class, 'destroyAkun'])->name('hapus-akun');
+    Route::get('stok', [GmController::class, 'stok'])->name('stok');
 });
 
 Route::prefix('owner')->middleware(['role:owner'])->name('pages.owner.')->group(function () {

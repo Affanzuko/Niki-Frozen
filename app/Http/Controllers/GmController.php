@@ -471,4 +471,38 @@ class GmController extends Controller
 
         return redirect()->route('pages.general-manager.kelola-akun')->with('success', 'Akun berhasil dihapus');
     }
+
+    public function stok(Request $request)
+    {
+        $branches = \App\Models\Branch::all();
+        $selectedBranchId = $request->query('cabang', 'Semua');
+
+        $query = \App\Models\Stock::with(['product.category', 'product.unit', 'branch']);
+
+        if ($selectedBranchId !== 'Semua') {
+            $query->where('branch_id', $selectedBranchId);
+        }
+
+        $stocks = $query->orderBy('quantity', 'asc')->get();
+
+        $activeBatchesQuery = \App\Models\StockIncoming::where('current_quantity', '>', 0)
+            ->with('branch')
+            ->orderBy('expiry_date', 'asc');
+
+        if ($selectedBranchId !== 'Semua') {
+            $activeBatchesQuery->where('branch_id', $selectedBranchId);
+        }
+
+        $activeBatches = $activeBatchesQuery->get()->groupBy(function($item) {
+            return $item->product_id . '-' . $item->branch_id;
+        });
+
+        $incomingsQuery = \App\Models\StockIncoming::with(['product', 'branch', 'user'])->orderBy('created_at', 'desc');
+        if ($selectedBranchId !== 'Semua') {
+            $incomingsQuery->where('branch_id', $selectedBranchId);
+        }
+        $incomings = $incomingsQuery->get();
+
+        return view('pages.general-manager.stok', compact('stocks', 'activeBatches', 'branches', 'selectedBranchId', 'incomings'));
+    }
 }
