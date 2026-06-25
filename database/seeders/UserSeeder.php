@@ -21,8 +21,8 @@ class UserSeeder extends Seeder
         User::create([
             'branch_id' => null,
             'name' => 'Pemilik NikiFrozen',
-            'username' => 'owner',
-            'password' => Hash::make('owner123'),
+            'username' => 'owner1',
+            'password' => Hash::make('owner1'),
             'role' => 'owner',
         ]);
 
@@ -31,26 +31,31 @@ class UserSeeder extends Seeder
         User::create([
             'branch_id' => null,
             'name' => 'General Manager NikiFrozen',
-            'username' => 'general-manager',
-            'password' => Hash::make('gm123'),
+            'username' => 'gm1',
+            'password' => Hash::make('gm1'),
             'role' => 'general_manager',
         ]);
 
 
         // Create admin for each branch (1 admin per branch)
         foreach ($branches as $branch) {
-            User::factory()
-                ->admin()
-                ->create([
-                    'branch_id' => $branch->id,
-                    'name' => 'Admin ' . $branch->name,
-                ]);
+            User::create([
+                'branch_id' => $branch->id,
+                'name' => 'Admin ' . $branch->name,
+                'username' => 'admin' . $branch->id,
+                'password' => Hash::make('admin' . $branch->id),
+                'role' => 'admin',
+            ]);
         }
 
         // Create cashier users for each branch (2 per branch)
         foreach ($branches as $branch) {
-            User::factory(2)->cashier()->create([
+            User::create([
                 'branch_id' => $branch->id,
+                'name' => 'kasir ' . $branch->name,
+                'username' => 'kasir' . $branch->id,
+                'password' => Hash::make('kasir' . $branch->id),
+                'role' => 'cashier',
             ]);
         }
     }
