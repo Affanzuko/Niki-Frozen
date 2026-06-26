@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CashierSession;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Stock;
@@ -14,8 +15,9 @@ class KasirController extends Controller
     {
         $products = Product::with('category')->orderBy('name', 'asc')->get();
 
-        $stocks = Stock::with('product')->where('branch_id', 1)->orderBy('product_id', 'asc')->get();
-        
+        $branchId = auth()->user()->branch_id;
+        $stocks = Stock::with('product')->where('branch_id', $branchId)->orderBy('product_id', 'asc')->get();
+
         $categories = ProductCategory::orderBy('name', 'asc')->get();
         // Pindahkan "Lainnya" ke urutan paling akhir
         $lainnya = $categories->firstWhere('name', 'Lainnya');
@@ -23,16 +25,29 @@ class KasirController extends Controller
             $categories = $categories->where('name', '!=', 'Lainnya')->push($lainnya);
         }
 
+        // Ambil sesi kasir aktif (belum ended) untuk user ini
+        $cashierSession = CashierSession::where('user_id', auth()->id())
+            ->where('branch_id', $branchId)
+            ->whereNull('ended_at')
+            ->latest()
+            ->first();
+        $cashierSessionId = $cashierSession ? $cashierSession->id : null;
+
         return view('pages.kasir.dashboard', [
             'products' => $products,
             'categories' => $categories,
-            'stocks' => $stocks
+            'stocks' => $stocks,
+            'branchId' => $branchId,
+            'cashierSessionId' => $cashierSessionId,
         ]);
     }
 
     public function penjualan(Request $request)
     {
-        $query = Transaction::with(['items.product', 'cashierSession.user'])
+        $branchId = auth()->user()->branch_id;
+
+        $query = Transaction::where('branch_id', $branchId)
+            ->with(['items.product', 'cashierSession.user'])
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('search')) {

@@ -208,7 +208,30 @@
                     <!-- Pagination -->
                     @if ($transactions->hasPages())
                         <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 shrink-0">
-                            {{ $transactions->onEachSide(0)->links('pagination::tailwind') }}
+                            <div class="flex gap-3">
+                                {{-- Pagination links + showing (kiri) --}}
+                                <div class="w-full">
+                                    {{ $transactions->onEachSide(0)->links('pagination::tailwind') }}
+                                </div>
+                                {{-- Page jump (kanan) --}}
+                                <div class="flex items-center gap-2 shrink-0 order-2">
+                                    <span class="text-sm text-slate-600 font-medium">Hal:</span>
+                                    <input type="number" min="1" max="{{ $transactions->lastPage() }}"
+                                        class="w-16 px-2 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center shadow-sm"
+                                        x-data="{ jumpPage: '{{ $transactions->currentPage() }}' }"
+                                        x-model="jumpPage"
+                                        @keydown.enter="
+                                            let p = parseInt(jumpPage);
+                                            if (p >= 1 && p <= {{ $transactions->lastPage() }}) {
+                                                const url = new URL(window.location.href);
+                                                url.searchParams.set('page', p);
+                                                window.location.href = url.toString();
+                                            }
+                                        "
+                                        onfocus="this.select()">
+                                    <span class="text-sm text-slate-600 font-medium">/ {{ $transactions->lastPage() }}</span>
+                                </div>
+                            </div>
                         </div>
                     @endif
                 </div>
