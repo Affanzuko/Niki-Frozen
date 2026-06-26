@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CashierSession;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Stock;
@@ -24,10 +25,20 @@ class KasirController extends Controller
             $categories = $categories->where('name', '!=', 'Lainnya')->push($lainnya);
         }
 
+        // Ambil sesi kasir aktif (belum ended) untuk user ini
+        $cashierSession = CashierSession::where('user_id', auth()->id())
+            ->where('branch_id', $branchId)
+            ->whereNull('ended_at')
+            ->latest()
+            ->first();
+        $cashierSessionId = $cashierSession ? $cashierSession->id : null;
+
         return view('pages.kasir.dashboard', [
             'products' => $products,
             'categories' => $categories,
-            'stocks' => $stocks
+            'stocks' => $stocks,
+            'branchId' => $branchId,
+            'cashierSessionId' => $cashierSessionId,
         ]);
     }
 

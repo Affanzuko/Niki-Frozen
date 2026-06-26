@@ -284,8 +284,8 @@ window.processPayment = async function(method) {
                 body: JSON.stringify({
                     items: window.cart,
                     method: 'qris',
-                    cashier_session_id: 1,
-                    branch_id: 1
+                    cashier_session_id: window.cashierSessionId,
+                    branch_id: window.branchId
                 })
             });
 
@@ -500,8 +500,8 @@ window.submitCashPayment = async function() {
             body: JSON.stringify({
                 items: window.cart,
                 received: numericValue,
-                cashier_session_id: 1,
-                branch_id: 1
+                cashier_session_id: window.cashierSessionId,
+                branch_id: window.branchId
             })
         });
 

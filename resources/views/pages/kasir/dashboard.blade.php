@@ -337,5 +337,9 @@
 @endpush
 
 @push('scripts')
+    <script>
+        window.branchId = {{ $branchId }};
+        window.cashierSessionId = {{ $cashierSessionId ?? 'null' }};
+    </script>
     @vite('resources/js/pages/kasir/dashboard.js')
 @endpush
