@@ -12,7 +12,7 @@ class GmController extends Controller
     {
         $dateStr = $request->query('tanggal', today()->format('Y-m-d'));
         $dateObj = \Carbon\Carbon::parse($dateStr);
-        
+
         $branches = \App\Models\Branch::all();
         $branchSummaries = [];
 
@@ -66,9 +66,9 @@ class GmController extends Controller
     public function keuangan(Request $request)
     {
         $branches = \App\Models\Branch::all();
-        
+
         $filter = $request->query('waktu', 'Hari');
-        
+
         $now = \Carbon\Carbon::now();
 
         if ($filter === 'Hari') {
@@ -159,7 +159,7 @@ class GmController extends Controller
             $displayDate = $date->translatedFormat($displayFormat);
             $trxs = $groupedGlobal->get($key, collect());
             $exps = $groupedExpenses->get($key, collect());
-            
+
             $cash = $trxs->where('payment_method', 'cash')->sum('total_price');
             $qris = $trxs->where('payment_method', 'qris')->sum('total_price');
             $pendapatan = $cash + $qris;
@@ -176,7 +176,7 @@ class GmController extends Controller
             $pengeluaran = $exps->sum('amount') + $hpp;
             $profit = $pendapatan - $pengeluaran;
             $saldoAkhir += $profit;
-            
+
             $trendChartData->push([
                 'label' => $filter === 'Hari' ? $date->format('d/m') : $displayDate,
                 'total' => $pendapatan,
@@ -225,10 +225,10 @@ class GmController extends Controller
         }
 
         return view('pages.general-manager.keuangan', compact(
-            'branchSummaries', 
-            'globalTotalPemasukan', 
-            'globalTotalCash', 
-            'globalTotalQris', 
+            'branchSummaries',
+            'globalTotalPemasukan',
+            'globalTotalCash',
+            'globalTotalQris',
             'globalTotalTransaksi',
             'trendChartData',
             'globalTablePaginated',
@@ -288,7 +288,7 @@ class GmController extends Controller
         $groupedTransactions = $transactions->groupBy(function($item) use ($dateFormat) {
             return $item->created_at->format($dateFormat);
         });
-        
+
         $groupedExpenses = $expenses->groupBy(function($item) use ($dateFormat) {
             return \Carbon\Carbon::parse($item->date)->format($dateFormat);
         });
@@ -303,7 +303,7 @@ class GmController extends Controller
 
         $tableData = collect();
         $chartData = collect();
-        $saldoAkhir = 0; 
+        $saldoAkhir = 0;
 
         $period = \Carbon\CarbonPeriod::create($startDate, $periodStep, $now);
 
@@ -316,7 +316,7 @@ class GmController extends Controller
 
             $cash = $trxs->where('payment_method', 'cash')->sum('total_price');
             $qris = $trxs->where('payment_method', 'qris')->sum('total_price');
-            
+
             $hpp = 0;
             foreach ($trxs as $trx) {
                 foreach ($trx->items as $item) {
@@ -346,7 +346,7 @@ class GmController extends Controller
                 'qris' => $qris,
             ]);
         }
-        
+
         $tableData = $tableData->reverse();
 
         $page = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
@@ -412,6 +412,20 @@ class GmController extends Controller
             'password' => 'required|string|min:6',
             'role' => 'required|in:admin,cashier',
             'branch_id' => 'nullable|exists:branches,id'
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'name.string' => 'Nama harus berupa teks.',
+            'name.max' => 'Nama maksimal 255 karakter.',
+            'username.required' => 'Username wajib diisi.',
+            'username.string' => 'Username harus berupa teks.',
+            'username.max' => 'Username maksimal 255 karakter.',
+            'username.unique' => 'Username sudah digunakan, silakan pilih yang lain.',
+            'password.required' => 'Password wajib diisi.',
+            'password.string' => 'Password harus berupa teks.',
+            'password.min' => 'Password minimal 6 karakter.',
+            'role.required' => 'Role wajib dipilih.',
+            'role.in' => 'Role yang dipilih tidak valid.',
+            'branch_id.exists' => 'Cabang yang dipilih tidak ditemukan.',
         ]);
 
         \App\Models\User::create([
@@ -439,13 +453,27 @@ class GmController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username,' . $id,
+            'password' => 'nullable|string|min:6',
             'role' => $user->role === 'general_manager' ? 'required|in:general_manager' : 'required|in:admin,cashier',
             'branch_id' => 'nullable|exists:branches,id'
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'name.string' => 'Nama harus berupa teks.',
+            'name.max' => 'Nama maksimal 255 karakter.',
+            'username.required' => 'Username wajib diisi.',
+            'username.string' => 'Username harus berupa teks.',
+            'username.max' => 'Username maksimal 255 karakter.',
+            'username.unique' => 'Username sudah digunakan, silakan pilih yang lain.',
+            'password.string' => 'Password harus berupa teks.',
+            'password.min' => 'Password minimal 6 karakter.',
+            'role.required' => 'Role wajib dipilih.',
+            'role.in' => 'Role yang dipilih tidak valid.',
+            'branch_id.exists' => 'Cabang yang dipilih tidak ditemukan.',
         ]);
 
         $user->name = $request->name;
         $user->username = $request->username;
-        
+
         if ($user->role === 'general_manager') {
             // Role GM tidak bisa diubah menjadi role lain
             $user->role = 'general_manager';
@@ -470,5 +498,39 @@ class GmController extends Controller
         $user->delete();
 
         return redirect()->route('pages.general-manager.kelola-akun')->with('success', 'Akun berhasil dihapus');
+    }
+
+    public function stok(Request $request)
+    {
+        $branches = \App\Models\Branch::all();
+        $selectedBranchId = $request->query('cabang', 'Semua');
+
+        $query = \App\Models\Stock::with(['product.category', 'product.unit', 'branch']);
+
+        if ($selectedBranchId !== 'Semua') {
+            $query->where('branch_id', $selectedBranchId);
+        }
+
+        $stocks = $query->orderBy('quantity', 'asc')->get();
+
+        $activeBatchesQuery = \App\Models\StockIncoming::where('current_quantity', '>', 0)
+            ->with('branch')
+            ->orderBy('expiry_date', 'asc');
+
+        if ($selectedBranchId !== 'Semua') {
+            $activeBatchesQuery->where('branch_id', $selectedBranchId);
+        }
+
+        $activeBatches = $activeBatchesQuery->get()->groupBy(function($item) {
+            return $item->product_id . '-' . $item->branch_id;
+        });
+
+        $incomingsQuery = \App\Models\StockIncoming::with(['product', 'branch', 'user'])->orderBy('created_at', 'desc');
+        if ($selectedBranchId !== 'Semua') {
+            $incomingsQuery->where('branch_id', $selectedBranchId);
+        }
+        $incomings = $incomingsQuery->get();
+
+        return view('pages.general-manager.stok', compact('stocks', 'activeBatches', 'branches', 'selectedBranchId', 'incomings'));
     }
 }

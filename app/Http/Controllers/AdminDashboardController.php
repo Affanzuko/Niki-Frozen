@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\CashierSession;
 use App\Models\Expense;
-use App\Models\Product;
 use App\Models\Stock;
 use App\Models\StockIncoming;
 use App\Models\Transaction;
@@ -18,7 +17,7 @@ class AdminDashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $branchId = 1; // Hardcode, belum ada auth
+        $branchId = auth()->user()->branch_id;
 
         $dateParam = $request->query('date', today()->format('Y-m-d'));
         $targetDate = Carbon::parse($dateParam);
@@ -68,7 +67,7 @@ class AdminDashboardController extends Controller
 
     public function stok()
     {
-        $branchId = 1; // Hardcode, belum ada auth
+        $branchId = auth()->user()->branch_id;
 
         // Query stok per produk beserta data kadaluarsa terbaru
         $stocks = Stock::where('stocks.branch_id', $branchId)
@@ -88,7 +87,7 @@ class AdminDashboardController extends Controller
 
     public function penjualan(Request $request)
     {
-        $branchId = 1;
+        $branchId = auth()->user()->branch_id;
 
         $query = Transaction::where('branch_id', $branchId)
             ->with(['items.product', 'cashierSession.user'])
@@ -124,7 +123,7 @@ class AdminDashboardController extends Controller
 
     public function keuangan(Request $request)
     {
-        $branchId = 1;
+        $branchId = auth()->user()->branch_id;
         $filter = $request->query('waktu', 'Hari');
 
         $query = Transaction::with(['items'])->where('branch_id', $branchId)->where('status', 'success');
@@ -171,7 +170,7 @@ class AdminDashboardController extends Controller
         $groupedTransactions = $transactions->groupBy(function($item) use ($dateFormat) {
             return $item->created_at->format($dateFormat);
         });
-        
+
         $groupedExpenses = $expenses->groupBy(function($item) use ($dateFormat) {
             return Carbon::parse($item->date)->format($dateFormat);
         });
@@ -186,7 +185,7 @@ class AdminDashboardController extends Controller
 
         $tableData = collect();
         $chartData = collect();
-        $saldoAkhir = 0; 
+        $saldoAkhir = 0;
 
         $period = CarbonPeriod::create($startDate, $periodStep, $now);
 
@@ -199,7 +198,7 @@ class AdminDashboardController extends Controller
 
             $cash = $trxs->where('payment_method', 'cash')->sum('total_price');
             $qris = $trxs->where('payment_method', 'qris')->sum('total_price');
-            
+
             $hpp = 0;
             foreach ($trxs as $trx) {
                 foreach ($trx->items as $item) {
@@ -229,7 +228,7 @@ class AdminDashboardController extends Controller
                 'qris' => $qris,
             ]);
         }
-        
+
         $tableData = $tableData->reverse();
 
         $page = Paginator::resolveCurrentPage() ?: 1;

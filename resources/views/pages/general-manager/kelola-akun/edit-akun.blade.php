@@ -25,7 +25,7 @@
                         <div class="mb-5">
                             <label class="block text-sm font-bold text-slate-800 mb-2">Nama Lengkap</label>
                             <input type="text" name="name" value="{{ old('name', $user->name) }}"
-                                placeholder="Nama Lengkap" required
+                                placeholder="Nama Lengkap"
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all @error('name') border-red-500 @enderror">
                             @error('name')
                                 <span class="text-xs text-red-500">{{ $message }}</span>
@@ -35,7 +35,7 @@
                         <div class="mb-5">
                             <label class="block text-sm font-bold text-slate-800 mb-2">Username</label>
                             <input type="text" name="username" value="{{ old('username', $user->username) }}"
-                                placeholder="Username" required
+                                placeholder="Username"
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all @error('username') border-red-500 @enderror">
                             @error('username')
                                 <span class="text-xs text-red-500">{{ $message }}</span>
@@ -54,16 +54,19 @@
 
                         <div class="mb-5">
                             <label class="block text-sm font-bold text-slate-800 mb-2">Role</label>
-                            <select name="role" id="role-select" required {{ $user->role === 'general_manager' ? 'disabled' : '' }}
+                            <select name="role" id="role-select"
+                                {{ $user->role === 'general_manager' ? 'disabled' : '' }}
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all @error('role') border-red-500 @enderror {{ $user->role === 'general_manager' ? 'bg-slate-100 cursor-not-allowed text-slate-500' : '' }}">
-                                @if($user->role === 'general_manager')
+                                @if ($user->role === 'general_manager')
                                     <option value="general_manager" selected>General Manager</option>
                                 @else
-                                    <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
-                                    <option value="cashier" {{ old('role', $user->role) == 'cashier' ? 'selected' : '' }}>Kasir</option>
+                                    <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin
+                                    </option>
+                                    <option value="cashier" {{ old('role', $user->role) == 'cashier' ? 'selected' : '' }}>
+                                        Kasir</option>
                                 @endif
                             </select>
-                            @if($user->role === 'general_manager')
+                            @if ($user->role === 'general_manager')
                                 <input type="hidden" name="role" value="{{ $user->role }}">
                                 <p class="text-xs text-slate-500 mt-1">Role General Manager tidak dapat diubah.</p>
                             @endif
@@ -76,7 +79,6 @@
                             <label class="block text-sm font-bold text-slate-800 mb-2">Cabang</label>
                             <select name="branch_id" id="branch-select"
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all @error('branch_id') border-red-500 @enderror">
-                                <option value="">Pilih Cabang (Semua Cabang)</option>
                                 @foreach ($branches as $branch)
                                     <option value="{{ $branch->id }}"
                                         {{ old('branch_id', $user->branch_id) == $branch->id ? 'selected' : '' }}>
@@ -102,24 +104,24 @@
     </main>
 
     @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const roleSelect = document.getElementById('role-select');
-            const branchContainer = document.getElementById('branch-container');
-            const branchSelect = document.getElementById('branch-select');
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const roleSelect = document.getElementById('role-select');
+                const branchContainer = document.getElementById('branch-container');
+                const branchSelect = document.getElementById('branch-select');
 
-            function toggleBranch() {
-                if (roleSelect.value === 'general_manager') {
-                    branchContainer.style.display = 'none';
-                    branchSelect.value = '';
-                } else {
-                    branchContainer.style.display = 'block';
+                function toggleBranch() {
+                    if (roleSelect.value === 'general_manager') {
+                        branchContainer.style.display = 'none';
+                        branchSelect.value = '';
+                    } else {
+                        branchContainer.style.display = 'block';
+                    }
                 }
-            }
 
-            roleSelect.addEventListener('change', toggleBranch);
-            toggleBranch();
-        });
-    </script>
+                roleSelect.addEventListener('change', toggleBranch);
+                toggleBranch();
+            });
+        </script>
     @endpush
 @endsection

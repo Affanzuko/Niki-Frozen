@@ -51,7 +51,6 @@
                         <p class="text-slate-500 font-medium">Kelola Stok</p>
                     </div>
                 </div>
-
                 <div class="relative w-full md:w-80">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
@@ -257,40 +256,65 @@
                                                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                                         @forelse($batches as $idx => $batch)
                                                             <div
-                                                                class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center justify-between">
-                                                                <div>
-                                                                    <p class="text-xs font-bold text-slate-800">Batch
-                                                                        {{ $idx + 1 }}</p>
-                                                                    <p class="text-[10px] text-slate-500 mt-0.5">Jumlah
-                                                                        awal:
+                                                                class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex flex-col gap-2 relative group/batch">
+                                                                <div class="flex items-center justify-between">
+                                                                    <div>
+                                                                        <p class="text-xs font-bold text-slate-800">Batch
+                                                                            {{ $idx + 1 }}</p>
+                                                                        <p class="text-[10px] text-slate-500 mt-0.5">Jumlah
+                                                                            awal:
+                                                                            <span
+                                                                                class="font-bold text-slate-700">{{ $batch->quantity }}
+                                                                                pcs</span>
+                                                                        </p>
+                                                                        <p class="text-[10px] text-slate-500 mt-0.5">Sisa:
+                                                                            <span
+                                                                                class="font-bold text-slate-700">{{ $batch->current_quantity }}
+                                                                                pcs</span>
+                                                                        </p>
+                                                                    </div>
+                                                                    <div class="text-right">
+                                                                        @php
+                                                                            $bExp = \Carbon\Carbon::parse(
+                                                                                $batch->expiry_date,
+                                                                            );
+                                                                            $bIsExp = $bExp->isPast();
+                                                                            $bIsNear =
+                                                                                !$bIsExp &&
+                                                                                today()->diffInDays($bExp, false) <= 7;
+                                                                        @endphp
                                                                         <span
-                                                                            class="font-bold text-slate-700">{{ $batch->quantity }}
-                                                                            pcs</span>
-                                                                    </p>
-                                                                    <p class="text-[10px] text-slate-500 mt-0.5">Sisa:
-                                                                        <span
-                                                                            class="font-bold text-slate-700">{{ $batch->current_quantity }}
-                                                                            pcs</span>
-                                                                    </p>
+                                                                            class="text-xs font-bold {{ $bIsExp ? 'text-red-600' : ($bIsNear ? 'text-orange-600' : 'text-slate-600') }}">
+                                                                            @if ($bIsExp)
+                                                                                <i
+                                                                                    class="fa-solid fa-circle-exclamation mr-1"></i>
+                                                                            @endif
+                                                                            {{ $bExp->format('d M Y') }}
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="text-right">
-                                                                    @php
-                                                                        $bExp = \Carbon\Carbon::parse(
-                                                                            $batch->expiry_date,
-                                                                        );
-                                                                        $bIsExp = $bExp->isPast();
-                                                                        $bIsNear =
-                                                                            !$bIsExp &&
-                                                                            today()->diffInDays($bExp, false) <= 7;
-                                                                    @endphp
-                                                                    <span
-                                                                        class="text-xs font-bold {{ $bIsExp ? 'text-red-600' : ($bIsNear ? 'text-orange-600' : 'text-slate-600') }}">
-                                                                        @if ($bIsExp)
-                                                                            <i
-                                                                                class="fa-solid fa-circle-exclamation mr-1"></i>
-                                                                        @endif
-                                                                        {{ $bExp->format('d M Y') }}
-                                                                    </span>
+
+                                                                <!-- Action Buttons -->
+                                                                <div
+                                                                    class="flex items-center justify-end gap-2 mt-1 pt-2 border-t border-slate-100">
+                                                                    <button type="button"
+                                                                        onclick="openEditBatchModal({{ $batch->id }}, {{ $batch->current_quantity }}, '{{ $bExp->format('Y-m-d') }}')"
+                                                                        class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                                                        title="Edit Batch">
+                                                                        <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                                                    </button>
+                                                                    <button type="button"
+                                                                        onclick="confirmDeleteBatch({{ $batch->id }}, {{ $idx + 1 }})"
+                                                                        class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                                        title="Hapus Batch">
+                                                                        <i class="fa-solid fa-trash text-xs"></i>
+                                                                    </button>
+                                                                    <form id="delete-batch-form-{{ $batch->id }}"
+                                                                        action="{{ route('pages.admin.stok.batch.destroy', $batch->id) }}"
+                                                                        method="POST" class="hidden">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                    </form>
                                                                 </div>
                                                             </div>
                                                         @empty
@@ -328,6 +352,60 @@
     {{-- Custom Alert Modal --}}
     <x-ui.custom-alert-modal />
 
+    {{-- Edit Batch Modal --}}
+    <div id="edit-batch-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeEditBatchModal()"></div>
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div
+                class="relative bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-md w-full">
+                <form id="edit-batch-form" method="POST" action="">
+                    @csrf
+                    @method('PUT')
+                    <div class="bg-white px-6 pt-5 pb-6">
+                        <div class="flex items-center justify-between mb-5">
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-layer-group text-blue-500"></i> Edit Batch
+                            </h3>
+                            <button type="button" onclick="closeEditBatchModal()"
+                                class="text-slate-400 hover:text-slate-500">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label for="edit_batch_qty" class="block text-sm font-bold text-slate-700 mb-2">Sisa Stok
+                                    (pcs)</label>
+                                <input type="number" name="current_quantity" id="edit_batch_qty" required
+                                    min="0"
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white">
+                            </div>
+
+                            <div>
+                                <label for="edit_batch_expiry" class="block text-sm font-bold text-slate-700 mb-2">Tanggal
+                                    Kadaluarsa</label>
+                                <div class="relative">
+                                    <input type="text" name="expiry_date" id="edit_batch_expiry" required
+                                        placeholder="Pilih tanggal kadaluarsa"
+                                        class="w-full px-4 py-3 pl-11 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white cursor-pointer flatpickr-date">
+                                    <i
+                                        class="fa-regular fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-slate-200">
+                        <button type="button" onclick="closeEditBatchModal()"
+                            class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">Batal</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-bold hover:bg-slate-900 transition-colors">Simpan
+                            Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('scripts')
@@ -343,6 +421,44 @@
                 confirmColorClass: 'bg-red-500 hover:bg-red-600',
                 onConfirm: () => {
                     document.getElementById('delete-form-' + id).submit();
+                }
+            });
+        }
+
+        function openEditBatchModal(batchId, currentQty, expiryDate) {
+            const modal = document.getElementById('edit-batch-modal');
+            const form = document.getElementById('edit-batch-form');
+            const qtyInput = document.getElementById('edit_batch_qty');
+            const expiryInput = document.getElementById('edit_batch_expiry');
+
+            form.action = "{{ url('admin/stok/batch') }}/" + batchId;
+            qtyInput.value = currentQty;
+
+            if (expiryInput._flatpickr) {
+                expiryInput._flatpickr.setDate(expiryDate);
+            } else {
+                expiryInput.value = expiryDate;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeEditBatchModal() {
+            const modal = document.getElementById('edit-batch-modal');
+            modal.classList.add('hidden');
+        }
+
+        function confirmDeleteBatch(id, batchNumber) {
+            window.showCustomAlert({
+                title: 'Hapus Batch?',
+                message: `Apakah Anda yakin ingin menghapus Batch ${batchNumber}? Tindakan ini akan mengurangi total stok produk terkait.`,
+                type: 'error',
+                showCancel: true,
+                cancelText: 'Batal',
+                confirmText: 'Ya, Hapus',
+                confirmColorClass: 'bg-red-500 hover:bg-red-600',
+                onConfirm: () => {
+                    document.getElementById('delete-batch-form-' + id).submit();
                 }
             });
         }
@@ -409,3 +525,5 @@
         };
     </script>
 @endpush
+
+@vite('resources/js/pages/admin/barang-masuk.js')

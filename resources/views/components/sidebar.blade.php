@@ -74,6 +74,13 @@
                     '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>',
             ],
             [
+                'name' => 'Stok Produk',
+                'id' => 'stok',
+                'url' => route('pages.general-manager.stok'),
+                'icon' =>
+                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>',
+            ],
+            [
                 'name' => 'Kelola Akun',
                 'id' => 'kelola-akun',
                 'url' => route('pages.general-manager.kelola-akun'),
@@ -97,6 +104,13 @@
                 'icon' =>
                     '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>',
             ],
+            [
+                'name' => 'Stok Produk',
+                'id' => 'stok',
+                'url' => route('pages.owner.stok'),
+                'icon' =>
+                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>',
+            ],
         ];
     }
 @endphp
@@ -105,11 +119,8 @@
     {{-- Header / Brand --}}
     <div class="p-6">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-[#0f172a] rounded-full flex items-center justify-center text-white shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
-                    </path>
-                </svg>
+            <div class="w-12 h-12 flex items-center justify-center shrink-0">
+                <img src="{{ asset('images/Logo nikifrozen.png') }}" alt="Logo" class="w-full h-full object-contain">
             </div>
             <div>
                 <h2 class="text-xl font-bold text-slate-800 leading-tight">Niki Frozen</h2>
@@ -142,21 +153,23 @@
                 </svg>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-bold text-slate-800 truncate">Budi Santoso</p>
-                <p
-                    class="text-[11px] font-semibold text-blue-600 bg-blue-50 inline-block px-2 py-0.5 rounded-full mt-0.5">
-                    Shift Pagi</p>
+                <p class="text-sm font-bold text-slate-800 truncate">{{ auth()->user() ? auth()->user()->name : 'Budi Santoso' }}</p>
+                <p class="text-[11px] font-semibold text-blue-600 bg-blue-50 inline-block px-2 py-0.5 rounded-full mt-0.5 capitalize">
+                    {{ auth()->user() ? str_replace('_', ' ', auth()->user()->role) : 'Shift Pagi' }}
+                </p>
             </div>
         </div>
 
-        <button
-            class="w-full bg-[#0f172a] hover:bg-slate-800 text-white flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-colors shadow-md">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                </path>
-            </svg>
-            Logout
-        </button>
+        <form action="{{ route('logout') }}" method="POST" class="w-full">
+            @csrf
+            <button type="submit" class="w-full bg-[#0f172a] hover:bg-slate-800 text-white flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-colors shadow-md">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                    </path>
+                </svg>
+                Keluar
+            </button>
+        </form>
     </div>
 </div>
