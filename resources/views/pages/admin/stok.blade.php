@@ -51,7 +51,6 @@
                         <p class="text-slate-500 font-medium">Kelola Stok</p>
                     </div>
                 </div>
-
                 <div class="relative w-full md:w-80">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
@@ -294,17 +293,20 @@
                                                                         </span>
                                                                     </div>
                                                                 </div>
-                                                                
+
                                                                 <!-- Action Buttons -->
-                                                                <div class="flex items-center justify-end gap-2 mt-1 pt-2 border-t border-slate-100">
-                                                                    <button type="button" 
+                                                                <div
+                                                                    class="flex items-center justify-end gap-2 mt-1 pt-2 border-t border-slate-100">
+                                                                    <button type="button"
                                                                         onclick="openEditBatchModal({{ $batch->id }}, {{ $batch->current_quantity }}, '{{ $bExp->format('Y-m-d') }}')"
-                                                                        class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Edit Batch">
+                                                                        class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                                                        title="Edit Batch">
                                                                         <i class="fa-solid fa-pen-to-square text-xs"></i>
                                                                     </button>
-                                                                    <button type="button" 
+                                                                    <button type="button"
                                                                         onclick="confirmDeleteBatch({{ $batch->id }}, {{ $idx + 1 }})"
-                                                                        class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Hapus Batch">
+                                                                        class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                                        title="Hapus Batch">
                                                                         <i class="fa-solid fa-trash text-xs"></i>
                                                                     </button>
                                                                     <form id="delete-batch-form-{{ $batch->id }}"
@@ -354,7 +356,8 @@
     <div id="edit-batch-modal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeEditBatchModal()"></div>
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
-            <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-md w-full">
+            <div
+                class="relative bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-md w-full">
                 <form id="edit-batch-form" method="POST" action="">
                     @csrf
                     @method('PUT')
@@ -363,32 +366,40 @@
                             <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                                 <i class="fa-solid fa-layer-group text-blue-500"></i> Edit Batch
                             </h3>
-                            <button type="button" onclick="closeEditBatchModal()" class="text-slate-400 hover:text-slate-500">
+                            <button type="button" onclick="closeEditBatchModal()"
+                                class="text-slate-400 hover:text-slate-500">
                                 <i class="fa-solid fa-xmark text-lg"></i>
                             </button>
                         </div>
-                        
+
                         <div class="space-y-4">
                             <div>
-                                <label for="edit_batch_qty" class="block text-sm font-bold text-slate-700 mb-2">Sisa Stok (pcs)</label>
-                                <input type="number" name="current_quantity" id="edit_batch_qty" required min="0"
+                                <label for="edit_batch_qty" class="block text-sm font-bold text-slate-700 mb-2">Sisa Stok
+                                    (pcs)</label>
+                                <input type="number" name="current_quantity" id="edit_batch_qty" required
+                                    min="0"
                                     class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white">
                             </div>
-                            
+
                             <div>
-                                <label for="edit_batch_expiry" class="block text-sm font-bold text-slate-700 mb-2">Tanggal Kadaluarsa</label>
+                                <label for="edit_batch_expiry" class="block text-sm font-bold text-slate-700 mb-2">Tanggal
+                                    Kadaluarsa</label>
                                 <div class="relative">
                                     <input type="text" name="expiry_date" id="edit_batch_expiry" required
                                         placeholder="Pilih tanggal kadaluarsa"
                                         class="w-full px-4 py-3 pl-11 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white cursor-pointer flatpickr-date">
-                                    <i class="fa-regular fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                    <i
+                                        class="fa-regular fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="bg-slate-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-slate-200">
-                        <button type="button" onclick="closeEditBatchModal()" class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">Batal</button>
-                        <button type="submit" class="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-bold hover:bg-slate-900 transition-colors">Simpan Perubahan</button>
+                        <button type="button" onclick="closeEditBatchModal()"
+                            class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">Batal</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-bold hover:bg-slate-900 transition-colors">Simpan
+                            Perubahan</button>
                     </div>
                 </form>
             </div>
@@ -419,16 +430,16 @@
             const form = document.getElementById('edit-batch-form');
             const qtyInput = document.getElementById('edit_batch_qty');
             const expiryInput = document.getElementById('edit_batch_expiry');
-            
+
             form.action = "{{ url('admin/stok/batch') }}/" + batchId;
             qtyInput.value = currentQty;
-            
+
             if (expiryInput._flatpickr) {
                 expiryInput._flatpickr.setDate(expiryDate);
             } else {
                 expiryInput.value = expiryDate;
             }
-            
+
             modal.classList.remove('hidden');
         }
 

@@ -30,11 +30,6 @@
                         <p class="text-slate-500 font-medium">Laporan Keuangan</p>
                     </div>
                 </div>
-                <div
-                    class="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm">
-                    <i class="fa-regular fa-calendar text-brand-textBlue"></i>
-                    <span class="text-sm font-semibold text-gray-700">{{ now()->translatedFormat('l, d F Y') }}</span>
-                </div>
             </div>
 
             <!-- Content Area -->
