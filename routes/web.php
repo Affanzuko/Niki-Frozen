@@ -53,6 +53,7 @@ Route::prefix('admin')->middleware(['role:admin'])->name('pages.admin.')->group(
     Route::delete('stok/batch/{id}', [\App\Http\Controllers\StockBatchController::class, 'destroy'])->name('stok.batch.destroy');
     Route::get('kelola-harga', [ProductController::class, 'index'])->name('kelola-harga');
     Route::put('kelola-harga/{id}', [ProductController::class, 'update'])->name('kelola-harga.update');
+    Route::post('kelola-harga/{id}/discount', [ProductController::class, 'addDiscount'])->name('kelola-harga.discount');
 });
 
 Route::prefix('gm')->middleware(['role:general_manager'])->name('pages.general-manager.')->group(function () {
