@@ -16,7 +16,9 @@ class KasirController extends Controller
         $products = Product::with('category')->orderBy('name', 'asc')->get();
 
         $branchId = auth()->user()->branch_id;
-        $stocks = Stock::with('product')->where('branch_id', $branchId)->orderBy('product_id', 'asc')->get();
+        $stocks = Stock::with(['product', 'product.promotions' => function ($query) {
+            $query->where('is_active', true)->where('valid_until', '>=', now());
+        }])->where('branch_id', $branchId)->orderBy('product_id', 'asc')->get();
 
         $categories = ProductCategory::orderBy('name', 'asc')->get();
         // Pindahkan "Lainnya" ke urutan paling akhir
