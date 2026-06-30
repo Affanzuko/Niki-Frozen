@@ -333,6 +333,23 @@ class PaymentController extends Controller
                     'quantity_deducted' => $item->quantity,
                     'remaining_stock' => $stock->fresh()->quantity,
                 ]);
+
+                // Promotion Quota Logic
+                $promotion = \App\Models\Promotion::where('product_id', $item->product_id)
+                    ->where('branch_id', $branchId)
+                    ->where('is_active', true)
+                    ->where('quota', '>', 0)
+                    ->first();
+
+                if ($promotion) {
+                    $qtyDeducted = min($item->quantity, $promotion->quota);
+                    $promotion->decrement('quota', $qtyDeducted);
+                    
+                    if ($promotion->fresh()->quota <= 0) {
+                        $promotion->update(['is_active' => false]);
+                    }
+                }
+
             } else {
                 Log::warning('Stock record not found for deduction', [
                     'product_id' => $item->product_id,

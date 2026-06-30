@@ -297,6 +297,14 @@
                                                                 <!-- Action Buttons -->
                                                                 <div
                                                                     class="flex items-center justify-end gap-2 mt-1 pt-2 border-t border-slate-100">
+                                                                    @if ($bIsNear)
+                                                                        <button type="button"
+                                                                            onclick="openPromoModal({{ $stock->product->id }}, '{{ addslashes($stock->product->name) }}', {{ $batch->current_quantity }}, '{{ $bExp->format('Y-m-d') }}')"
+                                                                            class="p-1.5 px-2 text-[10px] font-bold text-orange-600 border border-orange-200 hover:bg-orange-50 rounded transition-colors"
+                                                                            title="Beri Promo/Diskon">
+                                                                            <i class="fa-solid fa-tags"></i> Promo
+                                                                        </button>
+                                                                    @endif
                                                                     <button type="button"
                                                                         onclick="openEditBatchModal({{ $batch->id }}, {{ $batch->current_quantity }}, '{{ $bExp->format('Y-m-d') }}')"
                                                                         class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
@@ -406,6 +414,65 @@
         </div>
     </div>
 
+    {{-- Promo Modal --}}
+    <div id="promo-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closePromoModal()"></div>
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div
+                class="relative bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-md w-full">
+                <form id="promo-form" method="POST" action="{{ route('pages.admin.promotions.store') }}">
+                    @csrf
+                    <input type="hidden" name="product_id" id="promo_product_id">
+                    <div class="bg-white px-6 pt-5 pb-6">
+                        <div class="flex items-center justify-between mb-5">
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-tags text-orange-500"></i> Beri Promo Produk
+                            </h3>
+                            <button type="button" onclick="closePromoModal()"
+                                class="text-slate-400 hover:text-slate-500">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                            </button>
+                        </div>
+                        
+                        <p class="text-sm text-slate-600 mb-4">Produk: <span id="promo_product_name" class="font-bold"></span></p>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label for="promo_discount" class="block text-sm font-bold text-slate-700 mb-2">Diskon (%)</label>
+                                <input type="number" name="discount_percentage" id="promo_discount" required
+                                    min="1" max="100" placeholder="Contoh: 20"
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all bg-white">
+                            </div>
+                            
+                            <div>
+                                <label for="promo_quota" class="block text-sm font-bold text-slate-700 mb-2">Kuota Promo (pcs)</label>
+                                <input type="number" name="quota" id="promo_quota" required readonly
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm bg-slate-100 text-slate-500 font-bold cursor-not-allowed focus:outline-none transition-all">
+                                <p class="text-[10px] text-slate-500 mt-1">Sistem otomatis mendeteksi jumlah stok pada batch ini.</p>
+                            </div>
+
+                            <div>
+                                <label for="promo_valid_until" class="block text-sm font-bold text-slate-700 mb-2">Berlaku Sampai</label>
+                                <div class="relative">
+                                    <input type="text" name="valid_until" id="promo_valid_until" required
+                                        placeholder="Pilih tanggal"
+                                        class="w-full px-4 py-3 pl-11 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all bg-white cursor-pointer flatpickr-date">
+                                    <i class="fa-regular fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-slate-200">
+                        <button type="button" onclick="closePromoModal()"
+                            class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">Batal</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-bold hover:bg-orange-600 transition-colors">Terapkan Promo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('scripts')
@@ -446,6 +513,26 @@
         function closeEditBatchModal() {
             const modal = document.getElementById('edit-batch-modal');
             modal.classList.add('hidden');
+        }
+
+        function openPromoModal(productId, productName, currentQty, expiryDate) {
+            const modal = document.getElementById('promo-modal');
+            document.getElementById('promo_product_id').value = productId;
+            document.getElementById('promo_product_name').textContent = productName;
+            document.getElementById('promo_quota').value = currentQty;
+            
+            const expiryInput = document.getElementById('promo_valid_until');
+            if (expiryInput._flatpickr) {
+                expiryInput._flatpickr.setDate(expiryDate);
+            } else {
+                expiryInput.value = expiryDate;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closePromoModal() {
+            document.getElementById('promo-modal').classList.add('hidden');
         }
 
         function confirmDeleteBatch(id, batchNumber) {

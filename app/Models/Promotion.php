@@ -18,6 +18,7 @@ class Promotion extends Model
         'discount_percentage',
         'valid_until',
         'is_active',
+        'quota',
     ];
 
     protected function casts(): array
@@ -26,6 +27,7 @@ class Promotion extends Model
             'valid_until' => 'date',
             'is_active' => 'boolean',
             'discount_percentage' => 'decimal:2',
+            'quota' => 'integer',
         ];
     }
 
