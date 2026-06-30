@@ -131,7 +131,7 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                     @foreach ($branchSummaries as $summary)
-                        <a href="{{ route('pages.owner.detail-cabang', $summary['branch']->id) }}" 
+                        <a href="{{ route('pages.owner.keuangan-detail', $summary['branch']->name) }}" 
                            class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-brand-textBlue transition-all duration-300 overflow-hidden block">
                             
                             <!-- Branch Header -->

@@ -74,5 +74,4 @@ Route::prefix('owner')->middleware(['role:owner'])->name('pages.owner.')->group(
     Route::get('/keuangan', [OwnerController::class, 'keuangan'])->name('keuangan');
     Route::get('/keuangan/{cabang}', [OwnerController::class, 'detailKeuangan'])->name('keuangan-detail');
     Route::get('/stok', [OwnerController::class, 'stok'])->name('stok');
-    Route::get('/cabang/{branchId}', [OwnerController::class, 'detailCabang'])->name('detail-cabang');
 });
