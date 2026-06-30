@@ -190,12 +190,12 @@ window.renderCart = function() {
     `).join('');
     }
 
-    const subtotal = window.cart.reduce((sum, item) => sum + (item.harga * item.jumlah), 0);
-    const tax = Math.round(subtotal * 0.11);
-    const total = subtotal + tax;
+    const total = window.cart.reduce((sum, item) => sum + (item.harga * item.jumlah), 0);
+    const subtotal = total / 1.11;
+    const tax = total - subtotal;
 
-    document.getElementById('cart-subtotal').textContent = 'Rp ' + subtotal.toLocaleString('id-ID');
-    document.getElementById('cart-tax').textContent = 'Rp ' + tax.toLocaleString('id-ID');
+    document.getElementById('cart-subtotal').textContent = 'Rp ' + subtotal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('cart-tax').textContent = 'Rp ' + tax.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     document.getElementById('cart-total').textContent = 'Rp ' + total.toLocaleString('id-ID');
 };
 
@@ -369,9 +369,8 @@ window.openCashModal = function() {
         return;
     }
 
-    const subtotal = window.cart.reduce((sum, item) => sum + (item.harga * item.jumlah), 0);
-    const tax = Math.round(subtotal * 0.11);
-    window.currentTotal = subtotal + tax;
+    const total = window.cart.reduce((sum, item) => sum + (item.harga * item.jumlah), 0);
+    window.currentTotal = total;
 
     window.inputUangDiterima = '';
     window.updateModalUI();
@@ -550,8 +549,9 @@ window.closeSuccessModal = function() {
 };
 
 window.saveTransactionData = function(method, received, kembalian) {
-    const subtotal = window.cart.reduce((sum, item) => sum + (item.harga * item.jumlah), 0);
-    const tax = Math.round(subtotal * 0.11);
+    const total = window.cart.reduce((sum, item) => sum + (item.harga * item.jumlah), 0);
+    const subtotal = total / 1.11;
+    const tax = total - subtotal;
     window.lastTransactionData = {
         items: JSON.stringify(window.cart),
         method: method,
@@ -559,7 +559,7 @@ window.saveTransactionData = function(method, received, kembalian) {
         kembalian: kembalian,
         subtotal: subtotal,
         tax: tax,
-        total: subtotal + tax
+        total: total
     };
 };
 
