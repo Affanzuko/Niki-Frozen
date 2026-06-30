@@ -33,11 +33,21 @@ class PromotionSeeder extends Seeder
             $promoProducts = $branchProducts->random(min(5, $branchProducts->count()));
 
             foreach ($promoProducts as $product) {
+                $batch = \App\Models\StockIncoming::where('product_id', $product->id)
+                    ->where('branch_id', $branch->id)
+                    ->first();
+
+                if (!$batch) {
+                    continue;
+                }
+
                 Promotion::factory()
                     ->create([
                         'product_id' => $product->id,
+                        'stock_incoming_id' => $batch->id,
                         'branch_id' => $branch->id,
                         'created_by' => $branchAdmin->id,
+                        'quota' => rand(5, 20),
                     ]);
             }
         }

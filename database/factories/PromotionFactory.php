@@ -16,11 +16,13 @@ class PromotionFactory extends Factory
     {
         return [
             'product_id' => null,          // Akan diset saat relasi
+            'stock_incoming_id' => null,   // Akan diset saat relasi
             'branch_id' => null,           // Akan diset saat relasi
             'created_by' => null,          // Akan diset saat relasi
             'discount_percentage' => fake()->randomElement([5, 10, 15, 20, 25, 30, 50]),
             'valid_until' => fake()->dateTimeBetween('now', '+3 months'),
             'is_active' => fake()->randomElement([true, false]),
+            'quota' => fake()->numberBetween(1, 100),
         ];
     }
 
