@@ -114,7 +114,7 @@
                                     <input type="text" name="expiry_date" id="expiry_date"
                                         value="{{ old('expiry_date') }}" required readonly
                                         placeholder="Pilih tanggal kadaluarsa"
-                                        class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white cursor-pointer">
+                                        class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white cursor-pointer flatpickr-date">
                                     <i
                                         class="fa-regular fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                                 </div>

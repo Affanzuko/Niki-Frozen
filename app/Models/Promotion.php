@@ -13,6 +13,7 @@ class Promotion extends Model
 
     protected $fillable = [
         'product_id',
+        'stock_incoming_id',
         'branch_id',
         'created_by',
         'discount_percentage',
@@ -44,5 +45,10 @@ class Promotion extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function stockIncoming(): BelongsTo
+    {
+        return $this->belongsTo(StockIncoming::class);
     }
 }

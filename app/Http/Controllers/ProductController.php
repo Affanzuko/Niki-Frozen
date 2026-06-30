@@ -123,9 +123,10 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $name = $product->name;
         
-        // Hapus stok, dan riwayat yang terkait
+        // Hapus stok, promosi, dan riwayat yang terkait
         \App\Models\Stock::where('product_id', $id)->delete();
         \App\Models\StockIncoming::where('product_id', $id)->delete();
+        \App\Models\Promotion::where('product_id', $id)->delete();
         
         $product->delete();
 

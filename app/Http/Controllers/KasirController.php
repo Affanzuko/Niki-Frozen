@@ -17,15 +17,31 @@ class KasirController extends Controller
 
         $branchId = auth()->user()->branch_id;
         $stocks = Stock::where('branch_id', $branchId)
-            ->with(['product' => function ($query) {
-                $query->with(['promotions' => function ($query) {
-                    $query->where('is_active', true)
-                          ->where('valid_until', '>=', now())
-                          ->where('quota', '>', 0);
-                }]);
-            }, 'product.category'])
+            ->with(['product.category'])
             ->where('quantity', '>', 0)
             ->get();
+
+        foreach ($stocks as $stock) {
+            $oldestBatch = \App\Models\StockIncoming::where('product_id', $stock->product_id)
+                ->where('branch_id', $branchId)
+                ->where('current_quantity', '>', 0)
+                ->orderBy('expiry_date', 'asc')
+                ->first();
+                
+            $stock->product->promotions = collect();
+            
+            if ($oldestBatch) {
+                $promotion = \App\Models\Promotion::where('stock_incoming_id', $oldestBatch->id)
+                    ->where('is_active', true)
+                    ->where('valid_until', '>=', now())
+                    ->where('quota', '>', 0)
+                    ->first();
+                    
+                if ($promotion) {
+                    $stock->product->promotions->push($promotion);
+                }
+            }
+        }
 
         $categories = ProductCategory::orderBy('name', 'asc')->get();
         // Pindahkan "Lainnya" ke urutan paling akhir

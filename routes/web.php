@@ -45,6 +45,7 @@ Route::prefix('admin')->middleware(['role:admin'])->name('pages.admin.')->group(
     Route::get('penjualan', [AdminDashboardController::class, 'penjualan'])->name('penjualan');
     Route::get('keuangan', [AdminDashboardController::class, 'keuangan'])->name('keuangan');
     Route::post('/promotions', [\App\Http\Controllers\PromotionController::class, 'store'])->name('promotions.store');
+    Route::delete('/promotions/{id}', [\App\Http\Controllers\PromotionController::class, 'destroy'])->name('promotions.destroy');
     Route::get('stok/barang-masuk', [StockIncomingController::class, 'create'])->name('stok.barang-masuk.create');
     Route::post('stok/barang-masuk', [StockIncomingController::class, 'store'])->name('stok.barang-masuk.store');
     Route::get('stok/edit/{id}', [ProductController::class, 'editProduct'])->name('stok.edit');

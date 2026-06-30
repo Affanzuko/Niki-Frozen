@@ -294,17 +294,27 @@
                                                                     </div>
                                                                 </div>
 
-                                                                <!-- Action Buttons -->
-                                                                <div
-                                                                    class="flex items-center justify-end gap-2 mt-1 pt-2 border-t border-slate-100">
-                                                                    @if ($bIsNear)
-                                                                        <button type="button"
-                                                                            onclick="openPromoModal({{ $stock->product->id }}, '{{ addslashes($stock->product->name) }}', {{ $batch->current_quantity }}, '{{ $bExp->format('Y-m-d') }}')"
-                                                                            class="p-1.5 px-2 text-[10px] font-bold text-orange-600 border border-orange-200 hover:bg-orange-50 rounded transition-colors"
-                                                                            title="Beri Promo/Diskon">
-                                                                            <i class="fa-solid fa-tags"></i> Promo
-                                                                        </button>
-                                                                    @endif
+                                                                    <div class="flex items-center justify-end gap-2 mt-1 pt-2 border-t border-slate-100">
+                                                                        @php
+                                                                            $activePromo = \App\Models\Promotion::where('stock_incoming_id', $batch->id)->where('is_active', true)->first();
+                                                                        @endphp
+                                                                        
+                                                                        @if ($activePromo)
+                                                                            <form action="{{ route('pages.admin.promotions.destroy', $activePromo->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Hapus promo untuk batch ini?');">
+                                                                                @csrf
+                                                                                @method('DELETE')
+                                                                                <button type="submit" class="p-1.5 px-2 text-[10px] font-bold text-white bg-red-500 hover:bg-red-600 rounded transition-colors" title="Hentikan Promo">
+                                                                                    <i class="fa-solid fa-ban"></i> Hentikan Promo
+                                                                                </button>
+                                                                            </form>
+                                                                        @elseif ($bIsNear)
+                                                                            <button type="button"
+                                                                                onclick="openPromoModal({{ $stock->product->id }}, {{ $batch->id }}, '{{ addslashes($stock->product->name) }} (Batch {{ $idx + 1 }})', {{ $batch->current_quantity }}, '{{ $bExp->format('Y-m-d') }}')"
+                                                                                class="p-1.5 px-2 text-[10px] font-bold text-orange-600 border border-orange-200 hover:bg-orange-50 rounded transition-colors"
+                                                                                title="Beri Promo/Diskon">
+                                                                                <i class="fa-solid fa-tags"></i> Promo
+                                                                            </button>
+                                                                        @endif
                                                                     <button type="button"
                                                                         onclick="openEditBatchModal({{ $batch->id }}, {{ $batch->current_quantity }}, '{{ $bExp->format('Y-m-d') }}')"
                                                                         class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
@@ -423,6 +433,7 @@
                 <form id="promo-form" method="POST" action="{{ route('pages.admin.promotions.store') }}">
                     @csrf
                     <input type="hidden" name="product_id" id="promo_product_id">
+                    <input type="hidden" name="stock_incoming_id" id="promo_stock_incoming_id">
                     <div class="bg-white px-6 pt-5 pb-6">
                         <div class="flex items-center justify-between mb-5">
                             <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -515,9 +526,10 @@
             modal.classList.add('hidden');
         }
 
-        function openPromoModal(productId, productName, currentQty, expiryDate) {
+        function openPromoModal(productId, batchId, productName, currentQty, expiryDate) {
             const modal = document.getElementById('promo-modal');
             document.getElementById('promo_product_id').value = productId;
+            document.getElementById('promo_stock_incoming_id').value = batchId;
             document.getElementById('promo_product_name').textContent = productName;
             document.getElementById('promo_quota').value = currentQty;
             
