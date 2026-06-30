@@ -17,7 +17,9 @@ class ProductController extends Controller
         $branchId = 1; // Hardcode, belum ada auth
 
         $products = Product::where('branch_id', $branchId)
-            ->with(['category', 'unit'])
+            ->with(['category', 'unit', 'promotions' => function ($query) {
+                $query->where('is_active', true)->where('valid_until', '>=', now());
+            }])
             ->orderBy('name', 'asc')
             ->get();
 
@@ -45,6 +47,38 @@ class ProductController extends Controller
 
         return redirect()->route('pages.admin.kelola-harga')
             ->with('success', 'Harga produk "' . $product->name . '" berhasil diperbarui.');
+    }
+
+    /**
+     * Tambah/Update diskon produk.
+     */
+    public function addDiscount(Request $request, $id)
+    {
+        $request->validate([
+            'discount_percentage' => 'required|numeric|min:0|max:100',
+            'valid_until' => 'required|date',
+        ]);
+
+        $product = Product::findOrFail($id);
+
+        // Nonaktifkan promosi lama untuk produk ini di cabang ini
+        \App\Models\Promotion::where('product_id', $product->id)
+            ->where('branch_id', $product->branch_id)
+            ->update(['is_active' => false]);
+
+        if ($request->discount_percentage > 0) {
+            \App\Models\Promotion::create([
+                'product_id' => $product->id,
+                'branch_id' => $product->branch_id,
+                'created_by' => auth()->id() ?? 1,
+                'discount_percentage' => $request->discount_percentage,
+                'valid_until' => $request->valid_until,
+                'is_active' => true,
+            ]);
+        }
+
+        return redirect()->route('pages.admin.kelola-harga')
+            ->with('success', 'Diskon produk "' . $product->name . '" berhasil diperbarui.');
     }
 
     /**
