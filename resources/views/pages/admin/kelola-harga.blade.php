@@ -74,11 +74,11 @@
                     <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
                         <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
                             <colgroup>
-                                <col class="w-[34%]">
+                                <col class="w-[38%]">
                                 <col class="w-[14%]">
                                 <col class="w-[10%]">
                                 <col class="w-[12%]">
-                                <col class="w-[10%]">
+                                <col class="w-[6%]">
                                 <col class="w-[12%]">
                                 <col class="w-[8%]">
                             </colgroup>
@@ -100,11 +100,11 @@
                     <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
                         <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
                             <colgroup>
-                                <col class="w-[34%]">
+                                <col class="w-[38%]">
                                 <col class="w-[14%]">
                                 <col class="w-[10%]">
                                 <col class="w-[12%]">
-                                <col class="w-[10%]">
+                                <col class="w-[6%]">
                                 <col class="w-[12%]">
                                 <col class="w-[8%]">
                             </colgroup>
@@ -118,11 +118,15 @@
                                 <tbody class="divide-y divide-slate-100 text-sm font-medium"
                                     x-show="('{{ strtolower(addslashes($product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase()))">
                                     <tr class="hover:bg-slate-50 transition-colors group cursor-pointer">
-                                        <td class="p-4 pl-4 text-left truncate">
+                                        <td class="p-4 pl-12 text-left truncate">
                                             <div class="flex items-center gap-3">
                                                 <div
-                                                    class="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center shrink-0">
-                                                    <i class="fa-solid fa-cube text-slate-400"></i>
+                                                    class="w-20 h-15 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center shrink-0">
+                                                    @if($product->image)
+                                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                                                    @else
+                                                        <i class="fa-solid fa-cube text-slate-400"></i>
+                                                    @endif
                                                 </div>
                                                 <span
                                                     class="text-slate-800 font-bold group-hover:text-blue-600 transition-colors truncate">{{ $product->name }}</span>
@@ -304,7 +308,7 @@
 
         form.action = "{{ url('admin/kelola-harga') }}/" + id + "/discount";
         percentageInput.value = percentage;
-        
+
         if (validUntilInput._flatpickr) {
             validUntilInput._flatpickr.setDate(validUntil);
         } else {
@@ -329,19 +333,19 @@
         if (confirm('Apakah Anda yakin ingin menghapus diskon produk ini? Harga akan kembali normal.')) {
             const percentageInput = document.getElementById('edit_discount_percentage');
             const validUntilInput = document.getElementById('edit_discount_valid_until');
-            
+
             percentageInput.value = 0;
-            
+
             const today = new Date();
             // Format YYYY-MM-DD
             const todayString = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-            
+
             if (validUntilInput._flatpickr) {
                 validUntilInput._flatpickr.setDate(todayString);
             } else {
                 validUntilInput.value = todayString;
             }
-            
+
             document.getElementById('edit-discount-form').submit();
         }
     }

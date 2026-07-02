@@ -65,7 +65,7 @@
                 @endif
 
                 <!-- Form -->
-                <form action="{{ route('pages.admin.stok.update', $product->id) }}" method="POST" class="space-y-6">
+                <form action="{{ route('pages.admin.stok.update', $product->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf
                     @method('PUT')
 
@@ -89,52 +89,83 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all">
                             </div>
 
-                            <!-- Barcode (Readonly) -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <!-- Barcode (Readonly) -->
+                                <div>
+                                    <label for="barcode" class="block text-sm font-bold text-gray-700 mb-2">
+                                        Barcode
+                                    </label>
+                                    <input type="text" name="barcode" id="barcode"
+                                        value="{{ old('barcode', $product->barcode) }}" readonly
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm bg-gray-100 text-gray-500 cursor-not-allowed focus:outline-none transition-all">
+                                    <p class="mt-1.5 text-xs text-gray-500 flex items-center gap-1">
+                                        <i class="fa-solid fa-circle-info text-brand-textBlue"></i>
+                                        Barcode tidak dapat diubah
+                                    </p>
+                                </div>
+
+                                <!-- Harga -->
+                                <div>
+                                    <label for="price" class="block text-sm font-bold text-gray-700 mb-2">
+                                        Harga <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">Rp</span>
+                                        <input type="number" name="price" id="price" min="0" step="0.01"
+                                            value="{{ old('price', $product->price) }}" required placeholder="0"
+                                            class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <!-- Kategori -->
+                                <div>
+                                    <label for="product_category_id" class="block text-sm font-bold text-gray-700 mb-2">
+                                        Kategori <span class="text-red-500">*</span>
+                                    </label>
+                                    <select name="product_category_id" id="product_category_id" required
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white">
+                                        <option value="">-- Pilih Kategori --</option>
+                                        @foreach ($categories as $category)
+                                            <option value="{{ $category->id }}"
+                                                {{ old('product_category_id', $product->product_category_id) == $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <!-- Satuan -->
+                                <div>
+                                    <label for="product_unit_id" class="block text-sm font-bold text-gray-700 mb-2">
+                                        Satuan <span class="text-red-500">*</span>
+                                    </label>
+                                    <select name="product_unit_id" id="product_unit_id" required
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white">
+                                        <option value="">-- Pilih Satuan --</option>
+                                        @foreach ($units as $unit)
+                                            <option value="{{ $unit->id }}"
+                                                {{ old('product_unit_id', $product->product_unit_id) == $unit->id ? 'selected' : '' }}>
+                                                {{ $unit->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Foto Produk (FilePond) -->
                             <div>
-                                <label for="barcode" class="block text-sm font-bold text-gray-700 mb-2">
-                                    Barcode
+                                <label for="image" class="block text-sm font-bold text-gray-700 mb-2">
+                                    Foto Produk
                                 </label>
-                                <input type="text" name="barcode" id="barcode"
-                                    value="{{ old('barcode', $product->barcode) }}" readonly
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm bg-gray-100 text-gray-500 cursor-not-allowed focus:outline-none transition-all">
+                                <input type="file" name="image" id="image"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    @if($product->image) data-existing-image="{{ asset('storage/' . $product->image) }}" @endif>
                                 <p class="mt-1.5 text-xs text-gray-500 flex items-center gap-1">
                                     <i class="fa-solid fa-circle-info text-brand-textBlue"></i>
-                                    Barcode tidak dapat diubah
+                                    Format: JPG, PNG, WebP. Maksimal 2MB. Rasio 4:3. Biarkan kosong jika tidak ingin mengubah foto.
                                 </p>
-                            </div>
-
-                            <!-- Kategori -->
-                            <div>
-                                <label for="product_category_id" class="block text-sm font-bold text-gray-700 mb-2">
-                                    Kategori
-                                </label>
-                                <select name="product_category_id" id="product_category_id"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white">
-                                    <option value="">-- Pilih Kategori --</option>
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}"
-                                            {{ old('product_category_id', $product->product_category_id) == $category->id ? 'selected' : '' }}>
-                                            {{ $category->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <!-- Satuan -->
-                            <div>
-                                <label for="product_unit_id" class="block text-sm font-bold text-gray-700 mb-2">
-                                    Satuan
-                                </label>
-                                <select name="product_unit_id" id="product_unit_id"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white">
-                                    <option value="">-- Pilih Satuan --</option>
-                                    @foreach ($units as $unit)
-                                        <option value="{{ $unit->id }}"
-                                            {{ old('product_unit_id', $product->product_unit_id) == $unit->id ? 'selected' : '' }}>
-                                            {{ $unit->name }} ({{ $unit->symbol }})
-                                        </option>
-                                    @endforeach
-                                </select>
                             </div>
 
                         </div>
@@ -158,4 +189,4 @@
     </main>
 @endsection
 
-@vite('resources/js/pages/admin/barang-masuk.js')
+@vite('resources/js/pages/admin/edit-produk.js')
