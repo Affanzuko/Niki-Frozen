@@ -24,22 +24,54 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $roles = ['owner', 'general_manager', 'admin', 'cashier'];
+        
         return [
+            'branch_id' => null, // Akan diset saat relasi
             'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
+            'username' => fake()->unique()->userName(),
             'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'role' => fake()->randomElement($roles),
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Set user as cashier.
      */
-    public function unverified(): static
+    public function cashier(): static
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+            'role' => 'cashier',
+        ]);
+    }
+
+    /**
+     * Set user as admin.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+        ]);
+    }
+
+    /**
+     * Set user as manager.
+     */
+    public function manager(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'general_manager',
+        ]);
+    }
+
+    /**
+     * Set user as owner.
+     */
+    public function owner(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'owner',
         ]);
     }
 }
