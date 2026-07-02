@@ -19,6 +19,7 @@ class Product extends Model
         'barcode',
         'name',
         'price',
+        'image',
     ];
 
     public function branch(): BelongsTo

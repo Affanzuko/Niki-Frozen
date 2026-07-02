@@ -144,7 +144,75 @@
     </nav>
 
     {{-- Footer / Profile --}}
-    <div class="p-4 border-t border-slate-200">
+    <div class="p-4 border-t border-slate-200" x-data="{
+        notifications: [],
+        showNotifications: false,
+        get unreadCount() {
+            return this.notifications.filter(n => !n.is_read).length;
+        },
+        async fetchNotifications() {
+            try {
+                const response = await fetch('{{ route('pages.admin.notifications.unread') ?? '/admin/notifications' }}');
+                this.notifications = await response.json();
+            } catch (error) {
+                console.error('Failed to fetch notifications:', error);
+            }
+        },
+        init() {
+            this.fetchNotifications();
+            // Cek notifikasi setiap 1 menit
+            setInterval(() => this.fetchNotifications(), 60000);
+        }
+    }">
+        @if(in_array($role, ['admin', 'gm']))
+        {{-- Notification Dropdown --}}
+        <div class="relative mb-3">
+            <button @click="showNotifications = !showNotifications" @click.away="showNotifications = false" type="button" 
+                class="w-full bg-white rounded-xl p-3 flex items-center justify-between border border-slate-200 shadow-sm hover:bg-slate-50 transition-colors">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 relative transition-colors"
+                         :class="unreadCount > 0 ? 'bg-red-50 text-red-500' : 'bg-slate-50 text-slate-400'">
+                        <i class="fa-solid fa-bell"></i>
+                        <template x-if="unreadCount > 0">
+                            <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white" x-text="unreadCount"></span>
+                        </template>
+                    </div>
+                    <div class="text-left flex-1 min-w-0">
+                        <p class="text-sm font-bold text-slate-800">Notifikasi</p>
+                        <p class="text-[11px] font-semibold truncate" 
+                           :class="unreadCount > 0 ? 'text-red-500' : 'text-slate-500'" 
+                           x-text="unreadCount > 0 ? unreadCount + ' Belum dibaca' : 'Semua telah dibaca'"></p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-up text-xs text-slate-400 transition-transform" :class="showNotifications ? '' : 'rotate-180'"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div x-show="showNotifications" x-transition x-cloak
+                class="absolute bottom-full left-0 w-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-50 flex flex-col max-h-[300px]">
+                <div class="p-3 border-b border-slate-100 bg-slate-50 shrink-0">
+                    <h4 class="text-xs font-bold text-slate-700"><i class="fa-solid fa-circle-exclamation text-red-500 mr-1"></i> Peringatan Kadaluarsa</h4>
+                </div>
+                <div class="divide-y divide-slate-100 overflow-y-auto overflow-x-hidden flex-1 custom-scrollbar">
+                    <template x-if="notifications.length === 0">
+                        <div class="p-4 text-center text-slate-500 text-xs">Aman! Tidak ada barang yang mendekati kadaluarsa.</div>
+                    </template>
+                    <template x-for="notif in notifications" :key="notif.id">
+                        <a :href="`/admin/notifications/${notif.id}/read`" class="block p-3 transition-colors group" 
+                           :class="notif.is_read ? 'hover:bg-slate-50 opacity-60' : 'hover:bg-red-50 bg-red-50/20'">
+                            <p class="text-[11px] leading-snug transition-colors" 
+                               :class="notif.is_read ? 'text-slate-600 font-medium' : 'text-slate-800 font-bold group-hover:text-red-700'" 
+                               x-text="notif.message"></p>
+                            <p class="text-[9px] mt-1 font-medium" 
+                               :class="notif.is_read ? 'text-slate-400' : 'text-slate-500'" 
+                               x-text="new Date(notif.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit'})"></p>
+                        </a>
+                    </template>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <div class="bg-white rounded-xl p-3 flex items-center gap-3 mb-3 border border-slate-200 shadow-sm">
             <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
                 <svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -86,9 +86,20 @@
                         @php
                             $activePromotion = $stock->product->promotions->first();
                             $discount = $activePromotion ? $activePromotion->discount_percentage : 0;
+                            
+                            if ($activePromotion) {
+                                if (is_null($activePromotion->stock_incoming_id)) {
+                                    $quota = $stock->quantity;
+                                } else {
+                                    $quota = ($activePromotion->quota > 0) ? $activePromotion->quota : $stock->quantity;
+                                }
+                            } else {
+                                $quota = 0;
+                            }
+                            
                             $finalPrice = $discount > 0 ? $stock->product->price * (1 - $discount / 100) : $stock->product->price;
                         @endphp
-                        <div onclick="addToCart({{ $stock->product->id }}, '{{ addslashes($stock->product->name) }}', {{ $finalPrice }})"
+                        <div onclick="addToCart({{ $stock->product->id }}, '{{ addslashes($stock->product->name) }}', {{ $stock->product->price }}, {{ $discount }}, {{ $quota }})"
                             data-name="{{ strtolower($stock->product->name) }}"
                             data-barcode="{{ $stock->product->barcode }}"
                             data-category="{{ $stock->product->category ? strtolower($stock->product->category->name) : '' }}"

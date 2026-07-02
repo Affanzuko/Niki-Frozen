@@ -13,11 +13,13 @@ class Promotion extends Model
 
     protected $fillable = [
         'product_id',
+        'stock_incoming_id',
         'branch_id',
         'created_by',
         'discount_percentage',
         'valid_until',
         'is_active',
+        'quota',
     ];
 
     protected function casts(): array
@@ -26,6 +28,7 @@ class Promotion extends Model
             'valid_until' => 'date',
             'is_active' => 'boolean',
             'discount_percentage' => 'decimal:2',
+            'quota' => 'integer',
         ];
     }
 
@@ -42,5 +45,10 @@ class Promotion extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function stockIncoming(): BelongsTo
+    {
+        return $this->belongsTo(StockIncoming::class);
     }
 }
