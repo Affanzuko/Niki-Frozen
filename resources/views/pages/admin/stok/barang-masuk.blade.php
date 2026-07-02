@@ -36,8 +36,8 @@
             </div>
 
             <!-- Content Area -->
-            <div class="flex-1 flex flex-col min-h-0">
-            <div class="max-w-2xl">
+            <div class="flex-1 overflow-y-auto pr-2">
+            <div class="max-w-2xl pb-8">
                 <!-- Success Message -->
                 @if (session('success'))
                     <div
@@ -78,16 +78,50 @@
                         </div>
 
                         <div class="p-6 space-y-5">
-                            <!-- Produk -->
+                            <!-- Scan Barcode -->
+                            <div x-data="{
+                                scanBarcode(e) {
+                                    const barcode = e.target.value.trim();
+                                    if (!barcode) return;
+                                    
+                                    const select = document.getElementById('product_id');
+                                    let found = false;
+                                    
+                                    for (let option of select.options) {
+                                        if (option.getAttribute('data-barcode') === barcode) {
+                                            select.value = option.value;
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (found) {
+                                        document.getElementById('quantity').focus();
+                                        e.target.value = ''; // Reset input after success
+                                    } else {
+                                        alert('Barcode tidak ditemukan pada daftar produk!');
+                                    }
+                                }
+                            }">
+                                <label for="scan_barcode" class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-barcode text-brand-textBlue"></i> Scan Barcode
+                                </label>
+                                <input type="text" id="scan_barcode" autofocus placeholder="Arahkan kursor ke sini lalu scan barcode barang..."
+                                    @keydown.enter.prevent="scanBarcode($event)"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-blue-50/50 placeholder:text-blue-400">
+                                <p class="text-xs text-gray-500 mt-1">Sistem otomatis memilih produk di bawah dan pindah ke kolom Jumlah (Qty).</p>
+                            </div>
+
+                            <!-- Produk (Fallback Manual) -->
                             <div>
-                                <label for="product_id" class="block text-sm font-bold text-gray-700 mb-2">
-                                    Pilih Produk <span class="text-red-500">*</span>
+                                <label for="product_id" class="block text-sm font-bold text-gray-700 mb-2 mt-2">
+                                    Atau Pilih Produk Manual <span class="text-red-500">*</span>
                                 </label>
                                 <select name="product_id" id="product_id" required
                                     class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white">
                                     <option value="">-- Pilih Produk --</option>
                                     @foreach ($products as $product)
-                                        <option value="{{ $product->id }}"
+                                        <option value="{{ $product->id }}" data-barcode="{{ $product->barcode }}"
                                             {{ old('product_id') == $product->id ? 'selected' : '' }}>
                                             {{ $product->name }} ({{ $product->barcode ?? 'No barcode' }})
                                         </option>
