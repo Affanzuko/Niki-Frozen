@@ -67,8 +67,10 @@ class CheckExpiryCommand extends Command
         
         // 1. Hapus jika produk sudah lewat 7 hari dari tanggal kadaluarsa (meskipun belum dibaca/sudah dibaca)
         // 2. Atau hapus jika kuantitas barang sudah habis (sudah dibuang/terjual)
+        // 3. Atau hapus jika tanggal kadaluarsa diubah menjadi lebih dari 7 hari dari sekarang
         $deletedCount += \App\Models\ExpiryNotification::whereHas('stockIncoming', function ($query) {
             $query->whereDate('expiry_date', '<', now()->subDays(7))
+                  ->orWhereDate('expiry_date', '>', now()->addDays(7))
                   ->orWhere('current_quantity', '<=', 0);
         })->delete();
 
