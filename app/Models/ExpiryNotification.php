@@ -16,12 +16,14 @@ class ExpiryNotification extends Model
         'branch_id',
         'message',
         'is_read',
+        'is_read_by_gm',
     ];
 
     protected function casts(): array
     {
         return [
             'is_read' => 'boolean',
+            'is_read_by_gm' => 'boolean',
         ];
     }
 
