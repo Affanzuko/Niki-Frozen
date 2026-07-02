@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('promotions', function (Blueprint $table) {
             \DB::table('promotions')->truncate();
-            $table->foreignId('stock_incoming_id')->after('product_id')->constrained('stock_incomings')->onDelete('cascade');
+            $table->foreignId('stock_incoming_id')->after('product_id')->constrained('stock_incomings')->onDelete('cascade')->nullable();
         });
     }
 

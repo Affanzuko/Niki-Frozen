@@ -204,7 +204,7 @@
                                                             class="fa-solid fa-circle-exclamation mr-1"></i>{{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
                                                     </span>
                                                 @elseif ($isNearExpiry)
-                                                    <span class="text-orange-600">
+                                                    <span class="text-red-500">
                                                         {{ \Carbon\Carbon::parse($expiryDate)->format('d M Y') }}
                                                     </span>
                                                 @else
@@ -284,7 +284,7 @@
                                                                                 today()->diffInDays($bExp, false) <= 7;
                                                                         @endphp
                                                                         <span
-                                                                            class="text-xs font-bold {{ $bIsExp ? 'text-red-600' : ($bIsNear ? 'text-orange-600' : 'text-slate-600') }}">
+                                                                            class="text-xs font-bold {{ $bIsExp ? 'text-red-600' : ($bIsNear ? 'text-red-500' : 'text-slate-600') }}">
                                                                             @if ($bIsExp)
                                                                                 <i
                                                                                     class="fa-solid fa-circle-exclamation mr-1"></i>
@@ -310,7 +310,7 @@
                                                                         @elseif ($bIsNear)
                                                                             <button type="button"
                                                                                 onclick="openPromoModal({{ $stock->product->id }}, {{ $batch->id }}, '{{ addslashes($stock->product->name) }} (Batch {{ $idx + 1 }})', {{ $batch->current_quantity }}, '{{ $bExp->format('Y-m-d') }}')"
-                                                                                class="p-1.5 px-2 text-[10px] font-bold text-orange-600 border border-orange-200 hover:bg-orange-50 rounded transition-colors"
+                                                                                class="p-1.5 px-2 text-[10px] font-bold text-red-500 border border-red-200 hover:bg-red-50 rounded transition-colors"
                                                                                 title="Beri Promo/Diskon">
                                                                                 <i class="fa-solid fa-tags"></i> Promo
                                                                             </button>
@@ -437,7 +437,7 @@
                     <div class="bg-white px-6 pt-5 pb-6">
                         <div class="flex items-center justify-between mb-5">
                             <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <i class="fa-solid fa-tags text-orange-500"></i> Beri Promo Produk
+                                <i class="fa-solid fa-tags text-red-500"></i> Beri Promo Produk
                             </h3>
                             <button type="button" onclick="closePromoModal()"
                                 class="text-slate-400 hover:text-slate-500">
@@ -452,7 +452,7 @@
                                 <label for="promo_discount" class="block text-sm font-bold text-slate-700 mb-2">Diskon (%)</label>
                                 <input type="number" name="discount_percentage" id="promo_discount" required
                                     min="1" max="100" placeholder="Contoh: 20"
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all bg-white">
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition-all bg-white">
                             </div>
                             
                             <div>
@@ -467,7 +467,7 @@
                                 <div class="relative">
                                     <input type="text" name="valid_until" id="promo_valid_until" required
                                         placeholder="Pilih tanggal"
-                                        class="w-full px-4 py-3 pl-11 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all bg-white cursor-pointer flatpickr-date">
+                                        class="w-full px-4 py-3 pl-11 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition-all bg-white cursor-pointer flatpickr-date">
                                     <i class="fa-regular fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                                 </div>
                             </div>
@@ -477,7 +477,7 @@
                         <button type="button" onclick="closePromoModal()"
                             class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">Batal</button>
                         <button type="submit"
-                            class="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-bold hover:bg-orange-600 transition-colors">Terapkan Promo</button>
+                            class="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-bold hover:bg-red-500 transition-colors">Terapkan Promo</button>
                     </div>
                 </form>
             </div>
