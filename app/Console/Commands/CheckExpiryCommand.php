@@ -47,6 +47,7 @@ class CheckExpiryCommand extends Command
                     'branch_id' => $batch->branch_id,
                     'message' => $message,
                     'is_read' => false,
+                    'is_read_by_gm' => false,
                 ]);
                 $count++;
             } else {
@@ -55,7 +56,7 @@ class CheckExpiryCommand extends Command
                     $existingNotification->update([
                         'message' => $message,
                         'is_read' => false,
-                        'created_at' => now(), // Naikkan ke atas lagi
+                        'is_read_by_gm' => false,
                     ]);
                 }
             }

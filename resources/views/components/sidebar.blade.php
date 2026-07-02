@@ -148,11 +148,12 @@
         notifications: [],
         showNotifications: false,
         get unreadCount() {
-            return this.notifications.filter(n => !n.is_read).length;
+            const isGM = '{{ $role }}' === 'general-manager';
+            return this.notifications.filter(n => isGM ? !n.is_read_by_gm : !n.is_read).length;
         },
         async fetchNotifications() {
             try {
-                const response = await fetch('{{ route('pages.admin.notifications.unread') ?? '/admin/notifications' }}');
+                const response = await fetch('{{ route('notifications.unread') }}');
                 this.notifications = await response.json();
             } catch (error) {
                 console.error('Failed to fetch notifications:', error);
@@ -164,7 +165,7 @@
             setInterval(() => this.fetchNotifications(), 60000);
         }
     }">
-        @if(in_array($role, ['admin', 'gm']))
+        @if(in_array($role, ['admin', 'general-manager']))
         {{-- Notification Dropdown --}}
         <div class="relative mb-3">
             <button @click="showNotifications = !showNotifications" @click.away="showNotifications = false" type="button" 
@@ -198,14 +199,14 @@
                         <div class="p-4 text-center text-slate-500 text-xs">Aman! Tidak ada barang yang mendekati kadaluarsa.</div>
                     </template>
                     <template x-for="notif in notifications" :key="notif.id">
-                        <a :href="`/admin/notifications/${notif.id}/read`" class="block p-3 transition-colors group" 
-                           :class="notif.is_read ? 'hover:bg-slate-50 opacity-60' : 'hover:bg-red-50 bg-red-50/20'">
+                        <a :href="`/notifications/${notif.id}/read`" class="block p-3 transition-colors group" 
+                           :class="('{{ $role }}' === 'general-manager' ? notif.is_read_by_gm : notif.is_read) ? 'hover:bg-slate-50 opacity-60' : 'hover:bg-red-50 bg-red-50/20'">
                             <p class="text-[11px] leading-snug transition-colors" 
-                               :class="notif.is_read ? 'text-slate-600 font-medium' : 'text-slate-800 font-bold group-hover:text-red-700'" 
+                               :class="('{{ $role }}' === 'general-manager' ? notif.is_read_by_gm : notif.is_read) ? 'text-slate-600 font-medium' : 'text-slate-800 font-bold group-hover:text-red-700'" 
                                x-text="notif.message"></p>
                             <p class="text-[9px] mt-1 font-medium" 
-                               :class="notif.is_read ? 'text-slate-400' : 'text-slate-500'" 
-                               x-text="new Date(notif.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit'})"></p>
+                               :class="('{{ $role }}' === 'general-manager' ? notif.is_read_by_gm : notif.is_read) ? 'text-slate-400' : 'text-slate-500'" 
+                               x-text="new Date(notif.updated_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit'})"></p>
                         </a>
                     </template>
                 </div>

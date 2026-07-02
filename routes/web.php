@@ -58,6 +58,10 @@ Route::prefix('admin')->middleware(['role:admin'])->name('pages.admin.')->group(
     Route::get('kelola-harga', [ProductController::class, 'index'])->name('kelola-harga');
     Route::put('kelola-harga/{id}', [ProductController::class, 'update'])->name('kelola-harga.update');
     Route::post('kelola-harga/{id}/discount', [ProductController::class, 'addDiscount'])->name('kelola-harga.discount');
+});
+
+// Global Authenticated Routes (for Admin & GM)
+Route::middleware(['auth'])->group(function () {
     Route::get('notifications', [\App\Http\Controllers\NotificationController::class, 'getUnread'])->name('notifications.unread');
     Route::get('notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
 });
