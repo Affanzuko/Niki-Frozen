@@ -4,7 +4,7 @@
 
 @section('body_data')
     x-data="{
-        stokFilter: 'Semua Barang',
+        stokFilter: new URLSearchParams(window.location.search).get('filter') === 'kadaluarsa' ? 'Status Kedaluwarsa' : 'Semua Barang',
         searchQuery: '',
         activeDropdown: null,
         sidebarOpen: false,
@@ -12,17 +12,23 @@
             this.activeDropdown = this.activeDropdown === id ? null : id;
         },
         init() {
-            this.$watch('stokFilter', value => {
-                const container = document.getElementById('stocks-container');
-                if (!container) return;
-                const groups = Array.from(container.querySelectorAll('tbody.stock-group'));
-                if (value === 'Status Kedaluwarsa') {
-                    groups.sort((a, b) => parseInt(a.dataset.expiry) - parseInt(b.dataset.expiry));
-                } else {
-                    groups.sort((a, b) => parseInt(a.dataset.index) - parseInt(b.dataset.index));
-                }
-                groups.forEach(group => container.appendChild(group));
-            });
+            this.$watch('stokFilter', value => this.sortGroups(value));
+            // Trigger sort on first load if it's already set to kadaluarsa
+            if (this.stokFilter === 'Status Kedaluwarsa') {
+                // Wait for DOM to be ready
+                setTimeout(() => this.sortGroups(this.stokFilter), 100);
+            }
+        },
+        sortGroups(value) {
+            const container = document.getElementById('stocks-container');
+            if (!container) return;
+            const groups = Array.from(container.querySelectorAll('tbody.stock-group'));
+            if (value === 'Status Kedaluwarsa') {
+                groups.sort((a, b) => parseInt(a.dataset.expiry) - parseInt(b.dataset.expiry));
+            } else {
+                groups.sort((a, b) => parseInt(a.dataset.index) - parseInt(b.dataset.index));
+            }
+            groups.forEach(group => container.appendChild(group));
         }
     }"
 @endsection
