@@ -117,7 +117,7 @@
 
 <div class="hidden lg:flex w-64 bg-slate-100 h-full flex-col border-r border-slate-200 shrink-0">
     {{-- Header / Brand --}}
-    <div class="p-6">
+    <div class="p-6 pb-4">
         <div class="flex items-center gap-3">
             <div class="w-12 h-12 flex items-center justify-center shrink-0">
                 <img src="{{ asset('images/Logo nikifrozen.png') }}" alt="Logo" class="w-full h-full object-contain">
@@ -125,6 +125,35 @@
             <div>
                 <h2 class="text-xl font-bold text-slate-800 leading-tight">Niki Frozen</h2>
                 <p class="text-sm font-medium text-slate-500 capitalize">{{ $role }}</p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Realtime Clock (Menu Style) --}}
+    <div class="px-4 pb-4" 
+         x-data="{ 
+            hours: '', 
+            minutes: '', 
+            showColon: true,
+            date: '',
+            updateTime() {
+                const now = new Date();
+                this.hours = String(now.getHours()).padStart(2, '0');
+                this.minutes = String(now.getMinutes()).padStart(2, '0');
+                this.showColon = !this.showColon;
+                this.date = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' });
+            }
+         }" 
+         x-init="updateTime(); setInterval(() => updateTime(), 1000)">
+        
+        <div class="bg-[#dbeafe] text-blue-700 rounded-xl px-4 py-3 text-center">
+            <div class="flex flex-col items-center">
+                <div class="flex items-center text-2xl font-bold tracking-widest font-mono leading-none">
+                    <span x-text="hours"></span>
+                    <span class="mx-0.5 transition-opacity duration-300" :class="showColon ? 'opacity-100' : 'opacity-0'">:</span>
+                    <span x-text="minutes"></span>
+                </div>
+                <span class="text-sm font-semibold mt-1.5" x-text="date"></span>
             </div>
         </div>
     </div>
