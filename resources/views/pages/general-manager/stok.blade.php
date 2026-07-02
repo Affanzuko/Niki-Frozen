@@ -23,7 +23,7 @@
                 }
                 groups.forEach(group => container.appendChild(group));
             };
-            
+
             // Terapkan sort awal jika bukan Semua Barang
             if (this.stokFilter === 'Status Kedaluwarsa') {
                 setTimeout(() => applySort(this.stokFilter), 50);
@@ -182,9 +182,12 @@
                                         @if ($batches->count() > 0) @click="expanded = !expanded" @endif>
                                         <td class="p-4 pl-12 flex items-center gap-3">
                                             <div
-                                                class="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center shrink-0">
-                                                <i
-                                                    class="fa-solid fa-cube text-slate-400 group-hover:text-blue-500 transition-colors"></i>
+                                                class="w-20 h-15 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center shrink-0">
+                                                @if($stock->product->image)
+                                                    <img src="{{ asset('storage/' . $stock->product->image) }}" alt="{{ $stock->product->name }}" class="w-full h-full object-cover">
+                                                @else
+                                                    <i class="fa-solid fa-cube text-slate-400"></i>
+                                                @endif
                                             </div>
                                             <div>
                                                 <span
@@ -355,7 +358,7 @@
                             </colgroup>
                             <tbody class="text-sm font-medium">
                                 @forelse ($incomings as $in)
-                                    <tr x-show="'{{ strtolower(addslashes($in->product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($in->product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase())" 
+                                    <tr x-show="'{{ strtolower(addslashes($in->product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($in->product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase())"
                                         class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                                         <td class="p-4 pl-8 text-slate-500">
                                             {{ \Carbon\Carbon::parse($in->created_at)->format('d M Y, H:i') }}
