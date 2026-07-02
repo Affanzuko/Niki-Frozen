@@ -105,12 +105,16 @@
                             data-category="{{ $stock->product->category ? strtolower($stock->product->category->name) : '' }}"
                             class="product-card group cursor-pointer bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-200 flex flex-col active:scale-95">
 
-                            {{-- Product Image Placeholder --}}
+                            {{-- Product Image --}}
                             <div
                                 class="w-full h-28 lg:h-36 bg-slate-100 flex items-center justify-center relative overflow-hidden">
-                                <div class="absolute inset-0 bg-gradient-to-tr from-slate-200 to-slate-50 opacity-50"></div>
-                                <span
-                                    class="text-4xl lg:text-5xl relative z-10 group-hover:scale-110 transition-transform duration-300 drop-shadow-md">❄️</span>
+                                @if($stock->product->image)
+                                    <img src="{{ asset('storage/' . $stock->product->image) }}" alt="{{ $stock->product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                @else
+                                    <div class="absolute inset-0 bg-gradient-to-tr from-slate-200 to-slate-50 opacity-50"></div>
+                                    <span
+                                        class="text-4xl lg:text-5xl relative z-10 group-hover:scale-110 transition-transform duration-300 drop-shadow-md">❄️</span>
+                                @endif
                             </div>
 
                             <div class="p-3 flex flex-col flex-1">

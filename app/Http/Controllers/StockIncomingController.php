@@ -80,7 +80,6 @@ class StockIncomingController extends Controller
 
             return redirect()->route('pages.admin.stok')
                 ->with('success', 'Barang masuk berhasil dicatat. Stok terupdate.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Gagal menyimpan: ' . $e->getMessage()])
