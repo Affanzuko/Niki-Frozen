@@ -249,11 +249,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-slate-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-slate-200">
-                        <button type="button" onclick="closeDiscountModal()"
-                            class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">Batal</button>
-                        <button type="submit"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 transition-colors">Simpan Diskon</button>
+                    <div class="bg-slate-50 px-6 py-4 flex items-center justify-between border-t border-slate-200">
+                        <button type="button" id="btn-reset-discount" onclick="resetDiscount()"
+                            class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors hidden">Hapus Diskon</button>
+                        <div class="flex items-center gap-3 ml-auto">
+                            <button type="button" onclick="closeDiscountModal()"
+                                class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">Batal</button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 transition-colors">Simpan Diskon</button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -296,6 +300,7 @@
         const form = document.getElementById('edit-discount-form');
         const percentageInput = document.getElementById('edit_discount_percentage');
         const validUntilInput = document.getElementById('edit_discount_valid_until');
+        const resetBtn = document.getElementById('btn-reset-discount');
 
         form.action = "{{ url('admin/kelola-harga') }}/" + id + "/discount";
         percentageInput.value = percentage;
@@ -306,12 +311,39 @@
             validUntilInput.value = validUntil;
         }
 
+        if (percentage > 0) {
+            resetBtn.classList.remove('hidden');
+        } else {
+            resetBtn.classList.add('hidden');
+        }
+
         modal.classList.remove('hidden');
     }
 
     function closeDiscountModal() {
         const modal = document.getElementById('edit-discount-modal');
         modal.classList.add('hidden');
+    }
+
+    function resetDiscount() {
+        if (confirm('Apakah Anda yakin ingin menghapus diskon produk ini? Harga akan kembali normal.')) {
+            const percentageInput = document.getElementById('edit_discount_percentage');
+            const validUntilInput = document.getElementById('edit_discount_valid_until');
+            
+            percentageInput.value = 0;
+            
+            const today = new Date();
+            // Format YYYY-MM-DD
+            const todayString = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+            
+            if (validUntilInput._flatpickr) {
+                validUntilInput._flatpickr.setDate(todayString);
+            } else {
+                validUntilInput.value = todayString;
+            }
+            
+            document.getElementById('edit-discount-form').submit();
+        }
     }
 </script>
 @endpush

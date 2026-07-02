@@ -34,11 +34,25 @@ class KasirController extends Controller
                 $promotion = \App\Models\Promotion::where('stock_incoming_id', $oldestBatch->id)
                     ->where('is_active', true)
                     ->where('valid_until', '>=', now())
-                    ->where('quota', '>', 0)
+                    ->where(function($q) {
+                        $q->whereNull('quota')->orWhere('quota', '>', 0);
+                    })
                     ->first();
                     
                 if ($promotion) {
                     $stock->product->promotions->push($promotion);
+                }
+            }
+
+            if ($stock->product->promotions->isEmpty()) {
+                $productPromotion = \App\Models\Promotion::where('product_id', $stock->product_id)
+                    ->whereNull('stock_incoming_id')
+                    ->where('is_active', true)
+                    ->where('valid_until', '>=', now())
+                    ->first();
+                    
+                if ($productPromotion) {
+                    $stock->product->promotions->push($productPromotion);
                 }
             }
         }
