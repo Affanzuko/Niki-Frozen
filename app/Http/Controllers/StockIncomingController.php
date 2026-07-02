@@ -78,6 +78,9 @@ class StockIncomingController extends Controller
 
             DB::commit();
 
+            // Jalankan pengecekan kadaluarsa secara instan agar notifikasi langsung muncul
+            \Illuminate\Support\Facades\Artisan::call('stok:check-expiry');
+
             return redirect()->route('pages.admin.stok')
                 ->with('success', 'Barang masuk berhasil dicatat. Stok terupdate.');
         } catch (\Exception $e) {

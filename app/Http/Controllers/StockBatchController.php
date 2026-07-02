@@ -44,6 +44,9 @@ class StockBatchController extends Controller
         // Rekalkulasi total stok produk
         $this->recalculateStock($productId, $branchId);
 
+        // Jalankan pengecekan kadaluarsa secara instan agar notifikasi langsung muncul/terupdate
+        \Illuminate\Support\Facades\Artisan::call('stok:check-expiry');
+
         return redirect()->back()
             ->with('success', 'Detail batch berhasil diperbarui.');
     }

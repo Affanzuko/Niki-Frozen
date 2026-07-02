@@ -4,7 +4,7 @@
 
 @section('body_data')
     x-data="{
-        stokFilter: sessionStorage.getItem('gmStokFilter') || 'Semua Barang',
+        stokFilter: new URLSearchParams(window.location.search).get('filter') === 'kadaluarsa' ? 'Status Kedaluwarsa' : (sessionStorage.getItem('gmStokFilter') || 'Semua Barang'),
         searchQuery: '',
         activeDropdown: null,
         sidebarOpen: false,
