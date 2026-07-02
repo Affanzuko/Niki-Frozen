@@ -58,6 +58,12 @@ Route::prefix('admin')->middleware(['role:admin'])->name('pages.admin.')->group(
     Route::get('kelola-harga', [ProductController::class, 'index'])->name('kelola-harga');
     Route::put('kelola-harga/{id}', [ProductController::class, 'update'])->name('kelola-harga.update');
     Route::post('kelola-harga/{id}/discount', [ProductController::class, 'addDiscount'])->name('kelola-harga.discount');
+    
+    // Pengeluaran
+    Route::get('pengeluaran', [\App\Http\Controllers\ExpenseController::class, 'index'])->name('pengeluaran');
+    Route::post('pengeluaran', [\App\Http\Controllers\ExpenseController::class, 'store'])->name('pengeluaran.store');
+    Route::put('pengeluaran/{id}', [\App\Http\Controllers\ExpenseController::class, 'update'])->name('pengeluaran.update');
+    Route::delete('pengeluaran/{id}', [\App\Http\Controllers\ExpenseController::class, 'destroy'])->name('pengeluaran.destroy');
 });
 
 // Global Authenticated Routes (for Admin & GM)
