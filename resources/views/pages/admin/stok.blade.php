@@ -314,12 +314,12 @@
                                                                         @endphp
 
                                                                         @if ($activePromo)
-                                                                            <form action="{{ route('pages.admin.promotions.destroy', $activePromo->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Hapus promo untuk batch ini?');">
+                                                                            <button type="button" onclick="confirmDeletePromo({{ $activePromo->id }})" class="p-1.5 px-2 text-[10px] font-bold text-white bg-red-500 hover:bg-red-600 rounded transition-colors" title="Hentikan Promo">
+                                                                                <i class="fa-solid fa-ban"></i> Hentikan Promo
+                                                                            </button>
+                                                                            <form id="delete-promo-form-{{ $activePromo->id }}" action="{{ route('pages.admin.promotions.destroy', $activePromo->id) }}" method="POST" class="hidden">
                                                                                 @csrf
                                                                                 @method('DELETE')
-                                                                                <button type="submit" class="p-1.5 px-2 text-[10px] font-bold text-white bg-red-500 hover:bg-red-600 rounded transition-colors" title="Hentikan Promo">
-                                                                                    <i class="fa-solid fa-ban"></i> Hentikan Promo
-                                                                                </button>
                                                                             </form>
                                                                         @elseif ($bIsNear)
                                                                             <button type="button"
@@ -572,6 +572,21 @@
                 confirmColorClass: 'bg-red-500 hover:bg-red-600',
                 onConfirm: () => {
                     document.getElementById('delete-batch-form-' + id).submit();
+                }
+            });
+        }
+
+        function confirmDeletePromo(id) {
+            window.showCustomAlert({
+                title: 'Hapus Promo?',
+                message: 'Apakah Anda yakin ingin menghentikan promo ini? Diskon akan dihapus.',
+                type: 'warning',
+                showCancel: true,
+                cancelText: 'Batal',
+                confirmText: 'Ya, Hapus',
+                confirmColorClass: 'bg-red-500 hover:bg-red-600',
+                onConfirm: () => {
+                    document.getElementById('delete-promo-form-' + id).submit();
                 }
             });
         }

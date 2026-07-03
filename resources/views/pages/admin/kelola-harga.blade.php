@@ -218,6 +218,9 @@
         </div>
     </div>
 
+    {{-- Custom Alert Modal --}}
+    <x-ui.custom-alert-modal />
+
     {{-- Edit Diskon Modal --}}
     <div id="edit-discount-modal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeDiscountModal()"></div>
@@ -329,25 +332,95 @@
         modal.classList.add('hidden');
     }
 
-    function resetDiscount() {
-        if (confirm('Apakah Anda yakin ingin menghapus diskon produk ini? Harga akan kembali normal.')) {
-            const percentageInput = document.getElementById('edit_discount_percentage');
-            const validUntilInput = document.getElementById('edit_discount_valid_until');
+    // Custom Alert Logic
+    window.showCustomAlert = function(options) {
+        const modal = document.getElementById('custom-alert-modal');
+        if (!modal) return;
+        const titleEl = document.getElementById('custom-alert-title');
+        const messageEl = document.getElementById('custom-alert-message');
+        const iconContainer = document.getElementById('custom-alert-icon-container');
+        const buttonsContainer = document.getElementById('custom-alert-buttons');
 
-            percentageInput.value = 0;
+        titleEl.textContent = options.title || 'Perhatian';
+        messageEl.textContent = options.message || '';
 
-            const today = new Date();
-            // Format YYYY-MM-DD
-            const todayString = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-
-            if (validUntilInput._flatpickr) {
-                validUntilInput._flatpickr.setDate(todayString);
-            } else {
-                validUntilInput.value = todayString;
-            }
-
-            document.getElementById('edit-discount-form').submit();
+        if (options.type === 'warning') {
+            iconContainer.className =
+                'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-amber-100 text-amber-500';
+            iconContainer.innerHTML =
+                '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
+        } else if (options.type === 'error') {
+            iconContainer.className =
+                'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-red-100 text-red-500';
+            iconContainer.innerHTML =
+                '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+        } else {
+            iconContainer.className =
+                'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-blue-100 text-blue-500';
+            iconContainer.innerHTML =
+                '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
         }
+
+        buttonsContainer.innerHTML = '';
+
+        if (options.showCancel) {
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className =
+                'flex-1 py-3 px-4 rounded-xl border-2 border-slate-200 text-slate-700 font-bold text-[13px] hover:bg-slate-50 transition-colors active:scale-95';
+            cancelBtn.textContent = options.cancelText || 'Batal';
+            cancelBtn.onclick = () => {
+                window.closeCustomAlert();
+                if (options.onCancel) options.onCancel();
+            };
+            buttonsContainer.appendChild(cancelBtn);
+        }
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className =
+            `flex-1 py-3 px-4 rounded-xl text-white font-bold text-[13px] transition-colors active:scale-95 shadow-md ${options.confirmColorClass || 'bg-[#0f172a] hover:bg-slate-800'}`;
+        confirmBtn.textContent = options.confirmText || 'Oke';
+        confirmBtn.onclick = () => {
+            window.closeCustomAlert();
+            if (options.onConfirm) options.onConfirm();
+        };
+        buttonsContainer.appendChild(confirmBtn);
+
+        modal.classList.remove('hidden');
+    };
+
+    window.closeCustomAlert = function() {
+        const modal = document.getElementById('custom-alert-modal');
+        if (modal) modal.classList.add('hidden');
+    };
+
+    function resetDiscount() {
+        window.showCustomAlert({
+            title: 'Hapus Diskon?',
+            message: 'Apakah Anda yakin ingin menghapus diskon produk ini? Harga akan kembali normal.',
+            type: 'warning',
+            showCancel: true,
+            cancelText: 'Batal',
+            confirmText: 'Ya, Hapus',
+            confirmColorClass: 'bg-red-500 hover:bg-red-600',
+            onConfirm: () => {
+                const percentageInput = document.getElementById('edit_discount_percentage');
+                const validUntilInput = document.getElementById('edit_discount_valid_until');
+
+                percentageInput.value = 0;
+
+                const today = new Date();
+                // Format YYYY-MM-DD
+                const todayString = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+                if (validUntilInput._flatpickr) {
+                    validUntilInput._flatpickr.setDate(todayString);
+                } else {
+                    validUntilInput.value = todayString;
+                }
+
+                document.getElementById('edit-discount-form').submit();
+            }
+        });
     }
 </script>
 @endpush
