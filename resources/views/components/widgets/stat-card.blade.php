@@ -1,0 +1,1 @@
+<!-- Placeholder untuk Laravel Component widget stat card (<x-widgets.stat-card />) -->
