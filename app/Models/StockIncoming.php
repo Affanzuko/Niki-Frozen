@@ -48,4 +48,9 @@ class StockIncoming extends Model
     {
         return $this->hasMany(ExpiryNotification::class);
     }
+
+    public function promotion(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Promotion::class);
+    }
 }

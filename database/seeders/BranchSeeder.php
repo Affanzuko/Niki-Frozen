@@ -15,16 +15,16 @@ class BranchSeeder extends Seeder
     {
         $branches = [
             [
-                'name' => 'NikiFrozen - Condongcatur',
+                'name' => 'Niki Frozen - Condongcatur',
                 'address' => 'Condongcatur, Depok, Sleman, Yogyakarta',
             ],
             [
-                'name' => 'NikiFrozen - Umbulharjo',
+                'name' => 'Niki Frozen - Umbulharjo',
                 'address' => 'Umbulharjo, Yogyakarta',
             ],
             [
-                'name' => 'NikiFrozen - Seturan',
-                'address' => 'Seturan, Depok, Sleman, Yogyakarta',
+                'name' => 'Niki Frozen - Imogiri',
+                'address' => 'Imogiri, Sleman, Yogyakarta',
             ],
         ];
 

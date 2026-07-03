@@ -83,18 +83,38 @@
             <div class="flex-1 overflow-y-auto pr-1 lg:pr-2 no-scrollbar pb-24 lg:pb-0">
                 <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4" id="product-container">
                     @foreach ($stocks as $stock)
-                        <div onclick="addToCart({{ $stock->product->id }}, '{{ addslashes($stock->product->name) }}', {{ $stock->product->price }})"
+                        @php
+                            $activePromotion = $stock->product->promotions->first();
+                            $discount = $activePromotion ? $activePromotion->discount_percentage : 0;
+                            
+                            if ($activePromotion) {
+                                if (is_null($activePromotion->stock_incoming_id)) {
+                                    $quota = $stock->quantity;
+                                } else {
+                                    $quota = ($activePromotion->quota > 0) ? $activePromotion->quota : $stock->quantity;
+                                }
+                            } else {
+                                $quota = 0;
+                            }
+                            
+                            $finalPrice = $discount > 0 ? $stock->product->price * (1 - $discount / 100) : $stock->product->price;
+                        @endphp
+                        <div onclick="addToCart({{ $stock->product->id }}, '{{ addslashes($stock->product->name) }}', {{ $stock->product->price }}, {{ $discount }}, {{ $quota }})"
                             data-name="{{ strtolower($stock->product->name) }}"
                             data-barcode="{{ $stock->product->barcode }}"
                             data-category="{{ $stock->product->category ? strtolower($stock->product->category->name) : '' }}"
                             class="product-card group cursor-pointer bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-200 flex flex-col active:scale-95">
 
-                            {{-- Product Image Placeholder --}}
+                            {{-- Product Image --}}
                             <div
                                 class="w-full h-28 lg:h-36 bg-slate-100 flex items-center justify-center relative overflow-hidden">
-                                <div class="absolute inset-0 bg-gradient-to-tr from-slate-200 to-slate-50 opacity-50"></div>
-                                <span
-                                    class="text-4xl lg:text-5xl relative z-10 group-hover:scale-110 transition-transform duration-300 drop-shadow-md">❄️</span>
+                                @if($stock->product->image)
+                                    <img src="{{ asset('storage/' . $stock->product->image) }}" alt="{{ $stock->product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                @else
+                                    <div class="absolute inset-0 bg-gradient-to-tr from-slate-200 to-slate-50 opacity-50"></div>
+                                    <span
+                                        class="text-4xl lg:text-5xl relative z-10 group-hover:scale-110 transition-transform duration-300 drop-shadow-md">❄️</span>
+                                @endif
                             </div>
 
                             <div class="p-3 flex flex-col flex-1">
@@ -103,8 +123,15 @@
 
                                 <div
                                     class="mt-auto flex flex-col lg:flex-row items-start lg:items-end justify-between gap-1">
-                                    <p class="text-sm font-bold text-blue-700 lg:text-slate-900">Rp
-                                        {{ number_format($stock->product->price, 0, ',', '.') }}</p>
+                                    @if($discount > 0)
+                                        <div class="flex flex-col">
+                                            <span class="text-[10px] text-slate-400 line-through">Rp {{ number_format($stock->product->price, 0, ',', '.') }}</span>
+                                            <p class="text-[13px] font-bold text-red-600">Rp {{ number_format($finalPrice, 0, ',', '.') }} <span class="text-[9px] bg-red-100 text-red-600 px-1 py-0.5 rounded ml-1">{{ $discount }}%</span></p>
+                                        </div>
+                                    @else
+                                        <p class="text-sm font-bold text-blue-700 lg:text-slate-900">Rp
+                                            {{ number_format($stock->product->price, 0, ',', '.') }}</p>
+                                    @endif
                                     <span
                                         class="text-xs lg:text-sm font-bold px-2 py-0.5 rounded-md {{ $stock->quantity <= 15 ? 'bg-red-100 text-red-600' : 'bg-blue-50 text-blue-600' }}">
                                         {{ $stock->quantity }} <span class="text-xs">stok</span>

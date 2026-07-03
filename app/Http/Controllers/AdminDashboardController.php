@@ -167,11 +167,11 @@ class AdminDashboardController extends Controller
         $qrisTotal = $transactions->where('payment_method', 'qris')->sum('total_price');
         $totalRevenue = $cashTotal + $qrisTotal;
 
-        $groupedTransactions = $transactions->groupBy(function($item) use ($dateFormat) {
+        $groupedTransactions = $transactions->groupBy(function($item) use ($dateFormat) { // phpcs:ignore Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction
             return $item->created_at->format($dateFormat);
         });
 
-        $groupedExpenses = $expenses->groupBy(function($item) use ($dateFormat) {
+        $groupedExpenses = $expenses->groupBy(function($item) use ($dateFormat) { // phpcs:ignore Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction
             return Carbon::parse($item->date)->format($dateFormat);
         });
 
@@ -254,7 +254,7 @@ class AdminDashboardController extends Controller
         }
 
         return view('pages.admin.keuangan', compact(
-            'cashTotal', 'qrisTotal', 'totalRevenue', 'tableData', 'tablePaginated', 'chartData', 'filter', 'branchId'
+            'cashTotal', 'qrisTotal', 'totalRevenue', 'tableData', 'tablePaginated', 'chartData', 'filter', 'branchId' // phpcs:ignore PSR2.Methods.FunctionCallSignature.MultipleArguments
         ));
     }
 }
