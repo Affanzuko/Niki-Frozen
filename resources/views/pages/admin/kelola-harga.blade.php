@@ -5,17 +5,7 @@
 @section('body_data')
     x-data="{
         sidebarOpen: false,
-        searchQuery: '',
-        editingProduct: null,
-        editPrice: '',
-        openEdit(id, price) {
-            this.editingProduct = id;
-            this.editPrice = price;
-        },
-        closeEdit() {
-            this.editingProduct = null;
-            this.editPrice = '';
-        }
+        searchQuery: ''
     }"
 @endsection
 
@@ -84,20 +74,22 @@
                     <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
                         <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
                             <colgroup>
-                                <col class="w-[25%]">
-                                <col class="w-[15%]">
-                                <col class="w-[15%]">
+                                <col class="w-[38%]">
+                                <col class="w-[14%]">
                                 <col class="w-[10%]">
-                                <col class="w-[20%]">
-                                <col class="w-[15%]">
+                                <col class="w-[12%]">
+                                <col class="w-[6%]">
+                                <col class="w-[12%]">
+                                <col class="w-[8%]">
                             </colgroup>
                             <thead>
                                 <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
                                     <th class="p-4 py-4 pl-12 text-left">Produk</th>
                                     <th class="p-4 py-4 text-left">Barcode</th>
                                     <th class="p-4 py-4 text-left">Kategori</th>
-                                    <th class="p-4 py-4 text-center">Satuan</th>
                                     <th class="p-4 py-4 text-center">Harga Jual</th>
+                                    <th class="p-4 py-4 text-center">Diskon</th>
+                                    <th class="p-4 py-4 text-center">Harga Akhir</th>
                                     <th class="p-4 py-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -108,22 +100,33 @@
                     <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
                         <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
                             <colgroup>
-                                <col class="w-[25%]">
-                                <col class="w-[15%]">
-                                <col class="w-[15%]">
+                                <col class="w-[38%]">
+                                <col class="w-[14%]">
                                 <col class="w-[10%]">
-                                <col class="w-[20%]">
-                                <col class="w-[15%]">
+                                <col class="w-[12%]">
+                                <col class="w-[6%]">
+                                <col class="w-[12%]">
+                                <col class="w-[8%]">
                             </colgroup>
                             @forelse ($products as $product)
+                                @php
+                                    $activePromotion = $product->promotions->first();
+                                    $discount = $activePromotion ? $activePromotion->discount_percentage : 0;
+                                    $validUntil = $activePromotion ? $activePromotion->valid_until->format('Y-m-d') : '';
+                                    $finalPrice = $discount > 0 ? $product->price * (1 - $discount / 100) : $product->price;
+                                @endphp
                                 <tbody class="divide-y divide-slate-100 text-sm font-medium"
                                     x-show="('{{ strtolower(addslashes($product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase()))">
                                     <tr class="hover:bg-slate-50 transition-colors group cursor-pointer">
                                         <td class="p-4 pl-12 text-left truncate">
                                             <div class="flex items-center gap-3">
                                                 <div
-                                                    class="w-10 h-10 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center shrink-0">
-                                                    <i class="fa-solid fa-cube text-slate-400"></i>
+                                                    class="w-20 h-15 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 flex items-center justify-center shrink-0">
+                                                    @if($product->image)
+                                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                                                    @else
+                                                        <i class="fa-solid fa-cube text-slate-400"></i>
+                                                    @endif
                                                 </div>
                                                 <span
                                                     class="text-slate-800 font-bold group-hover:text-blue-600 transition-colors truncate">{{ $product->name }}</span>
@@ -132,50 +135,35 @@
                                         <td class="p-4 text-slate-500 tabular-nums">
                                             {{ $product->barcode ?? '-' }}</td>
                                         <td class="p-4 text-slate-600 truncate">{{ $product->category->name ?? '-' }}</td>
-                                        <td class="p-4 text-slate-600 text-center truncate">
-                                            {{ $product->unit->name ?? '-' }}</td>
                                         <td class="p-4 text-center">
-                                            <!-- Normal display -->
-                                            <div x-show="editingProduct !== {{ $product->id }}">
-                                                <span class="font-bold text-slate-900 tabular-nums">Rp
-                                                    {{ number_format($product->price, 0, ',', '.') }}</span>
-                                            </div>
-                                            <!-- Edit mode (inline) -->
-                                            <div x-show="editingProduct === {{ $product->id }}" x-cloak>
-                                                <form action="{{ route('pages.admin.kelola-harga.update', $product->id) }}"
-                                                    method="POST" class="flex items-center gap-2 justify-center">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <div class="relative">
-                                                        <span
-                                                            class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">Rp</span>
-                                                        <input type="number" name="price" x-model="editPrice"
-                                                            min="0" step="100" required
-                                                            class="w-36 pl-9 pr-3 py-2 border border-blue-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 tabular-nums font-bold text-right">
-                                                    </div>
-                                                    <button type="submit"
-                                                        class="w-8 h-8 bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center justify-center transition-colors shadow-sm">
-                                                        <i class="fa-solid fa-check text-xs"></i>
-                                                    </button>
-                                                    <button type="button" @click="closeEdit()"
-                                                        class="w-8 h-8 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-lg flex items-center justify-center transition-colors">
-                                                        <i class="fa-solid fa-xmark text-xs"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
+                                            <span class="font-bold text-slate-900 tabular-nums">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
                                         </td>
                                         <td class="p-4 text-center">
-                                            <button x-show="editingProduct !== {{ $product->id }}"
-                                                @click="openEdit({{ $product->id }}, {{ $product->price }})"
-                                                class="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 text-xs font-bold rounded-lg hover:bg-blue-100 transition-colors inline-flex items-center gap-1.5">
-                                                <i class="fa-regular fa-pen-to-square text-[10px]"></i>
-                                                Edit Harga
-                                            </button>
+                                            @if($discount > 0)
+                                                <span class="font-bold text-red-500 tabular-nums">{{ number_format($discount, 0) }}%</span>
+                                            @else
+                                                <span class="text-slate-400">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="p-4 text-center">
+                                            <span class="font-bold text-blue-600 tabular-nums">Rp {{ number_format($finalPrice, 0, ',', '.') }}</span>
+                                        </td>
+                                        <td class="p-4 text-center">
+                                            <div class="flex items-center justify-center gap-1.5">
+                                                <button onclick="openEditPriceModal({{ $product->id }}, {{ $product->price }})"
+                                                    class="p-1.5 border border-slate-200 text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg transition-all" title="Edit Harga">
+                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                </button>
+                                                <button onclick="openDiscountModal({{ $product->id }}, {{ $discount }}, '{{ $validUntil }}')"
+                                                    class="p-1.5 border border-slate-200 text-slate-500 hover:text-red-600 hover:bg-red-50 hover:border-red-200 rounded-lg transition-all" title="Kelola Diskon">
+                                                    <i class="fa-solid fa-tags"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="p-4 py-12 text-center text-slate-400">
+                                        <td colspan="7" class="p-4 py-12 text-center text-slate-400">
                                             <i class="fa-solid fa-box-open text-4xl mb-3 block"></i>
                                             <p class="font-medium">Belum ada produk</p>
                                         </td>
@@ -192,4 +180,247 @@
             </div>
         </div>
     </main>
+
+    {{-- Edit Harga Modal --}}
+    <div id="edit-price-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeEditPriceModal()"></div>
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-md w-full">
+                <form id="edit-price-form" method="POST" action="">
+                    @csrf
+                    @method('PUT')
+                    <div class="bg-white px-6 pt-5 pb-6">
+                        <div class="flex items-center justify-between mb-5">
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-regular fa-pen-to-square text-blue-500"></i> Edit Harga Jual
+                            </h3>
+                            <button type="button" onclick="closeEditPriceModal()" class="text-slate-400 hover:text-slate-500">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label for="edit_price_input" class="block text-sm font-bold text-slate-700 mb-2">Harga Jual (Rp)</label>
+                                <input type="number" name="price" id="edit_price_input" required min="0" step="100"
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white font-bold">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-slate-200">
+                        <button type="button" onclick="closeEditPriceModal()"
+                            class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">Batal</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-bold hover:bg-slate-900 transition-colors">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Custom Alert Modal --}}
+    <x-ui.custom-alert-modal />
+
+    {{-- Edit Diskon Modal --}}
+    <div id="edit-discount-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeDiscountModal()"></div>
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-md w-full">
+                <form id="edit-discount-form" method="POST" action="">
+                    @csrf
+                    <div class="bg-white px-6 pt-5 pb-6">
+                        <div class="flex items-center justify-between mb-5">
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-tags text-red-500"></i> Kelola Diskon
+                            </h3>
+                            <button type="button" onclick="closeDiscountModal()" class="text-slate-400 hover:text-slate-500">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label for="edit_discount_percentage" class="block text-sm font-bold text-slate-700 mb-2">Besaran Diskon (%)</label>
+                                <input type="number" name="discount_percentage" id="edit_discount_percentage" required min="0" max="100" step="1"
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition-all bg-white font-bold">
+                            </div>
+
+                            <div>
+                                <label for="edit_discount_valid_until" class="block text-sm font-bold text-slate-700 mb-2">Berlaku Hingga</label>
+                                <div class="relative">
+                                    <input type="text" name="valid_until" id="edit_discount_valid_until" required
+                                        placeholder="Pilih tanggal (tanggal/bulan/tahun)"
+                                        class="w-full px-4 py-3 pl-11 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition-all bg-white cursor-pointer flatpickr-date">
+                                    <i class="fa-regular fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 px-6 py-4 flex items-center justify-between border-t border-slate-200">
+                        <button type="button" id="btn-reset-discount" onclick="resetDiscount()"
+                            class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors hidden">Hapus Diskon</button>
+                        <div class="flex items-center gap-3 ml-auto">
+                            <button type="button" onclick="closeDiscountModal()"
+                                class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">Batal</button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 transition-colors">Simpan Diskon</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof flatpickr !== 'undefined' && document.querySelector('.flatpickr-date')) {
+            flatpickr('.flatpickr-date', {
+                dateFormat: 'Y-m-d',
+                altInput: true,
+                altFormat: 'd/m/Y',
+                minDate: 'today',
+                disableMobile: true,
+            });
+        }
+    });
+
+    function openEditPriceModal(id, price) {
+        const modal = document.getElementById('edit-price-modal');
+        const form = document.getElementById('edit-price-form');
+        const priceInput = document.getElementById('edit_price_input');
+
+        form.action = "{{ url('admin/kelola-harga') }}/" + id;
+        priceInput.value = price;
+
+        modal.classList.remove('hidden');
+    }
+
+    function closeEditPriceModal() {
+        const modal = document.getElementById('edit-price-modal');
+        modal.classList.add('hidden');
+    }
+
+    function openDiscountModal(id, percentage, validUntil) {
+        const modal = document.getElementById('edit-discount-modal');
+        const form = document.getElementById('edit-discount-form');
+        const percentageInput = document.getElementById('edit_discount_percentage');
+        const validUntilInput = document.getElementById('edit_discount_valid_until');
+        const resetBtn = document.getElementById('btn-reset-discount');
+
+        form.action = "{{ url('admin/kelola-harga') }}/" + id + "/discount";
+        percentageInput.value = percentage;
+
+        if (validUntilInput._flatpickr) {
+            validUntilInput._flatpickr.setDate(validUntil);
+        } else {
+            validUntilInput.value = validUntil;
+        }
+
+        if (percentage > 0) {
+            resetBtn.classList.remove('hidden');
+        } else {
+            resetBtn.classList.add('hidden');
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+    function closeDiscountModal() {
+        const modal = document.getElementById('edit-discount-modal');
+        modal.classList.add('hidden');
+    }
+
+    // Custom Alert Logic
+    window.showCustomAlert = function(options) {
+        const modal = document.getElementById('custom-alert-modal');
+        if (!modal) return;
+        const titleEl = document.getElementById('custom-alert-title');
+        const messageEl = document.getElementById('custom-alert-message');
+        const iconContainer = document.getElementById('custom-alert-icon-container');
+        const buttonsContainer = document.getElementById('custom-alert-buttons');
+
+        titleEl.textContent = options.title || 'Perhatian';
+        messageEl.textContent = options.message || '';
+
+        if (options.type === 'warning') {
+            iconContainer.className =
+                'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-amber-100 text-amber-500';
+            iconContainer.innerHTML =
+                '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
+        } else if (options.type === 'error') {
+            iconContainer.className =
+                'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-red-100 text-red-500';
+            iconContainer.innerHTML =
+                '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+        } else {
+            iconContainer.className =
+                'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-blue-100 text-blue-500';
+            iconContainer.innerHTML =
+                '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+        }
+
+        buttonsContainer.innerHTML = '';
+
+        if (options.showCancel) {
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className =
+                'flex-1 py-3 px-4 rounded-xl border-2 border-slate-200 text-slate-700 font-bold text-[13px] hover:bg-slate-50 transition-colors active:scale-95';
+            cancelBtn.textContent = options.cancelText || 'Batal';
+            cancelBtn.onclick = () => {
+                window.closeCustomAlert();
+                if (options.onCancel) options.onCancel();
+            };
+            buttonsContainer.appendChild(cancelBtn);
+        }
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className =
+            `flex-1 py-3 px-4 rounded-xl text-white font-bold text-[13px] transition-colors active:scale-95 shadow-md ${options.confirmColorClass || 'bg-[#0f172a] hover:bg-slate-800'}`;
+        confirmBtn.textContent = options.confirmText || 'Oke';
+        confirmBtn.onclick = () => {
+            window.closeCustomAlert();
+            if (options.onConfirm) options.onConfirm();
+        };
+        buttonsContainer.appendChild(confirmBtn);
+
+        modal.classList.remove('hidden');
+    };
+
+    window.closeCustomAlert = function() {
+        const modal = document.getElementById('custom-alert-modal');
+        if (modal) modal.classList.add('hidden');
+    };
+
+    function resetDiscount() {
+        window.showCustomAlert({
+            title: 'Hapus Diskon?',
+            message: 'Apakah Anda yakin ingin menghapus diskon produk ini? Harga akan kembali normal.',
+            type: 'warning',
+            showCancel: true,
+            cancelText: 'Batal',
+            confirmText: 'Ya, Hapus',
+            confirmColorClass: 'bg-red-500 hover:bg-red-600',
+            onConfirm: () => {
+                const percentageInput = document.getElementById('edit_discount_percentage');
+                const validUntilInput = document.getElementById('edit_discount_valid_until');
+
+                percentageInput.value = 0;
+
+                const today = new Date();
+                // Format YYYY-MM-DD
+                const todayString = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+                if (validUntilInput._flatpickr) {
+                    validUntilInput._flatpickr.setDate(todayString);
+                } else {
+                    validUntilInput.value = todayString;
+                }
+
+                document.getElementById('edit-discount-form').submit();
+            }
+        });
+    }
+</script>
+@endpush

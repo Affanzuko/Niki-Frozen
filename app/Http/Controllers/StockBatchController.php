@@ -28,8 +28,24 @@ class StockBatchController extends Controller
             'expiry_date' => $request->expiry_date,
         ]);
 
+        // Sesuaikan kuota promo untuk batch ini jika stok fisik berkurang
+        $promotion = \App\Models\Promotion::where('stock_incoming_id', $id)
+            ->where('is_active', true)
+            ->first();
+
+        if ($promotion) {
+            if ($request->current_quantity <= 0) {
+                $promotion->update(['is_active' => false, 'quota' => 0]);
+            } elseif ($promotion->quota > $request->current_quantity) {
+                $promotion->update(['quota' => $request->current_quantity]);
+            }
+        }
+
         // Rekalkulasi total stok produk
         $this->recalculateStock($productId, $branchId);
+
+        // Jalankan pengecekan kadaluarsa secara instan agar notifikasi langsung muncul/terupdate
+        \Illuminate\Support\Facades\Artisan::call('stok:check-expiry');
 
         return redirect()->back()
             ->with('success', 'Detail batch berhasil diperbarui.');

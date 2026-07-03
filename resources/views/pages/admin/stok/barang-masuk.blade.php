@@ -36,8 +36,8 @@
             </div>
 
             <!-- Content Area -->
-            <div class="flex-1 flex flex-col min-h-0">
-            <div class="max-w-2xl">
+            <div class="flex-1 overflow-y-auto pr-2">
+            <div class="max-w-2xl pb-8">
                 <!-- Success Message -->
                 @if (session('success'))
                     <div
@@ -78,16 +78,50 @@
                         </div>
 
                         <div class="p-6 space-y-5">
-                            <!-- Produk -->
+                            <!-- Scan Barcode -->
+                            <div x-data="{
+                                scanBarcode(e) {
+                                    const barcode = e.target.value.trim();
+                                    if (!barcode) return;
+                                    
+                                    const select = document.getElementById('product_id');
+                                    let found = false;
+                                    
+                                    for (let option of select.options) {
+                                        if (option.getAttribute('data-barcode') === barcode) {
+                                            select.value = option.value;
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (found) {
+                                        document.getElementById('quantity').focus();
+                                        e.target.value = ''; // Reset input after success
+                                    } else {
+                                        alert('Barcode tidak ditemukan pada daftar produk!');
+                                    }
+                                }
+                            }">
+                                <label for="scan_barcode" class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-barcode text-brand-textBlue"></i> Scan Barcode
+                                </label>
+                                <input type="text" id="scan_barcode" autofocus placeholder="Arahkan kursor ke sini lalu scan barcode barang..."
+                                    @keydown.enter.prevent="scanBarcode($event)"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-blue-50/50 placeholder:text-blue-400">
+                                <p class="text-xs text-gray-500 mt-1">Sistem otomatis memilih produk di bawah dan pindah ke kolom Jumlah (Qty).</p>
+                            </div>
+
+                            <!-- Produk (Fallback Manual) -->
                             <div>
-                                <label for="product_id" class="block text-sm font-bold text-gray-700 mb-2">
-                                    Pilih Produk <span class="text-red-500">*</span>
+                                <label for="product_id" class="block text-sm font-bold text-gray-700 mb-2 mt-2">
+                                    Atau Pilih Produk Manual <span class="text-red-500">*</span>
                                 </label>
                                 <select name="product_id" id="product_id" required
                                     class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white">
                                     <option value="">-- Pilih Produk --</option>
                                     @foreach ($products as $product)
-                                        <option value="{{ $product->id }}"
+                                        <option value="{{ $product->id }}" data-barcode="{{ $product->barcode }}"
                                             {{ old('product_id') == $product->id ? 'selected' : '' }}>
                                             {{ $product->name }} ({{ $product->barcode ?? 'No barcode' }})
                                         </option>
@@ -105,6 +139,35 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all">
                             </div>
 
+                            <!-- Total Harga Beli -->
+                            <div x-data="{ 
+                                rawPrice: '{{ old('total_purchase_price') }}',
+                                get formattedPrice() {
+                                    if (!this.rawPrice) return '';
+                                    return parseInt(this.rawPrice).toLocaleString('id-ID');
+                                },
+                                updatePrice(value) {
+                                    let clean = value.replace(/[^0-9]/g, '');
+                                    this.rawPrice = clean;
+                                }
+                            }">
+                                <label for="total_purchase_price_display" class="block text-sm font-bold text-gray-700 mb-2">
+                                    Total Harga Beli (Total Modal) <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 text-sm font-bold">Rp</span>
+                                    </div>
+                                    <input type="hidden" name="total_purchase_price" :value="rawPrice">
+                                    <input type="text" id="total_purchase_price_display" 
+                                        :value="formattedPrice"
+                                        @input="updatePrice($event.target.value); $event.target.value = formattedPrice"
+                                        required placeholder="0"
+                                        class="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all">
+                                </div>
+                                <p class="mt-1.5 text-xs text-gray-500">Harga beli/modal keseluruhan untuk semua barang pada batch ini. Harga per satuan akan dihitung otomatis.</p>
+                            </div>
+
                             <!-- Tanggal Kadaluarsa (Manual Input) -->
                             <div>
                                 <label for="expiry_date" class="block text-sm font-bold text-gray-700 mb-2">
@@ -114,7 +177,7 @@
                                     <input type="text" name="expiry_date" id="expiry_date"
                                         value="{{ old('expiry_date') }}" required readonly
                                         placeholder="Pilih tanggal kadaluarsa"
-                                        class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white cursor-pointer">
+                                        class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all bg-white cursor-pointer flatpickr-date">
                                     <i
                                         class="fa-regular fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                                 </div>

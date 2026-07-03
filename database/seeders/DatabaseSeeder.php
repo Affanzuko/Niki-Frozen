@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
             CashierSessionSeeder::class,
             TransactionSeeder::class,
             TransactionItemSeeder::class,
-            ExpiryNotificationSeeder::class,
+            // ExpiryNotificationSeeder::class, // Dimatikan agar tidak membuat notifikasi palsu
             PromotionSeeder::class,
         ]);
     }

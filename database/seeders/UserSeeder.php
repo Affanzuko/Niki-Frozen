@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Branch;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -20,7 +19,7 @@ class UserSeeder extends Seeder
         // Create owner user (no specific branch — oversees all)
         User::create([
             'branch_id' => null,
-            'name' => 'Pemilik NikiFrozen',
+            'name' => 'Owner',
             'username' => 'owner1',
             'password' => Hash::make('owner1'),
             'role' => 'owner',
@@ -30,29 +29,28 @@ class UserSeeder extends Seeder
 
         User::create([
             'branch_id' => null,
-            'name' => 'General Manager NikiFrozen',
+            'name' => 'General Manager',
             'username' => 'gm1',
             'password' => Hash::make('gm1'),
             'role' => 'general_manager',
         ]);
 
-
-        // Create admin for each branch (1 admin per branch)
         foreach ($branches as $branch) {
+            $branchName = str_replace('Niki Frozen - ', '', $branch->name);
             User::create([
                 'branch_id' => $branch->id,
-                'name' => 'Admin ' . $branch->name,
+                'name' => $branchName,
                 'username' => 'admin' . $branch->id,
                 'password' => Hash::make('admin' . $branch->id),
                 'role' => 'admin',
             ]);
         }
 
-        // Create cashier users for each branch (2 per branch)
         foreach ($branches as $branch) {
+            $branchName = str_replace('Niki Frozen - ', '', $branch->name);
             User::create([
                 'branch_id' => $branch->id,
-                'name' => 'kasir ' . $branch->name,
+                'name' => $branchName,
                 'username' => 'kasir' . $branch->id,
                 'password' => Hash::make('kasir' . $branch->id),
                 'role' => 'cashier',

@@ -4,6 +4,7 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Masuk - Niki Frozen</title>
+    <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}?v=1.1">
 
     <!-- Google Fonts & Material Symbols -->
     <link href="https://fonts.googleapis.com" rel="preconnect"/>

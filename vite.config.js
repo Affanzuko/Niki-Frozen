@@ -7,11 +7,13 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                'resources/css/app.css', 
+                'resources/css/app.css',
                 'resources/js/app.js',
                 'resources/js/pages/kasir/dashboard.js',
                 'resources/js/pages/kasir/penjualan.js',
                 'resources/js/pages/admin/barang-masuk.js',
+                'resources/js/pages/admin/tambah-produk.js',
+                'resources/js/pages/admin/edit-produk.js',
                 'resources/js/pages/general-manager/dashboard.js',
                 'resources/js/pages/general-manager/kelola-akun.js'
             ],

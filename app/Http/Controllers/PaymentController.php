@@ -318,12 +318,31 @@ class PaymentController extends Controller
                 foreach ($batches as $batch) {
                     if ($qtyToDeduct <= 0) break;
 
+                    $deductedFromBatch = 0;
                     if ($batch->current_quantity >= $qtyToDeduct) {
+                        $deductedFromBatch = $qtyToDeduct;
                         $batch->decrement('current_quantity', $qtyToDeduct);
                         $qtyToDeduct = 0;
                     } else {
+                        $deductedFromBatch = $batch->current_quantity;
                         $qtyToDeduct -= $batch->current_quantity;
                         $batch->update(['current_quantity' => 0]);
+                    }
+
+                    if ($deductedFromBatch > 0) {
+                        $promotion = \App\Models\Promotion::where('stock_incoming_id', $batch->id)
+                            ->where('is_active', true)
+                            ->where('quota', '>', 0)
+                            ->first();
+
+                        if ($promotion) {
+                            $qtyDeductedPromo = min($deductedFromBatch, $promotion->quota);
+                            $promotion->decrement('quota', $qtyDeductedPromo);
+                            
+                            if ($promotion->fresh()->quota <= 0) {
+                                $promotion->update(['is_active' => false]);
+                            }
+                        }
                     }
                 }
 
@@ -333,6 +352,7 @@ class PaymentController extends Controller
                     'quantity_deducted' => $item->quantity,
                     'remaining_stock' => $stock->fresh()->quantity,
                 ]);
+
             } else {
                 Log::warning('Stock record not found for deduction', [
                     'product_id' => $item->product_id,

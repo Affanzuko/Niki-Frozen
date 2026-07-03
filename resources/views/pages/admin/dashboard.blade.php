@@ -29,7 +29,7 @@
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
                     <div>
-                        <h1 class="text-2xl font-bold text-slate-800">Niki Frozen - Condongcatur</h1>
+                        <h1 class="text-2xl font-bold text-slate-800">{{ auth()->user()->branch->name ?? 'Cabang' }}</h1>
                         <p class="text-slate-500 font-medium">Ringkasan aktivitas hari ini</p>
                     </div>
                 </div>

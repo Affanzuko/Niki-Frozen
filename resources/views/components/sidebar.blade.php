@@ -56,6 +56,13 @@
                 'icon' =>
                     '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>',
             ],
+            [
+                'name' => 'Pengeluaran',
+                'id' => 'pengeluaran',
+                'url' => route('pages.admin.pengeluaran'),
+                'icon' =>
+                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"></path></svg>',
+            ],
         ];
     } elseif ($role === 'general-manager') {
         $menus = [
@@ -117,7 +124,7 @@
 
 <div class="hidden lg:flex w-64 bg-slate-100 h-full flex-col border-r border-slate-200 shrink-0">
     {{-- Header / Brand --}}
-    <div class="p-6">
+    <div class="p-6 pb-4">
         <div class="flex items-center gap-3">
             <div class="w-12 h-12 flex items-center justify-center shrink-0">
                 <img src="{{ asset('images/Logo nikifrozen.png') }}" alt="Logo" class="w-full h-full object-contain">
@@ -125,6 +132,35 @@
             <div>
                 <h2 class="text-xl font-bold text-slate-800 leading-tight">Niki Frozen</h2>
                 <p class="text-sm font-medium text-slate-500 capitalize">{{ $role }}</p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Realtime Clock (Menu Style) --}}
+    <div class="px-4 pb-4"
+         x-data="{
+            hours: '',
+            minutes: '',
+            showColon: true,
+            date: '',
+            updateTime() {
+                const now = new Date();
+                this.hours = String(now.getHours()).padStart(2, '0');
+                this.minutes = String(now.getMinutes()).padStart(2, '0');
+                this.showColon = !this.showColon;
+                this.date = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' });
+            }
+         }"
+         x-init="updateTime(); setInterval(() => updateTime(), 1000)">
+
+        <div class="bg-[#dbeafe] text-blue-700 rounded-xl px-4 py-3 text-center">
+            <div class="flex flex-col items-center">
+                <div class="flex items-center text-2xl font-bold tracking-widest font-mono leading-none">
+                    <span x-text="hours"></span>
+                    <span class="mx-0.5 transition-opacity duration-300" :class="showColon ? 'opacity-100' : 'opacity-0'">:</span>
+                    <span x-text="minutes"></span>
+                </div>
+                <span class="text-sm font-semibold mt-1.5" x-text="date"></span>
             </div>
         </div>
     </div>
@@ -144,7 +180,81 @@
     </nav>
 
     {{-- Footer / Profile --}}
-    <div class="p-4 border-t border-slate-200">
+    <div class="p-4 border-t border-slate-200" x-data="{
+        notifications: [],
+        showNotifications: false,
+        get unreadCount() {
+            const isGM = '{{ $role }}' === 'general-manager';
+            return this.notifications.filter(n => isGM ? !n.is_read_by_gm : !n.is_read).length;
+        },
+        async fetchNotifications() {
+            try {
+                const response = await fetch('{{ route('notifications.unread') }}', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                this.notifications = await response.json();
+            } catch (error) {
+                console.error('Failed to fetch notifications:', error);
+            }
+        },
+        init() {
+            this.fetchNotifications();
+            // Cek notifikasi setiap 1 menit
+            setInterval(() => this.fetchNotifications(), 60000);
+        }
+    }">
+        @if(in_array($role, ['admin', 'general-manager']))
+        {{-- Notification Dropdown --}}
+        <div class="relative mb-3">
+            <button @click="showNotifications = !showNotifications" @click.away="showNotifications = false" type="button"
+                class="w-full bg-white rounded-xl p-3 flex items-center justify-between border border-slate-200 shadow-sm hover:bg-slate-50 transition-colors">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 relative transition-colors"
+                         :class="unreadCount > 0 ? 'bg-red-50 text-red-500' : 'bg-slate-50 text-slate-400'">
+                        <i class="fa-solid fa-bell"></i>
+                        <template x-if="unreadCount > 0">
+                            <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white" x-text="unreadCount"></span>
+                        </template>
+                    </div>
+                    <div class="text-left flex-1 min-w-0">
+                        <p class="text-sm font-bold text-slate-800">Notifikasi</p>
+                        <p class="text-[11px] font-semibold truncate"
+                           :class="unreadCount > 0 ? 'text-red-500' : 'text-slate-500'"
+                           x-text="unreadCount > 0 ? unreadCount + ' Belum dibaca' : 'Semua telah dibaca'"></p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-up text-xs text-slate-400 transition-transform" :class="showNotifications ? '' : 'rotate-180'"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div x-show="showNotifications" x-transition x-cloak
+                class="absolute bottom-full left-0 w-full mb-2 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-50 flex flex-col max-h-[300px]">
+                <div class="p-3 border-b border-slate-100 bg-slate-50 shrink-0">
+                    <h4 class="text-xs font-bold text-slate-700"><i class="fa-solid fa-circle-exclamation text-red-500 mr-1"></i> Peringatan Kadaluarsa</h4>
+                </div>
+                <div class="divide-y divide-slate-100 overflow-y-auto overflow-x-hidden flex-1 custom-scrollbar">
+                    <template x-if="notifications.length === 0">
+                        <div class="p-4 text-center text-slate-500 text-xs">Aman! Tidak ada barang yang mendekati kadaluarsa.</div>
+                    </template>
+                    <template x-for="notif in notifications" :key="notif.id">
+                        <a :href="`/notifications/${notif.id}/read`" class="block p-3 transition-colors group"
+                           :class="('{{ $role }}' === 'general-manager' ? notif.is_read_by_gm : notif.is_read) ? 'hover:bg-slate-50 opacity-60' : 'hover:bg-red-50 bg-red-50/20'">
+                            <p class="text-[11px] leading-snug transition-colors"
+                               :class="('{{ $role }}' === 'general-manager' ? notif.is_read_by_gm : notif.is_read) ? 'text-slate-600 font-medium' : 'text-slate-800 font-bold group-hover:text-red-700'"
+                               x-text="notif.message"></p>
+                            <p class="text-[9px] mt-1 font-medium"
+                               :class="('{{ $role }}' === 'general-manager' ? notif.is_read_by_gm : notif.is_read) ? 'text-slate-400' : 'text-slate-500'"
+                               x-text="new Date(notif.updated_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit'})"></p>
+                        </a>
+                    </template>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <div class="bg-white rounded-xl p-3 flex items-center gap-3 mb-3 border border-slate-200 shadow-sm">
             <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
                 <svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,7 +263,7 @@
                 </svg>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-bold text-slate-800 truncate">{{ auth()->user() ? auth()->user()->name : 'Budi Santoso' }}</p>
+                <p class="text-sm font-bold text-slate-800 truncate">{{ auth()->user() ? auth()->user()->name : 'NikiFrozen' }}</p>
                 <p class="text-[11px] font-semibold text-blue-600 bg-blue-50 inline-block px-2 py-0.5 rounded-full mt-0.5 capitalize">
                     {{ auth()->user() ? str_replace('_', ' ', auth()->user()->role) : 'Shift Pagi' }}
                 </p>
