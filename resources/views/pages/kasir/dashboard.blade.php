@@ -42,16 +42,27 @@
 
             {{-- Header / Search --}}
             <div class="mb-4 lg:mb-6 flex-shrink-0">
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                <div class="relative flex items-center gap-2">
+                    {{-- Barcode Scanner Button --}}
+                    <button id="btn-scan-mode" onclick="toggleScanMode()" title="Aktifkan Mode Scan Barcode"
+                        class="h-12 w-12 flex-shrink-0 flex items-center justify-center bg-white border border-slate-300 text-slate-600 rounded-xl transition-all shadow-sm hover:border-slate-400 active:scale-95 outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
                         </svg>
+                    </button>
+
+                    {{-- Search Input --}}
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <input type="text" id="search-produk" placeholder="Search products..."
+                            class="w-full h-12 pl-12 pr-4 text-sm font-medium bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
+                            autofocus>
                     </div>
-                    <input type="text" id="search-produk" placeholder="Search products..."
-                        class="w-full h-12 pl-12 pr-4 text-sm font-medium bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm"
-                        autofocus>
                 </div>
 
                 {{-- Filter Pills --}}
@@ -86,7 +97,7 @@
                         @php
                             $activePromotion = $stock->product->promotions->first();
                             $discount = $activePromotion ? $activePromotion->discount_percentage : 0;
-                            
+
                             if ($activePromotion) {
                                 if (is_null($activePromotion->stock_incoming_id)) {
                                     $quota = $stock->quantity;
@@ -96,10 +107,10 @@
                             } else {
                                 $quota = 0;
                             }
-                            
+
                             $finalPrice = $discount > 0 ? $stock->product->price * (1 - $discount / 100) : $stock->product->price;
                         @endphp
-                        <div onclick="addToCart({{ $stock->product->id }}, '{{ addslashes($stock->product->name) }}', {{ $stock->product->price }}, {{ $discount }}, {{ $quota }})"
+                        <div onclick="addToCart({{ $stock->product->id }}, '{{ addslashes($stock->product->name) }}', {{ $stock->product->price }}, {{ $discount }}, {{ $quota }}, {{ $stock->quantity }})"
                             data-name="{{ strtolower($stock->product->name) }}"
                             data-barcode="{{ $stock->product->barcode }}"
                             data-category="{{ $stock->product->category ? strtolower($stock->product->category->name) : '' }}"
