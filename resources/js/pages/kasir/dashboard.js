@@ -3,8 +3,6 @@ window.currentTotal = 0;
 window.inputUangDiterima = '0';
 window.lastTransactionData = null;
 window.scanMode = false;
-window.scanBuffer = '';
-window.scanStartTime = 0;
 
 // Custom Alert Logic
 window.showCustomAlert = function(options) {
@@ -330,35 +328,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchProduk) {
         // Search bar selalu berfungsi untuk filter produk
         searchProduk.addEventListener('input', function(e) {
+            // Selalu jalankan filter (untuk mode normal dan scan)
             window.applyFilters();
         });
 
-        // Deteksi input dari barcode scanner (input sangat cepat)
-        searchProduk.addEventListener('keydown', function(e) {
-            if (!window.scanMode) return;
-
-            const currentTime = Date.now();
-
-            // Jika ini karakter pertama atau gap > 100ms, reset buffer
-            if (currentTime - window.scanStartTime > 100) {
-                window.scanBuffer = '';
-                window.scanStartTime = currentTime;
-            }
-
-            // Tambahkan karakter ke buffer (kecuali Enter)
-            if (e.key.length === 1) {
-                window.scanBuffer += e.key;
-            }
-
-            // Jika Enter ditekan dan ada buffer, proses sebagai barcode scan
-            if (e.key === 'Enter' && window.scanBuffer.length > 0) {
+        // Deteksi Enter dari barcode scanner
+        searchProduk.addEventListener('keypress', function(e) {
+            // Jika Enter ditekan dan mode scan aktif
+            if ((e.key === 'Enter' || e.keyCode === 13) && window.scanMode) {
                 e.preventDefault();
-                const barcode = window.scanBuffer.trim();
-                window.scanBuffer = '';
-
-                if (barcode) {
+                
+                const barcode = searchProduk.value.trim();
+                if (barcode.length > 0) {
+                    // Proses sebagai barcode scan
                     window.scanBarcode(barcode);
                 }
+                return;
             }
         });
     }
@@ -764,19 +749,14 @@ window.toggleScanMode = function() {
         btnScan.classList.add('ring-2', 'ring-blue-500', 'border-blue-500');
         btnScan.title = 'Mode Scan Aktif (Klik untuk Nonaktifkan)';
 
-        // Reset scan buffer
-        window.scanBuffer = '';
-        window.scanStartTime = 0;
-
+        searchProduk.value = '';
         searchProduk.focus();
     } else {
         // Nonaktifkan mode scan - kembali ke state default (ring abu)
         btnScan.classList.remove('ring-2', 'ring-blue-500', 'border-blue-500');
         btnScan.title = 'Aktifkan Mode Scan Barcode';
-
-        // Reset scan buffer
-        window.scanBuffer = '';
-        window.scanStartTime = 0;
+        
+        searchProduk.value = '';
     }
 };
 
