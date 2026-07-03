@@ -1,13 +1,21 @@
 <?php
 
+namespace App\Http\Controllers;
+
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\StockIncomingController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OwnerController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GmController;
+use App\Http\Controllers\PromotionController;
+Use App\Http\Controllers\StockBatchController;
+Use App\Http\Controllers\ExpenseController;
+Use App\Http\Controllers\NotificationController;
+Use App\Http\Controllers\AuthController;
+
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -26,8 +34,9 @@ Route::get('/login', function () {
     }
     return view('auth.login');
 })->name('login');
-Route::post('/login', [App\Http\Controllers\AuthController::class, 'login'])->name('login.post');
-Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
+
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::prefix('kasir')->middleware(['role:cashier'])->name('pages.kasir.')->group(function () {
     Route::get('/', [KasirController::class,'index'])->name('dashboard');
@@ -44,8 +53,8 @@ Route::prefix('admin')->middleware(['role:admin'])->name('pages.admin.')->group(
     Route::get('stok', [AdminDashboardController::class, 'stok'])->name('stok');
     Route::get('penjualan', [AdminDashboardController::class, 'penjualan'])->name('penjualan');
     Route::get('keuangan', [AdminDashboardController::class, 'keuangan'])->name('keuangan');
-    Route::post('/promotions', [\App\Http\Controllers\PromotionController::class, 'store'])->name('promotions.store');
-    Route::delete('/promotions/{id}', [\App\Http\Controllers\PromotionController::class, 'destroy'])->name('promotions.destroy');
+    Route::post('/promotions', [PromotionController::class, 'store'])->name('promotions.store');
+    Route::delete('/promotions/{id}', [PromotionController::class, 'destroy'])->name('promotions.destroy');
     Route::get('stok/barang-masuk', [StockIncomingController::class, 'create'])->name('stok.barang-masuk.create');
     Route::post('stok/barang-masuk', [StockIncomingController::class, 'store'])->name('stok.barang-masuk.store');
     Route::get('stok/tambah-produk', [ProductController::class, 'createProduct'])->name('stok.tambah-produk.create');
@@ -53,23 +62,21 @@ Route::prefix('admin')->middleware(['role:admin'])->name('pages.admin.')->group(
     Route::get('stok/edit/{id}', [ProductController::class, 'editProduct'])->name('stok.edit');
     Route::put('stok/edit/{id}', [ProductController::class, 'updateProduct'])->name('stok.update');
     Route::delete('stok/{id}', [ProductController::class, 'destroy'])->name('stok.destroy');
-    Route::put('stok/batch/{id}', [\App\Http\Controllers\StockBatchController::class, 'update'])->name('stok.batch.update');
-    Route::delete('stok/batch/{id}', [\App\Http\Controllers\StockBatchController::class, 'destroy'])->name('stok.batch.destroy');
+    Route::put('stok/batch/{id}', [StockBatchController::class, 'update'])->name('stok.batch.update');
+    Route::delete('stok/batch/{id}', [StockBatchController::class, 'destroy'])->name('stok.batch.destroy');
     Route::get('kelola-harga', [ProductController::class, 'index'])->name('kelola-harga');
     Route::put('kelola-harga/{id}', [ProductController::class, 'update'])->name('kelola-harga.update');
     Route::post('kelola-harga/{id}/discount', [ProductController::class, 'addDiscount'])->name('kelola-harga.discount');
-    
-    // Pengeluaran
-    Route::get('pengeluaran', [\App\Http\Controllers\ExpenseController::class, 'index'])->name('pengeluaran');
-    Route::post('pengeluaran', [\App\Http\Controllers\ExpenseController::class, 'store'])->name('pengeluaran.store');
-    Route::put('pengeluaran/{id}', [\App\Http\Controllers\ExpenseController::class, 'update'])->name('pengeluaran.update');
-    Route::delete('pengeluaran/{id}', [\App\Http\Controllers\ExpenseController::class, 'destroy'])->name('pengeluaran.destroy');
+    Route::get('pengeluaran', [ExpenseController::class, 'index'])->name('pengeluaran');
+    Route::post('pengeluaran', [ExpenseController::class, 'store'])->name('pengeluaran.store');
+    Route::put('pengeluaran/{id}', [ExpenseController::class, 'update'])->name('pengeluaran.update');
+    Route::delete('pengeluaran/{id}', [ExpenseController::class, 'destroy'])->name('pengeluaran.destroy');
 });
 
 // Global Authenticated Routes (for Admin & GM)
 Route::middleware(['auth'])->group(function () {
-    Route::get('notifications', [\App\Http\Controllers\NotificationController::class, 'getUnread'])->name('notifications.unread');
-    Route::get('notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('notifications', [NotificationController::class, 'getUnread'])->name('notifications.unread');
+    Route::get('notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 });
 
 Route::prefix('gm')->middleware(['role:general_manager'])->name('pages.general-manager.')->group(function () {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Stock;
 use App\Models\StockIncoming;
+use App\Models\Expense;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -75,6 +76,15 @@ class StockIncomingController extends Controller
                 ],
                 [] // No additional attributes on create
             )->increment('quantity', $request->quantity);
+
+            // Catat pengeluaran untuk pembelian stock
+            $productName = Product::find($request->product_id)->name ?? 'Produk';
+            Expense::create([
+                'branch_id' => $branchId,
+                'description' => 'Pembelian stock : ' . $productName . ' (' . $request->quantity . ' unit)',
+                'amount' => $request->total_purchase_price,
+                'date' => now(),
+            ]);
 
             DB::commit();
 
