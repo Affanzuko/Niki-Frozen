@@ -21,7 +21,9 @@ class ProductController extends Controller
 
         $products = Product::where('branch_id', $branchId)
             ->with(['category', 'unit', 'promotions' => function ($query) {
-                $query->where('is_active', true)->where('valid_until', '>=', now());
+                $query->where('is_active', true)
+                    ->whereDate('valid_until', '>=', now())
+                    ->orderBy('valid_until', 'asc');
             }])
             ->orderBy('name', 'asc')
             ->get();

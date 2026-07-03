@@ -2,6 +2,9 @@ window.cart = [];
 window.currentTotal = 0;
 window.inputUangDiterima = '0';
 window.lastTransactionData = null;
+window.scanMode = false;
+window.scanBuffer = '';
+window.scanStartTime = 0;
 
 // Custom Alert Logic
 window.showCustomAlert = function(options) {
@@ -78,9 +81,25 @@ window.toggleMobileCart = function() {
     }
 };
 
-window.addToCart = function(id, nama, hargaAsli, discount, quota) {
+window.addToCart = function(id, nama, hargaAsli, discount, quota, stock) {
     const existing = window.cart.find(item => item.id === id);
     if (existing) {
+        // Validasi stok terlebih dahulu
+        if (existing.jumlah >= stock) {
+            window.showCustomAlert({
+                title: 'Stok Habis',
+                message: `Stok produk hanya tersisa ${stock} pcs. Anda tidak bisa menambahkan lebih dari stok yang tersedia.`,
+                type: 'warning',
+                confirmText: 'Mengerti'
+            });
+            // Kurangi jumlah di keranjang agar sesuai stok yang tersedia
+            if (existing.jumlah > stock) {
+                existing.jumlah = stock;
+                window.renderCart();
+            }
+            return;
+        }
+        // Validasi promo quota
         if (existing.discount > 0 && existing.jumlah >= existing.quota) {
             window.showCustomAlert({
                 title: 'Batas Promo',
@@ -88,16 +107,32 @@ window.addToCart = function(id, nama, hargaAsli, discount, quota) {
                 type: 'warning',
                 confirmText: 'Mengerti'
             });
+            // Kurangi jumlah di keranjang agar sesuai quota promo
+            if (existing.jumlah > existing.quota) {
+                existing.jumlah = existing.quota;
+                window.renderCart();
+            }
             return;
         }
         existing.jumlah++;
     } else {
+        // Validasi stok untuk item baru
+        if (1 > stock) {
+            window.showCustomAlert({
+                title: 'Stok Habis',
+                message: `Stok produk hanya tersisa ${stock} pcs. Anda tidak bisa menambahkan lebih dari stok yang tersedia.`,
+                type: 'warning',
+                confirmText: 'Mengerti'
+            });
+            return;
+        }
         window.cart.push({
             id,
             nama,
             hargaAsli,
             discount,
             quota,
+            stock,
             harga: discount > 0 ? hargaAsli * (1 - discount/100) : hargaAsli,
             jumlah: 1
         });
@@ -139,9 +174,28 @@ window.clearCart = function() {
     }
 };
 
-window.updateQty = function(id, delta) {
+window.updateQty = function(id, delta, stock) {
     const item = window.cart.find(i => i.id === id);
     if (item) {
+        // Gunakan stock parameter jika diberikan, jika tidak gunakan item.stock
+        const stockLimit = stock || item.stock;
+        const newQty = item.jumlah + delta;
+        // Validasi stok terlebih dahulu
+        if (newQty > stockLimit) {
+            window.showCustomAlert({
+                title: 'Stok Habis',
+                message: `Stok produk hanya tersisa ${stockLimit} pcs.`,
+                type: 'warning',
+                confirmText: 'Mengerti'
+            });
+            // Kurangi jumlah di keranjang agar sesuai stok yang tersedia
+            if (item.jumlah > stockLimit) {
+                item.jumlah = stockLimit;
+                window.renderCart();
+            }
+            return;
+        }
+        // Validasi promo quota
         if (delta > 0 && item.discount > 0 && item.jumlah >= item.quota) {
             window.showCustomAlert({
                 title: 'Batas Promo',
@@ -149,6 +203,11 @@ window.updateQty = function(id, delta) {
                 type: 'warning',
                 confirmText: 'Mengerti'
             });
+            // Kurangi jumlah di keranjang agar sesuai quota promo
+            if (item.jumlah > item.quota) {
+                item.jumlah = item.quota;
+                window.renderCart();
+            }
             return;
         }
         item.jumlah += delta;
@@ -157,13 +216,29 @@ window.updateQty = function(id, delta) {
     }
 };
 
-window.setQty = function(id, value) {
+window.setQty = function(id, value, stock) {
     const item = window.cart.find(i => i.id === id);
     if (item) {
         let val = parseInt(value);
         if (isNaN(val) || val <= 0) {
             window.removeFromCart(id);
         } else {
+            // Gunakan stock parameter jika diberikan, jika tidak gunakan item.stock
+            const stockLimit = stock || item.stock;
+            // Validasi stok terlebih dahulu
+            if (val > stockLimit) {
+                window.showCustomAlert({
+                    title: 'Stok Habis',
+                    message: `Stok produk hanya tersisa ${stockLimit} pcs.`,
+                    type: 'warning',
+                    confirmText: 'Mengerti'
+                });
+                // Kurangi jumlah di keranjang agar sesuai stok yang tersedia
+                item.jumlah = stockLimit;
+                window.renderCart();
+                return;
+            }
+            // Validasi promo quota
             if (item.discount > 0 && val > item.quota) {
                 window.showCustomAlert({
                     title: 'Batas Promo',
@@ -171,6 +246,7 @@ window.setQty = function(id, value) {
                     type: 'warning',
                     confirmText: 'Mengerti'
                 });
+                // Kurangi jumlah di keranjang agar sesuai quota promo
                 item.jumlah = item.quota;
             } else {
                 item.jumlah = val;
@@ -211,9 +287,9 @@ window.renderCart = function() {
                         </svg>
                     </button>
                     <div class="flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 shadow-sm">
-                        <button onclick="updateQty(${item.id}, -1)" class="w-7 h-6 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition-colors font-medium active:scale-95">−</button>
-                        <input type="number" min="1" value="${item.jumlah}" onchange="setQty(${item.id}, this.value)" class="w-8 text-center text-xs font-bold text-slate-800 bg-transparent border-none outline-none p-0 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-                        <button onclick="updateQty(${item.id}, 1)" class="w-7 h-6 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition-colors font-medium active:scale-95">+</button>
+                        <button onclick="updateQty(${item.id}, -1, ${item.stock})" class="w-7 h-6 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition-colors font-medium active:scale-95">−</button>
+                        <input type="number" min="1" value="${item.jumlah}" onchange="setQty(${item.id}, this.value, ${item.stock})" class="w-8 text-center text-xs font-bold text-slate-800 bg-transparent border-none outline-none p-0 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                        <button onclick="updateQty(${item.id}, 1, ${item.stock})" class="w-7 h-6 flex items-center justify-center text-slate-600 hover:bg-white rounded-md transition-colors font-medium active:scale-95">+</button>
                     </div>
                 </div>
             </div>
@@ -252,8 +328,38 @@ window.filterCategory = function(category) {
 document.addEventListener('DOMContentLoaded', () => {
     const searchProduk = document.getElementById('search-produk');
     if (searchProduk) {
+        // Search bar selalu berfungsi untuk filter produk
         searchProduk.addEventListener('input', function(e) {
             window.applyFilters();
+        });
+
+        // Deteksi input dari barcode scanner (input sangat cepat)
+        searchProduk.addEventListener('keydown', function(e) {
+            if (!window.scanMode) return;
+
+            const currentTime = Date.now();
+
+            // Jika ini karakter pertama atau gap > 100ms, reset buffer
+            if (currentTime - window.scanStartTime > 100) {
+                window.scanBuffer = '';
+                window.scanStartTime = currentTime;
+            }
+
+            // Tambahkan karakter ke buffer (kecuali Enter)
+            if (e.key.length === 1) {
+                window.scanBuffer += e.key;
+            }
+
+            // Jika Enter ditekan dan ada buffer, proses sebagai barcode scan
+            if (e.key === 'Enter' && window.scanBuffer.length > 0) {
+                e.preventDefault();
+                const barcode = window.scanBuffer.trim();
+                window.scanBuffer = '';
+
+                if (barcode) {
+                    window.scanBarcode(barcode);
+                }
+            }
         });
     }
 });
@@ -644,5 +750,83 @@ window.clearCartAfterPayment = function() {
     const panel = document.getElementById('cart-panel');
     if (!panel.classList.contains('translate-x-full') && window.innerWidth < 1024) {
         window.toggleMobileCart();
+    }
+};
+
+// Barcode Scanner Functions
+window.toggleScanMode = function() {
+    window.scanMode = !window.scanMode;
+    const btnScan = document.getElementById('btn-scan-mode');
+    const searchProduk = document.getElementById('search-produk');
+
+    if (window.scanMode) {
+        // Aktifkan mode scan - ring biru seperti search bar
+        btnScan.classList.add('ring-2', 'ring-blue-500', 'border-blue-500');
+        btnScan.title = 'Mode Scan Aktif (Klik untuk Nonaktifkan)';
+
+        // Reset scan buffer
+        window.scanBuffer = '';
+        window.scanStartTime = 0;
+
+        searchProduk.focus();
+    } else {
+        // Nonaktifkan mode scan - kembali ke state default (ring abu)
+        btnScan.classList.remove('ring-2', 'ring-blue-500', 'border-blue-500');
+        btnScan.title = 'Aktifkan Mode Scan Barcode';
+
+        // Reset scan buffer
+        window.scanBuffer = '';
+        window.scanStartTime = 0;
+    }
+};
+
+window.scanBarcode = function(barcode) {
+    const cards = document.querySelectorAll('.product-card');
+    let productFound = null;
+
+    // Cari produk berdasarkan barcode
+    cards.forEach(card => {
+        const cardBarcode = card.getAttribute('data-barcode') || '';
+        if (cardBarcode.toLowerCase() === barcode.toLowerCase()) {
+            productFound = card;
+        }
+    });
+
+    if (productFound) {
+        // Produk ditemukan, simulasikan klik untuk add to cart
+        productFound.click();
+
+        // Berikan feedback visual
+        const searchProduk = document.getElementById('search-produk');
+        searchProduk.value = '';
+        searchProduk.classList.add('border-green-500', 'bg-green-50');
+
+        // Reset visual feedback setelah 500ms
+        setTimeout(() => {
+            searchProduk.classList.remove('border-green-500', 'bg-green-50');
+            searchProduk.focus();
+        }, 500);
+
+        // Play success sound (optional - bisa ditambahkan nanti)
+        // new Audio('/sounds/beep-success.mp3').play();
+
+    } else {
+        // Produk tidak ditemukan
+        const searchProduk = document.getElementById('search-produk');
+        searchProduk.classList.add('border-red-500', 'bg-red-50');
+
+        window.showCustomAlert({
+            title: 'Produk Tidak Ditemukan',
+            message: `Barcode "${barcode}" tidak terdaftar dalam sistem. Pastikan barcode benar atau produk sudah ditambahkan ke database.`,
+            type: 'error',
+            confirmText: 'Mengerti'
+        });
+
+        // Reset visual feedback
+        setTimeout(() => {
+            searchProduk.value = '';
+            searchProduk.classList.remove('border-red-500', 'bg-red-50');
+            searchProduk.focus();
+        }, 500);
     }
 };
