@@ -77,7 +77,7 @@
                 {{-- Header --}}
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
                     <div>
-                        <h1 class="text-2xl font-bold text-slate-800">Niki Frozen - Condongcatur</h1>
+                        <h1 class="text-2xl font-bold text-slate-800">{{ auth()->user()->branch->name ?? 'Cabang' }}</h1>
                         <p class="text-slate-500 font-medium">Riwayat Penjualan</p>
                     </div>
                     <div class="relative w-full md:w-80">

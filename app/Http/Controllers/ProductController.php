@@ -9,6 +9,7 @@ use App\Models\Stock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -17,7 +18,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $branchId = 1; // Hardcode, belum ada auth
+        $branchId = auth()->user()->branch_id ?? 1; // Fallback ke 1 jika user tidak memiliki branch_id (seperti owner)
 
         $products = Product::where('branch_id', $branchId)
             ->with(['category', 'unit', 'promotions' => function ($query) {
@@ -102,8 +103,15 @@ class ProductController extends Controller
      */
     public function updateProduct(Request $request, $id)
     {
+        $product = Product::findOrFail($id);
+
         $request->validate([
-            'name' => 'required|string|max:150',
+            'name' => [
+                'required',
+                'string',
+                'max:150',
+                Rule::unique('products')->where(fn ($query) => $query->where('branch_id', $product->branch_id))->ignore($product->id),
+            ],
             'price' => 'required|numeric|min:0',
             'product_category_id' => 'required|exists:product_categories,id',
             'product_unit_id' => 'required|exists:product_units,id',
@@ -111,6 +119,7 @@ class ProductController extends Controller
         ], [
             'name.required' => 'Nama produk wajib diisi.',
             'name.max' => 'Nama produk maksimal 150 karakter.',
+            'name.unique' => 'Nama produk sudah digunakan oleh produk lain.',
             'price.required' => 'Harga wajib diisi.',
             'price.numeric' => 'Harga harus berupa angka.',
             'price.min' => 'Harga tidak boleh negatif.',
@@ -122,8 +131,6 @@ class ProductController extends Controller
             'image.mimes' => 'Format gambar harus JPG, JPEG, PNG, atau WebP.',
             'image.max' => 'Ukuran gambar maksimal 2MB.',
         ]);
-
-        $product = Product::findOrFail($id);
 
         $data = [
             'name' => $request->name,
@@ -151,7 +158,7 @@ class ProductController extends Controller
      */
     public function createProduct()
     {
-        $branchId = 1;
+        $branchId = auth()->user()->branch_id ?? 1;
         $categories = ProductCategory::all();
         $units = ProductUnit::all();
 
@@ -163,8 +170,15 @@ class ProductController extends Controller
      */
     public function storeProduct(Request $request)
     {
+        $branchId = auth()->user()->branch_id ?? 1;
+
         $request->validate([
-            'name' => 'required|string|max:150',
+            'name' => [
+                'required',
+                'string',
+                'max:150',
+                Rule::unique('products')->where(fn ($query) => $query->where('branch_id', $branchId)),
+            ],
             'barcode' => 'nullable|string|max:100|unique:products,barcode',
             'price' => 'required|numeric|min:0',
             'product_category_id' => 'required|exists:product_categories,id',
@@ -173,6 +187,7 @@ class ProductController extends Controller
         ], [
             'name.required' => 'Nama produk wajib diisi.',
             'name.max' => 'Nama produk maksimal 150 karakter.',
+            'name.unique' => 'Nama produk sudah terdaftar, silakan gunakan nama lain.',
             'barcode.max' => 'Barcode maksimal 100 karakter.',
             'barcode.unique' => 'Barcode sudah digunakan produk lain.',
             'price.required' => 'Harga wajib diisi.',
@@ -186,8 +201,6 @@ class ProductController extends Controller
             'image.mimes' => 'Format gambar harus JPG, JPEG, PNG, atau WebP.',
             'image.max' => 'Ukuran gambar maksimal 2MB.',
         ]);
-
-        $branchId = 1;
 
         DB::beginTransaction();
         try {
@@ -237,11 +250,8 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $name = $product->name;
 
-        // Hapus stok, promosi, dan riwayat yang terkait
-        \App\Models\Stock::where('product_id', $id)->delete();
-        \App\Models\StockIncoming::where('product_id', $id)->delete();
-        \App\Models\Promotion::where('product_id', $id)->delete();
-
+        // Berkat SoftDeletes, kita hanya perlu memanggil delete() pada produk.
+        // Data stok dan riwayat akan tetap ada untuk keperluan histori, namun produk tidak akan aktif.
         $product->delete();
 
         return redirect()->route('pages.admin.stok')

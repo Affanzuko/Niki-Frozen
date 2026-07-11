@@ -5,7 +5,49 @@
 @section('body_data')
     x-data="{
         sidebarOpen: false,
-        searchQuery: ''
+        searchQuery: '',
+        sortColumn: 'name',
+        sortDirection: 'asc',
+        init() {
+            this.$watch('sortColumn', value => this.applySort());
+            this.$watch('sortDirection', value => this.applySort());
+            
+            // Set initial sort
+            setTimeout(() => this.applySort(), 100);
+        },
+        sortBy(col) {
+            if (this.sortColumn === col) {
+                this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sortColumn = col;
+                this.sortDirection = 'asc';
+            }
+        },
+        applySort() {
+            const container = document.getElementById('price-container');
+            if (!container) return;
+            const groups = Array.from(container.querySelectorAll('tbody.price-group'));
+            
+            let col = this.sortColumn;
+            let dir = this.sortDirection === 'asc' ? 1 : -1;
+
+            groups.sort((a, b) => {
+                if (col === 'name') {
+                    return a.dataset.name.localeCompare(b.dataset.name) * dir;
+                } else if (col === 'category') {
+                    return a.dataset.category.localeCompare(b.dataset.category) * dir;
+                } else if (col === 'price') {
+                    return (parseFloat(a.dataset.price) - parseFloat(b.dataset.price)) * dir;
+                } else if (col === 'discount') {
+                    return (parseFloat(a.dataset.discount) - parseFloat(b.dataset.discount)) * dir;
+                } else if (col === 'final') {
+                    return (parseFloat(a.dataset.final) - parseFloat(b.dataset.final)) * dir;
+                }
+                return 0;
+            });
+            
+            groups.forEach(group => container.appendChild(group));
+        }
     }"
 @endsection
 
@@ -28,7 +70,7 @@
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
                     <div>
-                        <h1 class="text-2xl font-bold text-slate-800">Niki Frozen - Condongcatur</h1>
+                        <h1 class="text-2xl font-bold text-slate-800">{{ auth()->user()->branch->name ?? 'Cabang' }}</h1>
                         <p class="text-slate-500 font-medium">Kelola Harga Produk</p>
                     </div>
                 </div>
@@ -83,14 +125,54 @@
                                 <col class="w-[8%]">
                             </colgroup>
                             <thead>
-                                <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    <th class="p-4 py-4 pl-12 text-left">Produk</th>
-                                    <th class="p-4 py-4 text-left">Barcode</th>
-                                    <th class="p-4 py-4 text-left">Kategori</th>
-                                    <th class="p-4 py-4 text-center">Harga Jual</th>
-                                    <th class="p-4 py-4 text-center">Diskon</th>
-                                    <th class="p-4 py-4 text-center">Harga Akhir</th>
-                                    <th class="p-4 py-4 text-center">Aksi</th>
+                                <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider select-none">
+                                    <th class="p-4 pl-12 cursor-pointer hover:text-slate-800 transition-colors" @click="sortBy('name')">
+                                        <div class="flex items-center gap-2">
+                                            Produk 
+                                            <div class="flex flex-col text-[8px] opacity-50" :class="{'opacity-100 text-blue-600': sortColumn === 'name'}">
+                                                <i class="fa-solid fa-chevron-up mb-[-2px]" :class="{'opacity-30': sortColumn === 'name' && sortDirection === 'desc'}"></i>
+                                                <i class="fa-solid fa-chevron-down" :class="{'opacity-30': sortColumn === 'name' && sortDirection === 'asc'}"></i>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="p-4 text-left">Barcode</th>
+                                    <th class="p-4 cursor-pointer hover:text-slate-800 transition-colors" @click="sortBy('category')">
+                                        <div class="flex items-center gap-2">
+                                            Kategori 
+                                            <div class="flex flex-col text-[8px] opacity-50" :class="{'opacity-100 text-blue-600': sortColumn === 'category'}">
+                                                <i class="fa-solid fa-chevron-up mb-[-2px]" :class="{'opacity-30': sortColumn === 'category' && sortDirection === 'desc'}"></i>
+                                                <i class="fa-solid fa-chevron-down" :class="{'opacity-30': sortColumn === 'category' && sortDirection === 'asc'}"></i>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="p-4 cursor-pointer hover:text-slate-800 transition-colors" @click="sortBy('price')">
+                                        <div class="flex items-center justify-center gap-2">
+                                            Harga Jual
+                                            <div class="flex flex-col text-[8px] opacity-50" :class="{'opacity-100 text-blue-600': sortColumn === 'price'}">
+                                                <i class="fa-solid fa-chevron-up mb-[-2px]" :class="{'opacity-30': sortColumn === 'price' && sortDirection === 'desc'}"></i>
+                                                <i class="fa-solid fa-chevron-down" :class="{'opacity-30': sortColumn === 'price' && sortDirection === 'asc'}"></i>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="p-4 cursor-pointer hover:text-slate-800 transition-colors" @click="sortBy('discount')">
+                                        <div class="flex items-center justify-center gap-2">
+                                            Diskon
+                                            <div class="flex flex-col text-[8px] opacity-50" :class="{'opacity-100 text-blue-600': sortColumn === 'discount'}">
+                                                <i class="fa-solid fa-chevron-up mb-[-2px]" :class="{'opacity-30': sortColumn === 'discount' && sortDirection === 'desc'}"></i>
+                                                <i class="fa-solid fa-chevron-down" :class="{'opacity-30': sortColumn === 'discount' && sortDirection === 'asc'}"></i>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="p-4 cursor-pointer hover:text-slate-800 transition-colors" @click="sortBy('final')">
+                                        <div class="flex items-center justify-center gap-2">
+                                            Harga Akhir
+                                            <div class="flex flex-col text-[8px] opacity-50" :class="{'opacity-100 text-blue-600': sortColumn === 'final'}">
+                                                <i class="fa-solid fa-chevron-up mb-[-2px]" :class="{'opacity-30': sortColumn === 'final' && sortDirection === 'desc'}"></i>
+                                                <i class="fa-solid fa-chevron-down" :class="{'opacity-30': sortColumn === 'final' && sortDirection === 'asc'}"></i>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="p-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
                         </table>
@@ -98,7 +180,7 @@
 
                     <!-- Body Table (Scrollable) -->
                     <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
-                        <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
+                        <table id="price-container" class="w-full text-left border-collapse table-fixed min-w-[900px]">
                             <colgroup>
                                 <col class="w-[38%]">
                                 <col class="w-[14%]">
@@ -115,7 +197,12 @@
                                     $validUntil = $activePromotion ? $activePromotion->valid_until->format('Y-m-d') : '';
                                     $finalPrice = $discount > 0 ? $product->price * (1 - $discount / 100) : $product->price;
                                 @endphp
-                                <tbody class="divide-y divide-slate-100 text-sm font-medium"
+                                <tbody class="price-group divide-y divide-slate-100 text-sm font-medium"
+                                    data-name="{{ strtolower(addslashes($product->name)) }}"
+                                    data-category="{{ strtolower(addslashes($product->category->name ?? '')) }}"
+                                    data-price="{{ $product->price }}"
+                                    data-discount="{{ $discount }}"
+                                    data-final="{{ $finalPrice }}"
                                     x-show="('{{ strtolower(addslashes($product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase()))">
                                     <tr class="hover:bg-slate-50 transition-colors group cursor-pointer">
                                         <td class="p-4 pl-12 text-left truncate">

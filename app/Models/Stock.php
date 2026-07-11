@@ -5,11 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use illuminate\Database\Eloquent\Builder;
 
 class Stock extends Model
 {
     /** @use HasFactory<\Database\Factories\StockFactory> */
     use HasFactory;
+
+    protected static function booted()
+    {
+        static::addGlobalScope('activeProduct', function (Builder $builder) {
+            $builder->whereHas('product');
+        });
+    }
 
     protected $fillable = [
         'product_id',
