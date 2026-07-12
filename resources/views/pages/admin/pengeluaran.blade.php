@@ -128,7 +128,7 @@
                                     <td class="p-4 text-slate-800">
                                         {{ $expense->description }}
                                     </td>
-                                    <td class="p-4 text-right text-slate-900 font-bold tabular-nums">
+                                    <td class="p-4 text-right text-slate-700 font-semibold tabular-nums">
                                         Rp {{ number_format($expense->amount, 0, ',', '.') }}
                                     </td>
                                     <td class="p-4 pr-12 text-center whitespace-nowrap">

@@ -246,7 +246,7 @@
                                             </div>
                                             <div>
                                                 <span
-                                                    class="text-slate-800 font-bold group-hover:text-blue-600 transition-colors">{{ $stock->product->name }}</span>
+                                                    class="text-slate-700 font-bold group-hover:text-blue-600 transition-colors">{{ $stock->product->name }}</span>
                                                 @if ($stock->product->category)
                                                     <p class="text-xs text-slate-500 mt-0.5">
                                                         {{ $stock->product->category->name }}</p>
@@ -260,16 +260,16 @@
                                                 @endif
                                             </div>
                                         </td>
-                                        <td class="p-4 text-center text-slate-500 tabular-nums font-bold">
+                                        <td class="p-4 text-center text-slate-500 tabular-nums font-medium">
                                             {{ $stock->branch->name }}
                                         </td>
                                         <td class="p-4 text-center text-slate-500 tabular-nums">
                                             {{ $stock->product->barcode ?? '-' }}
                                         </td>
-                                        <td class="p-4 text-center text-slate-900 tabular-nums">
+                                        <td class="p-4 text-center text-slate-700 tabular-nums">
                                             <div class="flex items-center justify-center gap-2">
                                                 <span
-                                                    class="{{ $stock->quantity < 20 ? 'text-red-600 font-bold' : '' }}">{{ $stock->quantity }}</span>
+                                                    class="{{ $stock->quantity < 20 ? 'text-red-600 font-semibold' : '' }}">{{ $stock->quantity }}</span>
                                                 <div class="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                                     <div class="h-full {{ $stockColor }} rounded-full"
                                                         style="width: {{ $stockPercent }}%"></div>
@@ -382,8 +382,8 @@
                     <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="incomingsHeaderScroll">
                         <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
                             <colgroup>
-                                <col class="w-[20%]">
-                                <col class="w-[20%]">
+                                <col class="w-[15%]">
+                                <col class="w-[25%]">
                                 <col class="w-[15%]">
                                 <col class="w-[15%]">
                                 <col class="w-[15%]">
@@ -391,12 +391,12 @@
                             </colgroup>
                             <thead>
                                 <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    <th class="p-4 py-3 pl-8">Tanggal Masuk</th>
-                                    <th class="p-4 py-3">Produk</th>
-                                    <th class="p-4 py-3 text-center">Cabang</th>
-                                    <th class="p-4 py-3 text-center">Jumlah</th>
-                                    <th class="p-4 py-3 text-center">Harga Beli</th>
-                                    <th class="p-4 py-3 text-center pr-4">Kedaluwarsa</th>
+                                    <th class="p-4 py-4 pl-8">Tanggal Masuk</th>
+                                    <th class="p-4 py-4">Produk</th>
+                                    <th class="p-4 py-4 text-center">Cabang</th>
+                                    <th class="p-4 py-4 text-center">Jumlah</th>
+                                    <th class="p-4 py-4 text-center">Harga Beli</th>
+                                    <th class="p-4 py-4 text-center pr-4">Kedaluwarsa</th>
                                 </tr>
                             </thead>
                         </table>
@@ -404,8 +404,8 @@
                     <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
                         <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
                             <colgroup>
-                                <col class="w-[20%]">
-                                <col class="w-[20%]">
+                                <col class="w-[15%]">
+                                <col class="w-[25%]">
                                 <col class="w-[15%]">
                                 <col class="w-[15%]">
                                 <col class="w-[15%]">
@@ -418,13 +418,13 @@
                                         <td class="p-4 pl-8 text-slate-500">
                                             {{ \Carbon\Carbon::parse($in->created_at)->format('d M Y, H:i') }}
                                         </td>
-                                        <td class="p-4 text-slate-800 font-bold">
+                                        <td class="p-4 text-slate-700 font-bold">
                                             {{ $in->product->name }}
                                         </td>
-                                        <td class="p-4 text-center text-slate-500 font-bold">
+                                        <td class="p-4 text-center text-slate-500 font-medium">
                                             {{ $in->branch->name }}
                                         </td>
-                                        <td class="p-4 text-center text-blue-600 font-bold">
+                                        <td class="p-4 text-center text-blue-600 font-medium">
                                             +{{ $in->quantity }} Unit
                                         </td>
                                         <td class="p-4 text-center text-slate-600 tabular-nums">

@@ -134,19 +134,21 @@
                             if ($refs.headerScroll) $refs.headerScroll.scrollLeft = e.target.scrollLeft;
                         }
                     }">
-                        <!-- Header Table (Static) -->
+                    <!-- Header Table (Static) -->
                         <div class="bg-slate-50 border-b border-slate-200 overflow-hidden" x-ref="headerScroll">
                             <table class="w-full text-left border-collapse min-w-[700px] table-fixed">
                                 <colgroup>
                                     <col class="w-[15%]">
-                                    <col class="w-[30%]">
                                     <col class="w-[15%]">
-                                    <col class="w-[20%]">
-                                    <col class="w-[20%]">
+                                    <col class="w-[25%]">
+                                    <col class="w-[15%]">
+                                    <col class="w-[15%]">
+                                    <col class="w-[15%]">
                                 </colgroup>
                                 <thead>
                                     <tr class="text-xs text-slate-500 uppercase tracking-wider font-bold">
                                         <th class="p-4 py-4 pl-12 text-left">Waktu</th>
+                                        <th class="p-4 py-4 text-center">Sesi</th>
                                         <th class="p-4 py-4 text-center">Kasir</th>
                                         <th class="p-4 py-4 text-center">Transaksi</th>
                                         <th class="p-4 py-4 text-center">Total (Rp)</th>
@@ -156,15 +158,16 @@
                             </table>
                         </div>
 
-                        <!-- Body Table (Scrollable) -->
-                        <div class="overflow-auto relative bg-white" @scroll="syncScroll">
+                    <!-- Body Table (Scrollable) -->
+                        <div class="overflow-auto relative h-[47vh] bg-white" @scroll="syncScroll">
                             <table class="w-full text-left border-collapse min-w-[700px] table-fixed">
                                 <colgroup>
                                     <col class="w-[15%]">
-                                    <col class="w-[30%]">
                                     <col class="w-[15%]">
-                                    <col class="w-[20%]">
-                                    <col class="w-[20%]">
+                                    <col class="w-[25%]">
+                                    <col class="w-[15%]">
+                                    <col class="w-[15%]">
+                                    <col class="w-[15%]">
                                 </colgroup>
                                 <tbody class="divide-y divide-slate-100 text-sm">
                                     @forelse ($recentSessions as $session)
@@ -174,11 +177,14 @@
                                                 -
                                                 {{ $session->ended_at ? $session->ended_at->format('H:i') : 'Sekarang' }}
                                             </td>
-                                            <td class="p-4 text-slate-800 font-bold text-center truncate">
+                                            <td class="p-4 text-slate-700 font-medium text-center capitalize">
+                                                {{ $session->shift ?? '-' }}
+                                            </td>
+                                            <td class="p-4 text-slate-700 font-medium text-center truncate">
                                                 {{ $session->user->name ?? '-' }}</td>
                                             <td class="p-4 text-slate-700 font-semibold tabular-nums text-center">
                                                 {{ $session->total_transactions }}</td>
-                                            <td class="p-4 font-bold text-slate-800 tabular-nums text-center">
+                                            <td class="p-4 font-semibold text-slate-700 tabular-nums text-center">
                                                 {{ number_format($session->total_revenue ?? 0, 0, ',', '.') }}</td>
                                             <td class="p-4 text-center">
                                                 @if (is_null($session->ended_at))
@@ -192,18 +198,18 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="p-4 py-12 text-center text-slate-400">
+                                            <td colspan="6" class="p-4 py-12 text-center text-slate-400">
                                                 <i class="fa-solid fa-user-clock text-3xl mb-2 block"></i>
                                                 <p class="font-medium">Belum ada aktivitas kasir</p>
                                             </td>
                                         </tr>
                                     @endforelse
                                 </tbody>
-                            </table>
-                        </div>
+                        </table>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </main>
 @endsection

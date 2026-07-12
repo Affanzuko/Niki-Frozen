@@ -41,6 +41,18 @@ class GmController extends Controller
 
             $todayPengeluaran = $todayRevenue * 0.65; // Estimated expense based on keuangan overview logic
 
+            $lowStockCount = \App\Models\Stock::where('branch_id', $branch->id)
+                ->where('quantity', '<', 20)
+                ->count();
+
+            $nearExpiryCount = \App\Models\StockIncoming::where('branch_id', $branch->id)
+                ->whereBetween('expiry_date', [$dateObj, $dateObj->copy()->addDays(30)])
+                ->count();
+
+            $totalProducts = \App\Models\Product::where('branch_id', $branch->id)->count();
+
+            $totalStock = \App\Models\Stock::where('branch_id', $branch->id)->sum('quantity');
+
             $branchSummaries[] = [
                 'branch' => $branch,
                 'today_revenue' => $todayRevenue,
@@ -48,6 +60,10 @@ class GmController extends Controller
                 'today_transactions' => $todayTransactions,
                 'total_revenue' => $totalRevenue,
                 'total_transactions' => $totalTransactions,
+                'low_stock_count' => $lowStockCount,
+                'near_expiry_count' => $nearExpiryCount,
+                'total_products' => $totalProducts,
+                'total_stock' => $totalStock,
             ];
         }
 

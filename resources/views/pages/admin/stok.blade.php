@@ -126,6 +126,12 @@
                         class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Status
                         Kedaluwarsa</button>
 
+                    <button @click="stokFilter = 'Riwayat Barang Masuk'"
+                        :class="stokFilter === 'Riwayat Barang Masuk' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                            'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                        class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Riwayat
+                        Barang Masuk</button>
+
 
                     <div class="flex-1"></div>
 
@@ -149,7 +155,7 @@
                 </div>
 
                 <!-- Table -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0"
+                <div x-show="stokFilter !== 'Riwayat Barang Masuk'" class="bg-white rounded-xl border border-slate-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0"
                     x-data="{
                         syncScroll(e) {
                             $refs.headerScroll.scrollLeft = e.target.scrollLeft;
@@ -249,7 +255,7 @@
                                             </div>
                                             <div>
                                                 <span
-                                                    class="text-slate-800 font-bold group-hover:text-blue-600 transition-colors">{{ $stock->product->name }}</span>
+                                                    class="text-slate-700 font-bold group-hover:text-blue-600 transition-colors">{{ $stock->product->name }}</span>
                                                 @if ($stock->product->category)
                                                     <p class="text-xs text-slate-500 mt-0.5">
                                                         {{ $stock->product->category->name }}</p>
@@ -266,10 +272,10 @@
                                         <td class="p-4 text-center text-slate-500 tabular-nums">
                                             {{ $stock->product->barcode ?? '-' }}
                                         </td>
-                                        <td class="p-4 text-center text-slate-900 tabular-nums">
+                                        <td class="p-4 text-center text-slate-700 tabular-nums">
                                             <div class="flex items-center justify-center gap-2">
                                                 <span
-                                                    class="{{ $stock->quantity < 20 ? 'text-red-600 font-bold' : '' }}">{{ $stock->quantity }}</span>
+                                                    class="{{ $stock->quantity < 20 ? 'text-red-600 font-semibold' : '' }}">{{ $stock->quantity }}</span>
                                                 <div class="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                                     <div class="h-full {{ $stockColor }} rounded-full"
                                                         style="width: {{ $stockPercent }}%"></div>
@@ -440,6 +446,78 @@
                     <!-- Footer -->
                     <div class="px-6 py-4 border-t border-slate-200 flex justify-between items-center bg-slate-50">
                         <span class="text-xs font-medium text-slate-500">Showing {{ $stocks->count() }} items</span>
+                    </div>
+                </div>
+
+                <!-- Table Riwayat Barang Masuk -->
+                <div x-show="stokFilter === 'Riwayat Barang Masuk'" x-cloak class="bg-white rounded-xl border border-slate-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0"
+                    x-data="{
+                        syncScroll(e) {
+                            $refs.incomingsHeaderScroll.scrollLeft = e.target.scrollLeft;
+                        }
+                    }">
+                    <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="incomingsHeaderScroll">
+                        <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
+                            <colgroup>
+                                <col class="w-[15%]">
+                                <col class="w-[40%]">
+                                <col class="w-[15%]">
+                                <col class="w-[15%]">
+                                <col class="w-[15%]">
+                            </colgroup>
+                            <thead>
+                                <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                    <th class="p-4 py-4 pl-8">Tanggal Masuk</th>
+                                    <th class="p-4 py-4">Produk</th>
+                                    <th class="p-4 py-4 text-center">Jumlah</th>
+                                    <th class="p-4 py-4 text-center">Harga Beli</th>
+                                    <th class="p-4 py-4 text-center pr-4">Kedaluwarsa</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
+                        <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
+                            <colgroup>
+                                <col class="w-[15%]">
+                                <col class="w-[40%]">
+                                <col class="w-[15%]">
+                                <col class="w-[15%]">
+                                <col class="w-[15%]">
+                            </colgroup>
+                            <tbody class="text-sm font-medium">
+                                @forelse ($incomings as $in)
+                                    <tr x-show="'{{ strtolower(addslashes($in->product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($in->product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase())"
+                                        class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                        <td class="p-4 pl-8 text-slate-500">
+                                            {{ \Carbon\Carbon::parse($in->created_at)->format('d M Y, H:i') }}
+                                        </td>
+                                        <td class="p-4 text-slate-700 font-bold">
+                                            {{ $in->product->name }}
+                                        </td>
+                                        <td class="p-4 text-center text-blue-600 font-medium">
+                                            +{{ $in->quantity }} Unit
+                                        </td>
+                                        <td class="p-4 text-center text-slate-600 tabular-nums">
+                                            Rp {{ number_format($in->purchase_price, 0, ',', '.') }}
+                                        </td>
+                                        <td class="p-4 text-center text-slate-500 tabular-nums pr-4">
+                                            {{ \Carbon\Carbon::parse($in->expiry_date)->format('d M Y') }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="p-4 py-12 text-center text-slate-400">
+                                            <i class="fa-solid fa-box-open text-4xl mb-3 block"></i>
+                                            <p class="font-medium">Belum ada riwayat barang masuk</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="px-6 py-4 border-t border-slate-200 flex justify-between items-center bg-slate-50">
+                        <span class="text-xs font-medium text-slate-500">Showing {{ $incomings->count() }} items</span>
                     </div>
                 </div>
             </div>

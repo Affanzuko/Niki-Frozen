@@ -105,14 +105,14 @@
                                 <td class="p-4 text-center font-semibold text-slate-600 whitespace-nowrap truncate">{{ $user->username }}</td>
                                 <td class="p-4 text-center whitespace-nowrap">
                                     @if($user->role === 'general_manager')
-                                        <span class="inline-flex items-center px-3 py-1 rounded-md text-[11px] font-bold uppercase border shadow-sm bg-purple-100 text-purple-700 border-purple-200" style="background-color: #f3e8ff; color: #7e22ce; border-color: #e9d5ff;">General Manager</span>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-md text-[11px] font-bold uppercase bg-purple-100 text-purple-700 border border-purple-100" style="background-color: #f3e8ff; color: #7e22ce; border-color: #e9d5ff;">General Manager</span>
                                     @elseif($user->role === 'admin')
-                                        <span class="inline-flex items-center px-3 py-1 rounded-md text-[11px] font-bold uppercase border shadow-sm bg-blue-50 text-blue-700 border-blue-200">Admin</span>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-md text-[11px] font-bold uppercase bg-blue-50 text-blue-700 border border-blue-100">Admin</span>
                                     @else
-                                        <span class="inline-flex items-center px-3 py-1 rounded-md text-[11px] font-bold uppercase border shadow-sm bg-slate-50 text-slate-600 border-slate-200">Kasir</span>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-md text-[11px] font-bold uppercase bg-slate-50 text-slate-600 border border-slate-200">Kasir</span>
                                     @endif
                                 </td>
-                                <td class="p-4 text-center text-slate-600 whitespace-nowrap truncate">{{ $user->branch ? $user->branch->name : 'Semua Cabang' }}</td>
+                                <td class="p-4 text-center font-medium text-slate-500 whitespace-nowrap truncate">{{ $user->branch ? $user->branch->name : 'Semua Cabang' }}</td>
                                 <td class="p-4 pr-12 text-center whitespace-nowrap">
                                     <div class="flex items-center justify-center gap-2">
                                         <a href="{{ route('pages.general-manager.edit-akun', $user->id) }}" class="p-1.5 border border-slate-200 text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg transition-all shadow-sm">

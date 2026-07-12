@@ -117,7 +117,7 @@
                         <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
                             <colgroup>
                                 <col class="w-[38%]">
-                                <col class="w-[14%]">
+                                <col class="w-[14%]">   
                                 <col class="w-[10%]">
                                 <col class="w-[12%]">
                                 <col class="w-[6%]">
@@ -216,24 +216,24 @@
                                                     @endif
                                                 </div>
                                                 <span
-                                                    class="text-slate-800 font-bold group-hover:text-blue-600 transition-colors truncate">{{ $product->name }}</span>
+                                                    class="text-slate-700 font-bold group-hover:text-blue-600 transition-colors truncate">{{ $product->name }}</span>
                                             </div>
                                         </td>
                                         <td class="p-4 text-slate-500 tabular-nums">
                                             {{ $product->barcode ?? '-' }}</td>
                                         <td class="p-4 text-slate-600 truncate">{{ $product->category->name ?? '-' }}</td>
                                         <td class="p-4 text-center">
-                                            <span class="font-bold text-slate-900 tabular-nums">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                                            <span class="font-semibold text-slate-700 tabular-nums">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
                                         </td>
                                         <td class="p-4 text-center">
                                             @if($discount > 0)
-                                                <span class="font-bold text-red-500 tabular-nums">{{ number_format($discount, 0) }}%</span>
+                                                <span class="font-semibold text-red-500 tabular-nums">{{ number_format($discount, 0) }}%</span>
                                             @else
                                                 <span class="text-slate-400">-</span>
                                             @endif
                                         </td>
                                         <td class="p-4 text-center">
-                                            <span class="font-bold text-blue-600 tabular-nums">Rp {{ number_format($finalPrice, 0, ',', '.') }}</span>
+                                            <span class="font-semibold text-blue-600 tabular-nums">Rp {{ number_format($finalPrice, 0, ',', '.') }}</span>
                                         </td>
                                         <td class="p-4 text-center">
                                             <div class="flex items-center justify-center gap-1.5">
