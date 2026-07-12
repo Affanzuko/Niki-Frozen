@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('transaction_code', 50)->unique(); // Digunakan sebagai order_id di Midtrans
             $table->enum('payment_method', ['cash', 'qris']);
             $table->decimal('total_price', 12, 2);
-            $table->enum('status', ['pending', 'success', 'failed', 'rollback'])->default('pending');
+            $table->enum('status', ['pending', 'success', 'failed', 'return'])->default('pending');
 
             // Integrasi midtrans
             $table->string('snap_token')->nullable();

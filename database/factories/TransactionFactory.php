@@ -16,7 +16,7 @@ class TransactionFactory extends Factory
 
     public function definition(): array
     {
-        $statuses = ['pending', 'success', 'failed', 'rollback'];
+        $statuses = ['pending', 'success', 'failed', 'return'];
         $date = now()->format('dmY');
         $sequence = str_pad(self::$counter++, 3, '0', STR_PAD_LEFT);
 

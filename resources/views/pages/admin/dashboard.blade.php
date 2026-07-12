@@ -59,7 +59,7 @@
                     <!-- Kartu Pendapatan -->
                     <div onclick="window.location='{{ route('pages.admin.keuangan') }}'"
                         class="group bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-brand-textBlue transition-all duration-300 relative overflow-hidden">
-                        <div
+                        <div    
                             class="absolute top-0 right-0 w-24 h-24 bg-brand-blue rounded-bl-full opacity-50 group-hover:scale-110 transition-transform">
                         </div>
                         <div class="flex justify-between items-start mb-6 relative z-10">
@@ -183,10 +183,10 @@
                                             <td class="p-4 text-center">
                                                 @if (is_null($session->ended_at))
                                                     <span
-                                                        class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-700">Aktif</span>
+                                                        class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">Aktif</span>
                                                 @else
                                                     <span
-                                                        class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-green-100 text-green-700">Selesai</span>
+                                                        class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-green-50 text-green-700 border border-green-100">Selesai</span>
                                                 @endif
                                             </td>
                                         </tr>
