@@ -46,7 +46,9 @@ class GmController extends Controller
                 ->count();
 
             $nearExpiryCount = \App\Models\StockIncoming::where('branch_id', $branch->id)
+                ->where('current_quantity', '>', 0)
                 ->whereBetween('expiry_date', [$dateObj, $dateObj->copy()->addDays(30)])
+                ->whereHas('product')
                 ->count();
 
             $totalProducts = \App\Models\Product::where('branch_id', $branch->id)->count();

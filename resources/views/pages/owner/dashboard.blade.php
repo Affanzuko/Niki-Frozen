@@ -15,7 +15,7 @@
 
     <!-- Main Content Area -->
     <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full">
-        
+
         <div class="flex-1 flex flex-col h-full overflow-y-auto">
             <!-- Header -->
             <header class="px-6 lg:px-8 py-6 flex justify-between items-center shrink-0">
@@ -131,9 +131,9 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                     @foreach ($branchSummaries as $summary)
-                        <a href="{{ route('pages.owner.keuangan-detail', $summary['branch']->name) }}" 
+                        <a href="{{ route('pages.owner.stok', ['cabang' => $summary['branch']->id]) }}"
                            class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-brand-textBlue transition-all duration-300 overflow-hidden block">
-                            
+
                             <!-- Branch Header -->
                             <div class="px-6 pt-6 pb-4">
                                 <div class="flex items-center justify-between mb-4">
