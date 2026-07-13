@@ -103,15 +103,30 @@
                                 </div>
 
                                 <!-- Harga -->
-                                <div>
-                                    <label for="price" class="block text-sm font-bold text-gray-700 mb-2">
+                                <div x-data="{ 
+                                    rawPrice: '{{ old('price') }}',
+                                    get formattedPrice() {
+                                        if (!this.rawPrice) return '';
+                                        return parseInt(this.rawPrice).toLocaleString('id-ID');
+                                    },
+                                    updatePrice(value) {
+                                        let clean = value.replace(/[^0-9]/g, '');
+                                        this.rawPrice = clean;
+                                    }
+                                }">
+                                    <label for="price_display" class="block text-sm font-bold text-gray-700 mb-2">
                                         Harga <span class="text-red-500">*</span>
                                     </label>
                                     <div class="relative">
-                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">Rp</span>
-                                        <input type="number" name="price" id="price" min="0" step="0.01"
-                                            value="{{ old('price') }}" required placeholder="0"
-                                            class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <span class="text-gray-500 text-sm font-bold">Rp</span>
+                                        </div>
+                                        <input type="hidden" name="price" :value="rawPrice">
+                                        <input type="text" id="price_display" 
+                                            :value="formattedPrice"
+                                            @input="updatePrice($event.target.value); $event.target.value = formattedPrice"
+                                            required placeholder="0"
+                                            class="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-brand-textBlue transition-all">
                                     </div>
                                 </div>
                             </div>

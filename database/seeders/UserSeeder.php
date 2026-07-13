@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
             'branch_id' => null,
             'name' => 'Owner',
             'username' => 'owner1',
-            'password' => Hash::make('owner1'),
+            'password' => Hash::make('fufufafa2014'),
             'role' => 'owner',
         ]);
 
@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
             'branch_id' => null,
             'name' => 'General Manager',
             'username' => 'gm1',
-            'password' => Hash::make('gm1'),
+            'password' => Hash::make('fufufafa2014'),
             'role' => 'general_manager',
         ]);
 
@@ -41,7 +41,7 @@ class UserSeeder extends Seeder
                 'branch_id' => $branch->id,
                 'name' => $branchName,
                 'username' => 'admin' . $branch->id,
-                'password' => Hash::make('admin' . $branch->id),
+                'password' => Hash::make('fufufafa2014'),
                 'role' => 'admin',
             ]);
         }
@@ -52,7 +52,7 @@ class UserSeeder extends Seeder
                 'branch_id' => $branch->id,
                 'name' => $branchName,
                 'username' => 'kasir' . $branch->id,
-                'password' => Hash::make('kasir' . $branch->id),
+                'password' => Hash::make('fufufafa2014'),
                 'role' => 'cashier',
             ]);
         }

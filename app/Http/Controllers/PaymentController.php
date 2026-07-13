@@ -365,7 +365,7 @@ class PaymentController extends Controller
     /**
      * Kembalikan stok saat transaksi dibatalkan setelah sebelumnya sukses.
      */
-    private function restoreStock(Transaction $transaction)
+    public function restoreStock(Transaction $transaction)
     {
         $items = $transaction->items()->with('product')->get();
         $branchId = $transaction->branch_id;

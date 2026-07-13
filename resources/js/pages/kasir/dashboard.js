@@ -5,7 +5,7 @@ window.lastTransactionData = null;
 window.scanMode = false;
 
 // Custom Alert Logic
-window.showCustomAlert = function(options) {
+window.showCustomAlert = function (options) {
     const modal = document.getElementById('custom-alert-modal');
     const titleEl = document.getElementById('custom-alert-title');
     const messageEl = document.getElementById('custom-alert-message');
@@ -59,12 +59,12 @@ window.showCustomAlert = function(options) {
     modal.classList.remove('hidden');
 };
 
-window.closeCustomAlert = function() {
+window.closeCustomAlert = function () {
     document.getElementById('custom-alert-modal').classList.add('hidden');
 };
 
 // Mobile Cart Toggle Logic
-window.toggleMobileCart = function() {
+window.toggleMobileCart = function () {
     const panel = document.getElementById('cart-panel');
     const overlay = document.getElementById('mobile-cart-overlay');
 
@@ -79,7 +79,7 @@ window.toggleMobileCart = function() {
     }
 };
 
-window.addToCart = function(id, nama, hargaAsli, discount, quota, stock) {
+window.addToCart = function (id, nama, hargaAsli, discount, quota, stock) {
     const existing = window.cart.find(item => item.id === id);
     if (existing) {
         // Validasi stok terlebih dahulu
@@ -131,7 +131,7 @@ window.addToCart = function(id, nama, hargaAsli, discount, quota, stock) {
             discount,
             quota,
             stock,
-            harga: discount > 0 ? hargaAsli * (1 - discount/100) : hargaAsli,
+            harga: discount > 0 ? hargaAsli * (1 - discount / 100) : hargaAsli,
             jumlah: 1
         });
     }
@@ -142,12 +142,12 @@ window.addToCart = function(id, nama, hargaAsli, discount, quota, stock) {
     setTimeout(() => badge.classList.remove('scale-150'), 200);
 };
 
-window.removeFromCart = function(id) {
+window.removeFromCart = function (id) {
     window.cart = window.cart.filter(item => item.id !== id);
     window.renderCart();
 };
 
-window.clearCart = function() {
+window.clearCart = function () {
     if (window.cart.length > 0) {
         window.showCustomAlert({
             title: 'Kosongkan Keranjang?',
@@ -172,7 +172,7 @@ window.clearCart = function() {
     }
 };
 
-window.updateQty = function(id, delta, stock) {
+window.updateQty = function (id, delta, stock) {
     const item = window.cart.find(i => i.id === id);
     if (item) {
         // Gunakan stock parameter jika diberikan, jika tidak gunakan item.stock
@@ -214,7 +214,7 @@ window.updateQty = function(id, delta, stock) {
     }
 };
 
-window.setQty = function(id, value, stock) {
+window.setQty = function (id, value, stock) {
     const item = window.cart.find(i => i.id === id);
     if (item) {
         let val = parseInt(value);
@@ -254,7 +254,7 @@ window.setQty = function(id, value, stock) {
     }
 };
 
-window.renderCart = function() {
+window.renderCart = function () {
     const container = document.getElementById('cart-items');
 
     const totalItems = window.cart.reduce((sum, item) => sum + item.jumlah, 0);
@@ -307,7 +307,7 @@ window.renderCart = function() {
 // Category Filter & Live Search
 window.currentCategory = 'all';
 
-window.filterCategory = function(category) {
+window.filterCategory = function (category) {
     window.currentCategory = category;
 
     document.querySelectorAll('.category-btn').forEach(btn => {
@@ -327,17 +327,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchProduk = document.getElementById('search-produk');
     if (searchProduk) {
         // Search bar selalu berfungsi untuk filter produk
-        searchProduk.addEventListener('input', function(e) {
+        searchProduk.addEventListener('input', function (e) {
             // Selalu jalankan filter (untuk mode normal dan scan)
             window.applyFilters();
         });
 
         // Deteksi Enter dari barcode scanner
-        searchProduk.addEventListener('keypress', function(e) {
+        searchProduk.addEventListener('keypress', function (e) {
             // Jika Enter ditekan dan mode scan aktif
             if ((e.key === 'Enter' || e.keyCode === 13) && window.scanMode) {
                 e.preventDefault();
-                
+
                 const barcode = searchProduk.value.trim();
                 if (barcode.length > 0) {
                     // Proses sebagai barcode scan
@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-window.applyFilters = function() {
+window.applyFilters = function () {
     const searchProduk = document.getElementById('search-produk');
     if (!searchProduk) return;
 
@@ -373,7 +373,7 @@ window.applyFilters = function() {
 };
 
 // Payment
-window.processPayment = async function(method) {
+window.processPayment = async function (method) {
     if (window.cart.length === 0) {
         window.showCustomAlert({
             title: 'Keranjang Kosong',
@@ -415,7 +415,7 @@ window.processPayment = async function(method) {
 
             if (result.snap_token) {
                 window.snap.pay(result.snap_token, {
-                    onSuccess: async function(res) {
+                    onSuccess: async function (res) {
                         try {
                             await fetch('/kasir/checkout/success', {
                                 method: 'POST',
@@ -433,25 +433,25 @@ window.processPayment = async function(method) {
                         window.clearCartAfterPayment();
                         window.showSuccessModal('QRIS', null);
                     },
-                    onPending: function(res) {
+                    onPending: function (res) {
                         window.showCustomAlert({
                             title: 'Menunggu',
                             message: 'Menunggu pelanggan memindai QRIS.',
                             type: 'warning'
                         });
                     },
-                    onError: function(res) {
+                    onError: function (res) {
                         window.showCustomAlert({
                             title: 'Transaksi Gagal',
                             message: 'Pembayaran QRIS gagal diproses.',
                             type: 'error'
                         });
                     },
-                    onClose: function() {
+                    onClose: function () {
                         window.showCustomAlert({
-                            title: 'Dibatalkan',
+                            title: 'QRIS Ditutup',
                             message: 'Halaman pembayaran QRIS ditutup oleh kasir.',
-                            type: 'error'
+                            type: 'info'
                         });
                     }
                 });
@@ -480,7 +480,7 @@ window.processPayment = async function(method) {
 };
 
 // Cash Modal Logic
-window.openCashModal = function() {
+window.openCashModal = function () {
     if (window.cart.length === 0) {
         window.showCustomAlert({
             title: 'Keranjang Kosong',
@@ -524,11 +524,11 @@ window.openCashModal = function() {
     document.getElementById('cash-modal').classList.remove('hidden');
 };
 
-window.closeCashModal = function() {
+window.closeCashModal = function () {
     document.getElementById('cash-modal').classList.add('hidden');
 };
 
-window.handleUangDiterimaInput = function(e) {
+window.handleUangDiterimaInput = function (e) {
     let rawValue = e.target.value.replace(/\D/g, '');
     if (rawValue.length > 12) {
         rawValue = rawValue.substring(0, 12);
@@ -543,7 +543,7 @@ window.handleUangDiterimaInput = function(e) {
     window.recalcKembalian();
 };
 
-window.numpadPress = function(val) {
+window.numpadPress = function (val) {
     if (window.inputUangDiterima === '' || window.inputUangDiterima === '0') {
         if (val !== '000' && val !== '0') window.inputUangDiterima = val;
     } else {
@@ -555,7 +555,7 @@ window.numpadPress = function(val) {
     window.updateModalUI();
 };
 
-window.numpadBackspace = function() {
+window.numpadBackspace = function () {
     if (window.inputUangDiterima.length > 1) {
         window.inputUangDiterima = window.inputUangDiterima.slice(0, -1);
     } else {
@@ -564,12 +564,12 @@ window.numpadBackspace = function() {
     window.updateModalUI();
 };
 
-window.setQuickAmount = function(amount) {
+window.setQuickAmount = function (amount) {
     window.inputUangDiterima = amount.toString();
     window.updateModalUI();
 };
 
-window.updateModalUI = function() {
+window.updateModalUI = function () {
     const inputField = document.getElementById('modal-uang-diterima');
     const numericValue = parseInt(window.inputUangDiterima) || 0;
 
@@ -579,7 +579,7 @@ window.updateModalUI = function() {
     inputField.focus();
 };
 
-window.recalcKembalian = function() {
+window.recalcKembalian = function () {
     const numericValue = parseInt(window.inputUangDiterima) || 0;
     const kembalian = numericValue - window.currentTotal;
     const kembalianEl = document.getElementById('modal-kembalian');
@@ -598,7 +598,7 @@ window.recalcKembalian = function() {
     }
 };
 
-window.submitCashPayment = async function() {
+window.submitCashPayment = async function () {
     const numericValue = parseInt(window.inputUangDiterima) || 0;
     if (numericValue < window.currentTotal) return;
 
@@ -653,7 +653,7 @@ window.submitCashPayment = async function() {
     }
 };
 
-window.showSuccessModal = function(method, kembalian) {
+window.showSuccessModal = function (method, kembalian) {
     document.getElementById('success-metode').textContent = method;
     document.getElementById('success-kembalian').textContent = kembalian !== null ? 'Rp ' + kembalian
         .toLocaleString('id-ID') : '-';
@@ -661,7 +661,7 @@ window.showSuccessModal = function(method, kembalian) {
     document.getElementById('success-modal').classList.remove('hidden');
 };
 
-window.closeSuccessModal = function() {
+window.closeSuccessModal = function () {
     document.getElementById('success-modal').classList.add('hidden');
     // Reload halaman agar stok ter-update dari database
     if (window._needsReloadAfterSuccess) {
@@ -670,7 +670,7 @@ window.closeSuccessModal = function() {
     }
 };
 
-window.saveTransactionData = function(method, received, kembalian) {
+window.saveTransactionData = function (method, received, kembalian) {
     const total = window.cart.reduce((sum, item) => sum + (item.harga * item.jumlah), 0);
     const subtotal = total / 1.11;
     const tax = total - subtotal;
@@ -685,7 +685,7 @@ window.saveTransactionData = function(method, received, kembalian) {
     };
 };
 
-window.cetakStruk = function() {
+window.cetakStruk = function () {
     if (!window.lastTransactionData) {
         window.showCustomAlert({
             title: 'Data Tidak Ditemukan',
@@ -722,7 +722,7 @@ window.cetakStruk = function() {
     document.body.removeChild(form);
 };
 
-window.clearCartAfterPayment = function() {
+window.clearCartAfterPayment = function () {
     window.cart = [];
     window.renderCart();
 
@@ -739,7 +739,7 @@ window.clearCartAfterPayment = function() {
 };
 
 // Barcode Scanner Functions
-window.toggleScanMode = function() {
+window.toggleScanMode = function () {
     window.scanMode = !window.scanMode;
     const btnScan = document.getElementById('btn-scan-mode');
     const searchProduk = document.getElementById('search-produk');
@@ -755,12 +755,12 @@ window.toggleScanMode = function() {
         // Nonaktifkan mode scan - kembali ke state default (ring abu)
         btnScan.classList.remove('ring-2', 'ring-blue-500', 'border-blue-500');
         btnScan.title = 'Aktifkan Mode Scan Barcode';
-        
+
         searchProduk.value = '';
     }
 };
 
-window.scanBarcode = function(barcode) {
+window.scanBarcode = function (barcode) {
     const cards = document.querySelectorAll('.product-card');
     let productFound = null;
 
