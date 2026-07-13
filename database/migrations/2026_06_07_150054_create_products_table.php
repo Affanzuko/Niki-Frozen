@@ -20,6 +20,9 @@ return new class extends Migration
             $table->string('name', 150);
             $table->decimal('price', 10, 2);
             $table->timestamps();
+            $table->softDeletes();
+            
+            $table->unique(['branch_id', 'name']);
         });
     }
 

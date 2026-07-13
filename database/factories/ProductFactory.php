@@ -11,17 +11,27 @@ class ProductFactory extends Factory
 
     public function definition(): array
     {
-        $brands = ['Fiesta', 'Champ', 'Belfoods', 'Cedea', 'Kanzler', 'So Good', 'Bernardi', 'Golden Farm', 'Minaku', 'Vigo'];
-        $types = [
-            'Chicken Nugget', 'Sosis Sapi Bakar', 'Sosis Ayam', 'Bakso Sapi',
-            'Bakso Ikan', 'French Fries Shoestring', 'French Fries Crinkle',
-            'Spicy Chicken Wings', 'Chicken Karage', 'Dumpling Keju',
-            'Fish Roll', 'Otak-otak Singapore', 'Steamboat Set', 'Daging Slice'
-        ];
-        $weights = ['250g', '500g', '900g', '1kg'];
-        $productName = $this->faker->randomElement($brands) . ' ' .
-                       $this->faker->randomElement($types) . ' ' .
-                       $this->faker->randomElement($weights);
+        static $combinations = null;
+        if ($combinations === null) {
+            $brands = ['Fiesta', 'Champ', 'Belfoods', 'Cedea', 'Kanzler', 'So Good', 'Bernardi', 'Golden Farm', 'Minaku', 'Vigo'];
+            $types = [
+                'Chicken Nugget', 'Sosis Sapi Bakar', 'Sosis Ayam', 'Bakso Sapi',
+                'Bakso Ikan', 'French Fries Shoestring', 'French Fries Crinkle',
+                'Spicy Chicken Wings', 'Chicken Karage', 'Dumpling Keju',
+                'Fish Roll', 'Otak-otak Singapore', 'Steamboat Set', 'Daging Slice'
+            ];
+            $weights = ['250g', '500g', '900g', '1kg'];
+            $combinations = [];
+            foreach ($brands as $b) {
+                foreach ($types as $t) {
+                    foreach ($weights as $w) {
+                        $combinations[] = "$b $t $w";
+                    }
+                }
+            }
+        }
+
+        $productName = $this->faker->unique()->randomElement($combinations);
 
         $price = floor($this->faker->numberBetween(15000, 95000) / 500) * 500;
 

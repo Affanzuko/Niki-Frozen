@@ -8,31 +8,60 @@
         searchQuery: '',
         activeDropdown: null,
         sidebarOpen: false,
+        sortColumn: new URLSearchParams(window.location.search).get('filter') === 'kadaluarsa' ? 'expiry' : 'index',
+        sortDirection: 'asc',
         toggleDropdown(id) {
             this.activeDropdown = this.activeDropdown === id ? null : id;
         },
         init() {
-            const applySort = (value) => {
-                const container = document.getElementById('stocks-container');
-                if (!container) return;
-                const groups = Array.from(container.querySelectorAll('tbody.stock-group'));
-                if (value === 'Status Kedaluwarsa') {
-                    groups.sort((a, b) => parseInt(a.dataset.expiry) - parseInt(b.dataset.expiry));
-                } else {
-                    groups.sort((a, b) => parseInt(a.dataset.index) - parseInt(b.dataset.index));
-                }
-                groups.forEach(group => container.appendChild(group));
-            };
-
-            // Terapkan sort awal jika bukan Semua Barang
-            if (this.stokFilter === 'Status Kedaluwarsa') {
-                setTimeout(() => applySort(this.stokFilter), 50);
-            }
-
             this.$watch('stokFilter', value => {
                 sessionStorage.setItem('ownerStokFilter', value);
-                applySort(value);
+                if (value === 'Status Kedaluwarsa') {
+                    this.sortColumn = 'expiry';
+                    this.sortDirection = 'asc';
+                } else {
+                    this.sortColumn = 'index';
+                    this.sortDirection = 'asc';
+                }
+                this.applySort();
             });
+            this.$watch('sortColumn', value => this.applySort());
+            this.$watch('sortDirection', value => this.applySort());
+            
+            if (this.sortColumn === 'expiry') {
+                setTimeout(() => this.applySort(), 100);
+            }
+        },
+        sortBy(col) {
+            if (this.sortColumn === col) {
+                this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sortColumn = col;
+                this.sortDirection = 'asc';
+            }
+        },
+        applySort() {
+            const container = document.getElementById('stocks-container');
+            if (!container) return;
+            const groups = Array.from(container.querySelectorAll('tbody.stock-group'));
+            
+            let col = this.sortColumn;
+            let dir = this.sortDirection === 'asc' ? 1 : -1;
+
+            groups.sort((a, b) => {
+                if (col === 'index') {
+                    return (parseInt(a.dataset.index) - parseInt(b.dataset.index)) * dir;
+                } else if (col === 'expiry') {
+                    return (parseInt(a.dataset.expiry) - parseInt(b.dataset.expiry)) * dir;
+                } else if (col === 'quantity') {
+                    return (parseInt(a.dataset.quantity) - parseInt(b.dataset.quantity)) * dir;
+                } else if (col === 'name') {
+                    return a.dataset.name.localeCompare(b.dataset.name) * dir;
+                }
+                return 0;
+            });
+            
+            groups.forEach(group => container.appendChild(group));
         }
     }"
 @endsection
@@ -134,12 +163,36 @@
                                 <col class="w-[15%]">
                             </colgroup>
                             <thead>
-                                <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    <th class="p-4 py-3 pl-12">Product</th>
-                                    <th class="p-4 py-3 text-center">Cabang</th>
-                                    <th class="p-4 py-3 text-center">Barcode</th>
-                                    <th class="p-4 py-3 text-center">Stock Level</th>
-                                    <th class="p-4 py-3 text-center pr-4">Expiry Date</th>
+                                <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider select-none">
+                                    <th class="p-4 pl-12 cursor-pointer hover:text-slate-800 transition-colors" @click="sortBy('name')">
+                                        <div class="flex items-center gap-2">
+                                            Product 
+                                            <div class="flex flex-col text-[8px] opacity-50" :class="{'opacity-100 text-blue-600': sortColumn === 'name'}">
+                                                <i class="fa-solid fa-chevron-up mb-[-2px]" :class="{'opacity-30': sortColumn === 'name' && sortDirection === 'desc'}"></i>
+                                                <i class="fa-solid fa-chevron-down" :class="{'opacity-30': sortColumn === 'name' && sortDirection === 'asc'}"></i>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="p-4 text-center">Cabang</th>
+                                    <th class="p-4 text-center">Barcode</th>
+                                    <th class="p-4 cursor-pointer hover:text-slate-800 transition-colors" @click="sortBy('quantity')">
+                                        <div class="flex items-center justify-center gap-2">
+                                            Stock Level
+                                            <div class="flex flex-col text-[8px] opacity-50" :class="{'opacity-100 text-blue-600': sortColumn === 'quantity'}">
+                                                <i class="fa-solid fa-chevron-up mb-[-2px]" :class="{'opacity-30': sortColumn === 'quantity' && sortDirection === 'desc'}"></i>
+                                                <i class="fa-solid fa-chevron-down" :class="{'opacity-30': sortColumn === 'quantity' && sortDirection === 'asc'}"></i>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="p-4 pr-4 cursor-pointer hover:text-slate-800 transition-colors" @click="sortBy('expiry')">
+                                        <div class="flex items-center justify-center gap-2">
+                                            Expiry Date
+                                            <div class="flex flex-col text-[8px] opacity-50" :class="{'opacity-100 text-blue-600': sortColumn === 'expiry'}">
+                                                <i class="fa-solid fa-chevron-up mb-[-2px]" :class="{'opacity-30': sortColumn === 'expiry' && sortDirection === 'desc'}"></i>
+                                                <i class="fa-solid fa-chevron-down" :class="{'opacity-30': sortColumn === 'expiry' && sortDirection === 'asc'}"></i>
+                                            </div>
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
                         </table>
@@ -176,6 +229,8 @@
                                 <tbody class="stock-group border-b border-slate-100 text-sm font-medium"
                                     data-index="{{ $loop->index }}"
                                     data-expiry="{{ $expiryDate ? \Carbon\Carbon::parse($expiryDate)->timestamp : 9999999999 }}"
+                                    data-name="{{ strtolower(addslashes($stock->product->name)) }}"
+                                    data-quantity="{{ $stock->quantity }}"
                                     x-data="{ expanded: false }"
                                     x-show="(stokFilter === 'Semua Barang' || (stokFilter === 'Status Kedaluwarsa' && {{ $isExpired || $isNearExpiry ? 'true' : 'false' }})) && ('{{ strtolower(addslashes($stock->product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($stock->product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase()))">
                                     <tr class="stock-row {{ $isExpired ? 'bg-red-50/30' : '' }} hover:bg-slate-50 transition-colors {{ $batches->count() > 0 ? 'group cursor-pointer' : '' }}"
@@ -191,7 +246,7 @@
                                             </div>
                                             <div>
                                                 <span
-                                                    class="text-slate-800 font-bold group-hover:text-blue-600 transition-colors">{{ $stock->product->name }}</span>
+                                                    class="text-slate-700 font-bold group-hover:text-blue-600 transition-colors">{{ $stock->product->name }}</span>
                                                 @if ($stock->product->category)
                                                     <p class="text-xs text-slate-500 mt-0.5">
                                                         {{ $stock->product->category->name }}</p>
@@ -205,16 +260,16 @@
                                                 @endif
                                             </div>
                                         </td>
-                                        <td class="p-4 text-center text-slate-500 tabular-nums font-bold">
+                                        <td class="p-4 text-center text-slate-500 tabular-nums font-medium">
                                             {{ $stock->branch->name }}
                                         </td>
                                         <td class="p-4 text-center text-slate-500 tabular-nums">
                                             {{ $stock->product->barcode ?? '-' }}
                                         </td>
-                                        <td class="p-4 text-center text-slate-900 tabular-nums">
+                                        <td class="p-4 text-center text-slate-700 tabular-nums">
                                             <div class="flex items-center justify-center gap-2">
                                                 <span
-                                                    class="{{ $stock->quantity < 20 ? 'text-red-600 font-bold' : '' }}">{{ $stock->quantity }}</span>
+                                                    class="{{ $stock->quantity < 20 ? 'text-red-600 font-semibold' : '' }}">{{ $stock->quantity }}</span>
                                                 <div class="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                                     <div class="h-full {{ $stockColor }} rounded-full"
                                                         style="width: {{ $stockPercent }}%"></div>
@@ -327,8 +382,8 @@
                     <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="incomingsHeaderScroll">
                         <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
                             <colgroup>
-                                <col class="w-[20%]">
-                                <col class="w-[20%]">
+                                <col class="w-[15%]">
+                                <col class="w-[25%]">
                                 <col class="w-[15%]">
                                 <col class="w-[15%]">
                                 <col class="w-[15%]">
@@ -336,12 +391,12 @@
                             </colgroup>
                             <thead>
                                 <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    <th class="p-4 py-3 pl-8">Tanggal Masuk</th>
-                                    <th class="p-4 py-3">Produk</th>
-                                    <th class="p-4 py-3 text-center">Cabang</th>
-                                    <th class="p-4 py-3 text-center">Jumlah</th>
-                                    <th class="p-4 py-3 text-center">Harga Beli</th>
-                                    <th class="p-4 py-3 text-center pr-4">Kedaluwarsa</th>
+                                    <th class="p-4 py-4 pl-8">Tanggal Masuk</th>
+                                    <th class="p-4 py-4">Produk</th>
+                                    <th class="p-4 py-4 text-center">Cabang</th>
+                                    <th class="p-4 py-4 text-center">Jumlah</th>
+                                    <th class="p-4 py-4 text-center">Harga Beli</th>
+                                    <th class="p-4 py-4 text-center pr-4">Kedaluwarsa</th>
                                 </tr>
                             </thead>
                         </table>
@@ -349,8 +404,8 @@
                     <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
                         <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
                             <colgroup>
-                                <col class="w-[20%]">
-                                <col class="w-[20%]">
+                                <col class="w-[15%]">
+                                <col class="w-[25%]">
                                 <col class="w-[15%]">
                                 <col class="w-[15%]">
                                 <col class="w-[15%]">
@@ -363,13 +418,13 @@
                                         <td class="p-4 pl-8 text-slate-500">
                                             {{ \Carbon\Carbon::parse($in->created_at)->format('d M Y, H:i') }}
                                         </td>
-                                        <td class="p-4 text-slate-800 font-bold">
+                                        <td class="p-4 text-slate-700 font-bold">
                                             {{ $in->product->name }}
                                         </td>
-                                        <td class="p-4 text-center text-slate-500 font-bold">
+                                        <td class="p-4 text-center text-slate-500 font-medium">
                                             {{ $in->branch->name }}
                                         </td>
-                                        <td class="p-4 text-center text-blue-600 font-bold">
+                                        <td class="p-4 text-center text-blue-600 font-medium">
                                             +{{ $in->quantity }} Unit
                                         </td>
                                         <td class="p-4 text-center text-slate-600 tabular-nums">

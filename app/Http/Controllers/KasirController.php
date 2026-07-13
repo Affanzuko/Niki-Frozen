@@ -133,4 +133,24 @@ class KasirController extends Controller
 
         return view('pages.kasir.penjualan.struk-pdf', compact('data', 'items'));
     }
+
+    public function cancelTransaction(Request $request, $id)
+    {
+        $transaction = \App\Models\Transaction::findOrFail($id);
+
+        $previousStatus = $transaction->status;
+
+        if ($previousStatus === 'success' || $previousStatus === 'Selesai') {
+            $transaction->status = 'return';
+            app(\App\Http\Controllers\PaymentController::class)->restoreStock($transaction);
+        } elseif ($previousStatus === 'pending' || $previousStatus === 'Pending') {
+            $transaction->status = 'failed';
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Status transaksi ini tidak dapat dibatalkan.'], 400);
+        }
+
+        $transaction->save();
+
+        return response()->json(['status' => 'success', 'message' => 'Transaksi berhasil dibatalkan.']);
+    }
 }
