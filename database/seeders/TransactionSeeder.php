@@ -20,7 +20,7 @@ class TransactionSeeder extends Seeder
             $targetDate = \Carbon\Carbon::parse($session->date);
             
             // Random jumlah transaksi per sesi (misal: 5 - 15 transaksi)
-            $txCount = rand(5, 15);
+            $txCount = rand(3, 7);
             
             for ($j = 0; $j < $txCount; $j++) {
                 if ($session->shift === 'pagi') {

@@ -51,8 +51,9 @@ class AdminDashboardController extends Controller
                 $q->where('status', 'success')
                   ->whereDate('created_at', $targetDate);
             }], 'total_price')
+            ->orderByRaw('ended_at IS NULL DESC')
             ->orderBy('started_at', 'desc')
-            ->limit(5)
+            ->limit(20)
             ->get();
 
         return view('pages.admin.dashboard', compact(
@@ -82,7 +83,12 @@ class AdminDashboardController extends Controller
             ->get()
             ->groupBy('product_id');
 
-        return view('pages.admin.stok', compact('stocks', 'activeBatches', 'branchId'));
+        $incomings = StockIncoming::with(['product', 'branch', 'user'])
+            ->where('branch_id', $branchId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('pages.admin.stok', compact('stocks', 'activeBatches', 'branchId', 'incomings'));
     }
 
     public function penjualan(Request $request)

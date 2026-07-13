@@ -22,7 +22,42 @@
               editId: '',
               editDescription: '',
               editAmount: '',
-              editDate: ''
+              editDate: '',
+              sortColumn: 'date',
+              sortDirection: 'desc',
+              init() {
+                  this.$watch('sortColumn', value => this.applySort());
+                  this.$watch('sortDirection', value => this.applySort());
+                  
+                  setTimeout(() => this.applySort(), 100);
+              },
+              sortBy(col) {
+                  if (this.sortColumn === col) {
+                      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+                  } else {
+                      this.sortColumn = col;
+                      this.sortDirection = 'desc';
+                  }
+              },
+              applySort() {
+                  const tbody = document.getElementById('expense-tbody');
+                  if (!tbody) return;
+                  const rows = Array.from(tbody.querySelectorAll('tr.expense-row'));
+                  
+                  let col = this.sortColumn;
+                  let dir = this.sortDirection === 'asc' ? 1 : -1;
+
+                  rows.sort((a, b) => {
+                      if (col === 'date') {
+                          return (new Date(a.dataset.date) - new Date(b.dataset.date)) * dir;
+                      } else if (col === 'amount') {
+                          return (parseFloat(a.dataset.amount) - parseFloat(b.dataset.amount)) * dir;
+                      }
+                      return 0;
+                  });
+                  
+                  rows.forEach(row => tbody.appendChild(row));
+              }
           }">
         <div class="flex-1 flex flex-col min-h-0 p-4 lg:p-8 bg-white rounded-tl-none lg:rounded-tl-2xl shadow-sm border-l border-t lg:border-t-0 border-slate-200">
 
@@ -59,23 +94,41 @@
                 <div class="overflow-auto flex-1">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500">
-                                <th class="p-4 pl-12 font-bold">Tanggal</th>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 select-none">
+                                <th class="p-4 pl-12 font-bold cursor-pointer hover:text-slate-800 transition-colors" @click="sortBy('date')">
+                                    <div class="flex items-center gap-2">
+                                        Tanggal 
+                                        <div class="flex flex-col text-[8px] opacity-50" :class="{'opacity-100 text-blue-600': sortColumn === 'date'}">
+                                            <i class="fa-solid fa-chevron-up mb-[-2px]" :class="{'opacity-30': sortColumn === 'date' && sortDirection === 'desc'}"></i>
+                                            <i class="fa-solid fa-chevron-down" :class="{'opacity-30': sortColumn === 'date' && sortDirection === 'asc'}"></i>
+                                        </div>
+                                    </div>
+                                </th>
                                 <th class="p-4 font-bold">Deskripsi</th>
-                                <th class="p-4 font-bold text-right">Jumlah (Rp)</th>
+                                <th class="p-4 font-bold cursor-pointer hover:text-slate-800 transition-colors" @click="sortBy('amount')">
+                                    <div class="flex items-center justify-end gap-2">
+                                        Jumlah (Rp)
+                                        <div class="flex flex-col text-[8px] opacity-50" :class="{'opacity-100 text-blue-600': sortColumn === 'amount'}">
+                                            <i class="fa-solid fa-chevron-up mb-[-2px]" :class="{'opacity-30': sortColumn === 'amount' && sortDirection === 'desc'}"></i>
+                                            <i class="fa-solid fa-chevron-down" :class="{'opacity-30': sortColumn === 'amount' && sortDirection === 'asc'}"></i>
+                                        </div>
+                                    </div>
+                                </th>
                                 <th class="p-4 pr-12 font-bold text-center w-24">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm font-medium">
+                        <tbody id="expense-tbody" class="divide-y divide-slate-100 text-sm font-medium">
                             @forelse ($expenses as $expense)
-                                <tr class="hover:bg-slate-50 transition-colors group">
+                                <tr class="expense-row hover:bg-slate-50 transition-colors group"
+                                    data-date="{{ \Carbon\Carbon::parse($expense->date)->format('Y-m-d') }}"
+                                    data-amount="{{ $expense->amount }}">
                                     <td class="p-4 pl-12 text-slate-600 whitespace-nowrap">
                                         {{ \Carbon\Carbon::parse($expense->date)->translatedFormat('d M Y') }}
                                     </td>
                                     <td class="p-4 text-slate-800">
                                         {{ $expense->description }}
                                     </td>
-                                    <td class="p-4 text-right text-slate-900 font-bold tabular-nums">
+                                    <td class="p-4 text-right text-slate-700 font-semibold tabular-nums">
                                         Rp {{ number_format($expense->amount, 0, ',', '.') }}
                                     </td>
                                     <td class="p-4 pr-12 text-center whitespace-nowrap">

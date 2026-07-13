@@ -8,26 +8,58 @@
         searchQuery: '',
         activeDropdown: null,
         sidebarOpen: false,
+        sortColumn: new URLSearchParams(window.location.search).get('filter') === 'kadaluarsa' ? 'expiry' : 'index',
+        sortDirection: 'asc',
         toggleDropdown(id) {
             this.activeDropdown = this.activeDropdown === id ? null : id;
         },
         init() {
-            this.$watch('stokFilter', value => this.sortGroups(value));
-            // Trigger sort on first load if it's already set to kadaluarsa
-            if (this.stokFilter === 'Status Kedaluwarsa') {
-                // Wait for DOM to be ready
-                setTimeout(() => this.sortGroups(this.stokFilter), 100);
+            this.$watch('stokFilter', value => {
+                if (value === 'Status Kedaluwarsa') {
+                    this.sortColumn = 'expiry';
+                    this.sortDirection = 'asc';
+                } else {
+                    this.sortColumn = 'index';
+                    this.sortDirection = 'asc';
+                }
+                this.applySort();
+            });
+            this.$watch('sortColumn', value => this.applySort());
+            this.$watch('sortDirection', value => this.applySort());
+            
+            if (this.sortColumn === 'expiry') {
+                setTimeout(() => this.applySort(), 100);
             }
         },
-        sortGroups(value) {
+        sortBy(col) {
+            if (this.sortColumn === col) {
+                this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sortColumn = col;
+                this.sortDirection = 'asc';
+            }
+        },
+        applySort() {
             const container = document.getElementById('stocks-container');
             if (!container) return;
             const groups = Array.from(container.querySelectorAll('tbody.stock-group'));
-            if (value === 'Status Kedaluwarsa') {
-                groups.sort((a, b) => parseInt(a.dataset.expiry) - parseInt(b.dataset.expiry));
-            } else {
-                groups.sort((a, b) => parseInt(a.dataset.index) - parseInt(b.dataset.index));
-            }
+            
+            let col = this.sortColumn;
+            let dir = this.sortDirection === 'asc' ? 1 : -1;
+
+            groups.sort((a, b) => {
+                if (col === 'index') {
+                    return (parseInt(a.dataset.index) - parseInt(b.dataset.index)) * dir;
+                } else if (col === 'expiry') {
+                    return (parseInt(a.dataset.expiry) - parseInt(b.dataset.expiry)) * dir;
+                } else if (col === 'quantity') {
+                    return (parseInt(a.dataset.quantity) - parseInt(b.dataset.quantity)) * dir;
+                } else if (col === 'name') {
+                    return a.dataset.name.localeCompare(b.dataset.name) * dir;
+                }
+                return 0;
+            });
+            
             groups.forEach(group => container.appendChild(group));
         }
     }"
@@ -53,7 +85,7 @@
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
                     <div>
-                        <h1 class="text-2xl font-bold text-slate-800">Niki Frozen - Condongcatur</h1>
+                        <h1 class="text-2xl font-bold text-slate-800">{{ auth()->user()->branch->name ?? 'Cabang' }}</h1>
                         <p class="text-slate-500 font-medium">Kelola Stok</p>
                     </div>
                 </div>
@@ -94,6 +126,12 @@
                         class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Status
                         Kedaluwarsa</button>
 
+                    <button @click="stokFilter = 'Riwayat Barang Masuk'"
+                        :class="stokFilter === 'Riwayat Barang Masuk' ? 'bg-[#dbeafe] text-[#1e40af] border-[#bfdbfe]' :
+                            'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+                        class="px-5 py-2 border rounded-xl text-sm font-bold shadow-sm transition-colors">Riwayat
+                        Barang Masuk</button>
+
 
                     <div class="flex-1"></div>
 
@@ -108,8 +146,16 @@
                     </a>
                 </div>
 
+                <!-- Info Banner -->
+                <div
+                    class="mb-4 bg-blue-50 border border-blue-200 text-blue-700 px-5 py-3 rounded-xl flex items-center gap-3">
+                    <i class="fa-solid fa-circle-info text-blue-500"></i>
+                    <p class="text-sm font-medium">Klik tombol <strong>Edit</strong> pada produk untuk mengubah informasi produk.
+                        Informasi yang diperbarui akan langsung tampil di kasir.</p>
+                </div>
+
                 <!-- Table -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0"
+                <div x-show="stokFilter !== 'Riwayat Barang Masuk'" class="bg-white rounded-xl border border-slate-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0"
                     x-data="{
                         syncScroll(e) {
                             $refs.headerScroll.scrollLeft = e.target.scrollLeft;
@@ -126,11 +172,35 @@
                                 <col class="w-[15%]">
                             </colgroup>
                             <thead>
-                                <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    <th class="p-4 py-3 pl-12">Product</th>
+                                <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider select-none">
+                                    <th class="p-4 py-3 pl-12 cursor-pointer hover:text-slate-800 transition-colors" @click="sortBy('name')">
+                                        <div class="flex items-center gap-2">
+                                            Product 
+                                            <div class="flex flex-col text-[8px] opacity-50" :class="{'opacity-100 text-blue-600': sortColumn === 'name'}">
+                                                <i class="fa-solid fa-chevron-up mb-[-2px]" :class="{'opacity-30': sortColumn === 'name' && sortDirection === 'desc'}"></i>
+                                                <i class="fa-solid fa-chevron-down" :class="{'opacity-30': sortColumn === 'name' && sortDirection === 'asc'}"></i>
+                                            </div>
+                                        </div>
+                                    </th>
                                     <th class="p-4 py-3 text-center">Barcode</th>
-                                    <th class="p-4 py-3 text-center">Stock Level</th>
-                                    <th class="p-4 py-3 text-center">Expiry Date</th>
+                                    <th class="p-4 py-3 cursor-pointer hover:text-slate-800 transition-colors" @click="sortBy('quantity')">
+                                        <div class="flex items-center justify-center gap-2">
+                                            Stock Level
+                                            <div class="flex flex-col text-[8px] opacity-50" :class="{'opacity-100 text-blue-600': sortColumn === 'quantity'}">
+                                                <i class="fa-solid fa-chevron-up mb-[-2px]" :class="{'opacity-30': sortColumn === 'quantity' && sortDirection === 'desc'}"></i>
+                                                <i class="fa-solid fa-chevron-down" :class="{'opacity-30': sortColumn === 'quantity' && sortDirection === 'asc'}"></i>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th class="p-4 py-3 cursor-pointer hover:text-slate-800 transition-colors" @click="sortBy('expiry')">
+                                        <div class="flex items-center justify-center gap-2">
+                                            Expiry Date
+                                            <div class="flex flex-col text-[8px] opacity-50" :class="{'opacity-100 text-blue-600': sortColumn === 'expiry'}">
+                                                <i class="fa-solid fa-chevron-up mb-[-2px]" :class="{'opacity-30': sortColumn === 'expiry' && sortDirection === 'desc'}"></i>
+                                                <i class="fa-solid fa-chevron-down" :class="{'opacity-30': sortColumn === 'expiry' && sortDirection === 'asc'}"></i>
+                                            </div>
+                                        </div>
+                                    </th>
                                     <th class="p-4 text-center pr-4 whitespace-nowrap">Aksi</th>
                                 </tr>
                             </thead>
@@ -168,6 +238,8 @@
                                 <tbody class="stock-group border-b border-slate-100 text-sm font-medium"
                                     data-index="{{ $loop->index }}"
                                     data-expiry="{{ $expiryDate ? \Carbon\Carbon::parse($expiryDate)->timestamp : 9999999999 }}"
+                                    data-name="{{ strtolower(addslashes($stock->product->name)) }}"
+                                    data-quantity="{{ $stock->quantity }}"
                                     x-data="{ expanded: false }"
                                     x-show="(stokFilter === 'Semua Barang' || (stokFilter === 'Status Kedaluwarsa' && {{ $isExpired || $isNearExpiry ? 'true' : 'false' }})) && ('{{ strtolower(addslashes($stock->product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($stock->product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase()))">
                                     <tr class="stock-row {{ $isExpired ? 'bg-red-50/30' : '' }} hover:bg-slate-50 transition-colors {{ $batches->count() > 0 ? 'group cursor-pointer' : '' }}"
@@ -183,7 +255,7 @@
                                             </div>
                                             <div>
                                                 <span
-                                                    class="text-slate-800 font-bold group-hover:text-blue-600 transition-colors">{{ $stock->product->name }}</span>
+                                                    class="text-slate-700 font-bold group-hover:text-blue-600 transition-colors">{{ $stock->product->name }}</span>
                                                 @if ($stock->product->category)
                                                     <p class="text-xs text-slate-500 mt-0.5">
                                                         {{ $stock->product->category->name }}</p>
@@ -200,10 +272,10 @@
                                         <td class="p-4 text-center text-slate-500 tabular-nums">
                                             {{ $stock->product->barcode ?? '-' }}
                                         </td>
-                                        <td class="p-4 text-center text-slate-900 tabular-nums">
+                                        <td class="p-4 text-center text-slate-700 tabular-nums">
                                             <div class="flex items-center justify-center gap-2">
                                                 <span
-                                                    class="{{ $stock->quantity < 20 ? 'text-red-600 font-bold' : '' }}">{{ $stock->quantity }}</span>
+                                                    class="{{ $stock->quantity < 20 ? 'text-red-600 font-semibold' : '' }}">{{ $stock->quantity }}</span>
                                                 <div class="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                                     <div class="h-full {{ $stockColor }} rounded-full"
                                                         style="width: {{ $stockPercent }}%"></div>
@@ -374,6 +446,78 @@
                     <!-- Footer -->
                     <div class="px-6 py-4 border-t border-slate-200 flex justify-between items-center bg-slate-50">
                         <span class="text-xs font-medium text-slate-500">Showing {{ $stocks->count() }} items</span>
+                    </div>
+                </div>
+
+                <!-- Table Riwayat Barang Masuk -->
+                <div x-show="stokFilter === 'Riwayat Barang Masuk'" x-cloak class="bg-white rounded-xl border border-slate-200 shadow-sm flex-1 overflow-hidden flex flex-col min-h-0"
+                    x-data="{
+                        syncScroll(e) {
+                            $refs.incomingsHeaderScroll.scrollLeft = e.target.scrollLeft;
+                        }
+                    }">
+                    <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="incomingsHeaderScroll">
+                        <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
+                            <colgroup>
+                                <col class="w-[15%]">
+                                <col class="w-[40%]">
+                                <col class="w-[15%]">
+                                <col class="w-[15%]">
+                                <col class="w-[15%]">
+                            </colgroup>
+                            <thead>
+                                <tr class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                    <th class="p-4 py-4 pl-8">Tanggal Masuk</th>
+                                    <th class="p-4 py-4">Produk</th>
+                                    <th class="p-4 py-4 text-center">Jumlah</th>
+                                    <th class="p-4 py-4 text-center">Harga Beli</th>
+                                    <th class="p-4 py-4 text-center pr-4">Kedaluwarsa</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
+                        <table class="w-full text-left border-collapse table-fixed min-w-[900px]">
+                            <colgroup>
+                                <col class="w-[15%]">
+                                <col class="w-[40%]">
+                                <col class="w-[15%]">
+                                <col class="w-[15%]">
+                                <col class="w-[15%]">
+                            </colgroup>
+                            <tbody class="text-sm font-medium">
+                                @forelse ($incomings as $in)
+                                    <tr x-show="'{{ strtolower(addslashes($in->product->name)) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower(addslashes($in->product->barcode ?? '')) }}'.includes(searchQuery.toLowerCase())"
+                                        class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                        <td class="p-4 pl-8 text-slate-500">
+                                            {{ \Carbon\Carbon::parse($in->created_at)->format('d M Y, H:i') }}
+                                        </td>
+                                        <td class="p-4 text-slate-700 font-bold">
+                                            {{ $in->product->name }}
+                                        </td>
+                                        <td class="p-4 text-center text-blue-600 font-medium">
+                                            +{{ $in->quantity }} Unit
+                                        </td>
+                                        <td class="p-4 text-center text-slate-600 tabular-nums">
+                                            Rp {{ number_format($in->purchase_price, 0, ',', '.') }}
+                                        </td>
+                                        <td class="p-4 text-center text-slate-500 tabular-nums pr-4">
+                                            {{ \Carbon\Carbon::parse($in->expiry_date)->format('d M Y') }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="p-4 py-12 text-center text-slate-400">
+                                            <i class="fa-solid fa-box-open text-4xl mb-3 block"></i>
+                                            <p class="font-medium">Belum ada riwayat barang masuk</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="px-6 py-4 border-t border-slate-200 flex justify-between items-center bg-slate-50">
+                        <span class="text-xs font-medium text-slate-500">Showing {{ $incomings->count() }} items</span>
                     </div>
                 </div>
             </div>
