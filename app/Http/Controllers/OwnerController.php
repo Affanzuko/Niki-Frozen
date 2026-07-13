@@ -57,8 +57,11 @@ class OwnerController extends Controller
                 ->count();
 
             // Barang mendekati kadaluarsa (dalam 30 hari ke depan)
+            // Hanya hitung batch yang masih punya stok (current_quantity > 0) dan produknya belum dihapus
             $nearExpiryCount = StockIncoming::where('branch_id', $branch->id)
+                ->where('current_quantity', '>', 0)
                 ->whereBetween('expiry_date', [$dateObj, $dateObj->copy()->addDays(30)])
+                ->whereHas('product')
                 ->count();
 
             // Total produk
@@ -91,9 +94,9 @@ class OwnerController extends Controller
     public function keuangan(Request $request)
     {
         $branches = Branch::all();
-        
+
         $filter = $request->query('waktu', 'Hari');
-        
+
         $now = \Carbon\Carbon::now();
 
         if ($filter === 'Hari') {
@@ -184,7 +187,7 @@ class OwnerController extends Controller
             $displayDate = $date->translatedFormat($displayFormat);
             $trxs = $groupedGlobal->get($key, collect());
             $exps = $groupedExpenses->get($key, collect());
-            
+
             $cash = $trxs->where('payment_method', 'cash')->sum('total_price');
             $qris = $trxs->where('payment_method', 'qris')->sum('total_price');
             $pendapatan = $cash + $qris;
@@ -201,7 +204,7 @@ class OwnerController extends Controller
             $pengeluaran = $exps->sum('amount') + $hpp;
             $profit = $pendapatan - $pengeluaran;
             $saldoAkhir += $profit;
-            
+
             $trendChartData->push([
                 'label' => $filter === 'Hari' ? $date->format('d/m') : $displayDate,
                 'total' => $pendapatan,
@@ -250,10 +253,10 @@ class OwnerController extends Controller
         }
 
         return view('pages.owner.keuangan', compact(
-            'branchSummaries', 
-            'globalTotalPemasukan', 
-            'globalTotalCash', 
-            'globalTotalQris', 
+            'branchSummaries',
+            'globalTotalPemasukan',
+            'globalTotalCash',
+            'globalTotalQris',
             'globalTotalTransaksi',
             'trendChartData',
             'globalTablePaginated',
@@ -313,7 +316,7 @@ class OwnerController extends Controller
         $groupedTransactions = $transactions->groupBy(function($item) use ($dateFormat) {
             return $item->created_at->format($dateFormat);
         });
-        
+
         $groupedExpenses = $expenses->groupBy(function($item) use ($dateFormat) {
             return \Carbon\Carbon::parse($item->date)->format($dateFormat);
         });
@@ -328,7 +331,7 @@ class OwnerController extends Controller
 
         $tableData = collect();
         $chartData = collect();
-        $saldoAkhir = 0; 
+        $saldoAkhir = 0;
 
         $period = \Carbon\CarbonPeriod::create($startDate, $periodStep, $now);
 
@@ -341,7 +344,7 @@ class OwnerController extends Controller
 
             $cash = $trxs->where('payment_method', 'cash')->sum('total_price');
             $qris = $trxs->where('payment_method', 'qris')->sum('total_price');
-            
+
             $hpp = 0;
             foreach ($trxs as $trx) {
                 foreach ($trx->items as $item) {
@@ -371,7 +374,7 @@ class OwnerController extends Controller
                 'qris' => $qris,
             ]);
         }
-        
+
         $tableData = $tableData->reverse();
 
         $page = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;

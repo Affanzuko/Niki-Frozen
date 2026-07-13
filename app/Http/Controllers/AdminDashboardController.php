@@ -35,8 +35,11 @@ class AdminDashboardController extends Controller
             ->count();
 
         // Peringatan stok kadaluarsa (7 hari ke depan)
+        // Hanya hitung batch yang masih punya stok dan produknya belum dihapus
         $nearExpiryCount = StockIncoming::where('branch_id', $branchId)
+            ->where('current_quantity', '>', 0)
             ->whereBetween('expiry_date', [today(), today()->addDays(7)])
+            ->whereHas('product')
             ->count();
 
         // Aktivitas kasir terbaru (per sesi)
