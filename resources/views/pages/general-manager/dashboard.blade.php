@@ -154,19 +154,47 @@
                             </div>
 
                             <!-- Stats Grid -->
-                            <div class="px-6 pb-6 grid grid-cols-2 gap-4">
+                            <div class="px-6 pb-4 grid grid-cols-2 gap-4">
                                 <div class="bg-gray-50 rounded-xl p-3">
                                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Pendapatan
                                         {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
-                                    <p class="text-sm font-bold text-gray-900 tabular-nums">Rp
-                                        {{ number_format($summary['today_revenue'], 0, ',', '.') }}</p>
+                                    <p class="text-sm font-bold text-gray-900 tabular-nums">Rp {{ number_format($summary['today_revenue'], 0, ',', '.') }}</p>
                                 </div>
                                 <div class="bg-gray-50 rounded-xl p-3">
                                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Transaksi
                                         {{ $dateObj->isToday() ? 'Hari Ini' : $dateObj->translatedFormat('d M') }}</p>
-                                    <p class="text-sm font-bold text-gray-900 tabular-nums">
-                                        {{ $summary['today_transactions'] }}</p>
+                                    <p class="text-sm font-bold text-gray-900 tabular-nums">{{ $summary['today_transactions'] }}</p>
                                 </div>
+                                <div class="bg-gray-50 rounded-xl p-3">
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Produk</p>
+                                    <p class="text-sm font-bold text-gray-900 tabular-nums">{{ $summary['total_products'] }}</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-xl p-3">
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Stok</p>
+                                    <p class="text-sm font-bold text-gray-900 tabular-nums">{{ number_format($summary['total_stock']) }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Footer Alerts -->
+                            <div class="px-6 pb-5 flex items-center gap-2">
+                                @if ($summary['low_stock_count'] > 0)
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-600 border border-red-200">
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                        {{ $summary['low_stock_count'] }} stok rendah
+                                    </span>
+                                @endif
+                                @if ($summary['near_expiry_count'] > 0)
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-yellow-50 text-yellow-600 border border-yellow-200">
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                        {{ $summary['near_expiry_count'] }} mendekati kadaluarsa
+                                    </span>
+                                @endif
+                                @if ($summary['low_stock_count'] == 0 && $summary['near_expiry_count'] == 0)
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-green-50 text-green-600 border border-green-200">
+                                        <i class="fa-solid fa-check-circle"></i>
+                                        Semua baik
+                                    </span>
+                                @endif
                             </div>
                         </a>
                     @endforeach
@@ -189,6 +217,7 @@
                                     <th class="px-6 py-4">Profit</th>
                                     <th class="px-6 py-4">Total Transaksi</th>
                                     <th class="px-6 py-4">Rata-rata/Transaksi</th>
+                                    <th class="px-6 py-4">Stok</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 text-sm">
@@ -203,6 +232,11 @@
                                         <td class="px-6 py-4 text-gray-600 tabular-nums">
                                             Rp
                                             {{ $summary['total_transactions'] > 0 ? number_format($summary['total_revenue'] / $summary['total_transactions'], 0, ',', '.') : '0' }}
+                                        </td>
+                                        <td class="px-6 py-4 tabular-nums">
+                                            <span class="{{ $summary['low_stock_count'] > 0 ? 'text-red-600 font-bold' : 'text-gray-600' }}">
+                                                {{ number_format($summary['total_stock']) }} unit
+                                            </span>
                                         </td>
                                     </tr>
                                 @endforeach

@@ -17,8 +17,8 @@ class StockIncomingController extends Controller
      */
     public function create()
     {
-        // Hardcode branch_id = 1 (belum ada auth)
-        $branchId = 1;
+        // Gunakan branch_id dari user yang login (fallback ke 1 jika null)
+        $branchId = auth()->user()->branch_id ?? 1;
 
         $products = Product::where('branch_id', $branchId)
             ->orderBy('name', 'asc')
@@ -49,8 +49,8 @@ class StockIncomingController extends Controller
             'expiry_date.after' => 'Tanggal kadaluarsa harus setelah hari ini.',
         ]);
 
-        $branchId = 1; // Hardcode, belum ada auth
-        $userId = 1;   // Hardcode, belum ada auth
+        $branchId = auth()->user()->branch_id ?? 1; // Gunakan branch dari auth
+        $userId = auth()->id() ?? 1;   // Gunakan ID user dari auth
 
         // Hitung harga per satuan
         $purchasePricePerUnit = $request->total_purchase_price / $request->quantity;

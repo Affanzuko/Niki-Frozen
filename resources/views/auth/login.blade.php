@@ -242,9 +242,50 @@
             <div class="absolute bottom-margin text-center w-full max-w-[400px]">
                 <p class="font-label-md text-label-md text-outline">
                     &copy; 2024 Niki Frozen ERP. <a class="hover:text-primary transition-colors" href="#">Kebijakan IT</a> &bull; <a class="hover:text-primary transition-colors" href="#">Bantuan</a>
-                </p>
-            </div>
         </section>
     </main>
+    <!-- Custom Alert Modal -->
+    <x-ui.custom-alert-modal />
 </body>
+@if(session('error_popup'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        window.showCustomAlert = function (options) {
+            const modal = document.getElementById('custom-alert-modal');
+            const titleEl = document.getElementById('custom-alert-title');
+            const messageEl = document.getElementById('custom-alert-message');
+            const iconContainer = document.getElementById('custom-alert-icon-container');
+            const buttonsContainer = document.getElementById('custom-alert-buttons');
+
+            titleEl.textContent = options.title || 'Perhatian';
+            messageEl.textContent = options.message || '';
+
+            if (options.type === 'error') {
+                iconContainer.className =
+                    'w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-red-100 text-red-500';
+                iconContainer.innerHTML =
+                    '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+            }
+
+            buttonsContainer.innerHTML = '';
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className =
+                `flex-1 py-3 px-4 rounded-xl text-white font-bold text-[13px] transition-colors active:scale-95 shadow-md bg-[#0f172a] hover:bg-slate-800`;
+            confirmBtn.textContent = 'Oke';
+            confirmBtn.onclick = () => {
+                document.getElementById('custom-alert-modal').classList.add('hidden');
+            };
+            buttonsContainer.appendChild(confirmBtn);
+
+            modal.classList.remove('hidden');
+        };
+
+        window.showCustomAlert({
+            title: 'Akses Ditolak',
+            message: '{{ session('error_popup') }}',
+            type: 'error'
+        });
+    });
+</script>
+@endif
 </html>

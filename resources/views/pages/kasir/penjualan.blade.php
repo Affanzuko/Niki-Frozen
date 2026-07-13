@@ -129,16 +129,18 @@
                     <div class="bg-slate-50 border-b border-slate-200 pr-[6px] overflow-hidden" x-ref="headerScroll">
                         <table class="w-full text-left border-collapse min-w-[700px] table-fixed">
                             <colgroup>
-                                <col class="w-[25%]">
-                                <col class="w-[25%]">
+                                <col class="w-[20%]">
+                                <col class="w-[20%]">
                                 <col class="w-[20%]">
                                 <col class="w-[15%]">
                                 <col class="w-[15%]">
+                                <col class="w-[10%]">
                             </colgroup>
                             <thead>
                                 <tr class="text-xs text-slate-500 uppercase tracking-wider font-bold">
                                     <th class="p-4 py-4 pl-12">Waktu</th>
                                     <th class="p-4 py-4 pl-12">No. Referensi</th>
+                                    <th class="p-4 py-4 text-left pl-12">Kasir</th>
                                     <th class="p-4 py-4 text-center">Total Belanja</th>
                                     <th class="p-4 py-4 text-center">Metode</th>
                                     <th class="p-4 py-4 text-center">Status</th>
@@ -151,11 +153,12 @@
                     <div class="flex-1 overflow-auto relative min-h-0 bg-white" @scroll="syncScroll">
                         <table class="w-full text-left border-collapse min-w-[700px] table-fixed">
                             <colgroup>
-                                <col class="w-[25%]">
-                                <col class="w-[25%]">
+                                <col class="w-[20%]">
+                                <col class="w-[20%]">
                                 <col class="w-[20%]">
                                 <col class="w-[15%]">
                                 <col class="w-[15%]">
+                                <col class="w-[10%]">
                             </colgroup>
                             <tbody class="divide-y divide-slate-100 text-sm">
                                 <template x-for="trx in transactions" :key="trx.id">
@@ -163,44 +166,46 @@
                                         :class="activeRowId === trx.id ? 'bg-blue-100' : ''" @click="openDetail(trx.id)">
                                         <td class="p-4 pl-12 font-medium text-slate-700 truncate"
                                             x-text="formatDate(trx.created_at)"></td>
-                                        <td class="p-4 font-semibold text-blue-600 truncate" x-text="trx.transaction_code">
+                                        <td class="p-4 pl-12 font-semibold text-blue-600 truncate" x-text="trx.transaction_code">
                                         </td>
-                                        <td class="p-4 font-semibold text-slate-900 truncate text-center"
+                                        <td class="p-4 pl-12 font-medium text-slate-700 truncate" x-text="trx.cashier_session?.user?.name || '-'">
+                                        </td>
+                                        <td class="p-4 font-semibold text-slate-700 truncate text-center"
                                             x-text="formatCurrency(trx.total_price)">
                                         </td>
                                         <td class="p-4 truncate text-center">
                                             <span
-                                                class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase border shadow-sm"
+                                                class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase border"
                                                 :class="(trx.payment_method || '').toLowerCase() === 'cash' ?
-                                                    'bg-green-50 text-green-700 border-green-200' :
-                                                    'bg-blue-50 text-blue-700 border-blue-200'"
+                                                    'bg-green-50 text-green-700 border-green-100' :
+                                                    'bg-blue-50 text-blue-700 border-blue-100'"
                                                 x-text="trx.payment_method">
                                             </span>
                                         </td>
                                         <td class="p-4 text-center">
                                             <template x-if="trx.status === 'success' || trx.status === 'Selesai'">
                                                 <span
-                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-green-100 text-green-700">
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-green-50 text-green-700 border border-green-100">
                                                     Selesai
                                                 </span>
                                             </template>
                                             <template x-if="trx.status === 'pending' || trx.status === 'Pending'">
                                                 <span
-                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-yellow-100 text-yellow-700">
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-yellow-50 text-yellow-700 border border-yellow-100">
                                                     Pending
                                                 </span>
                                             </template>
                                             <template
                                                 x-if="trx.status !== 'success' && trx.status !== 'Selesai' && trx.status !== 'pending' && trx.status !== 'Pending'">
                                                 <span
-                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-100 text-red-700 truncate max-w-[100px]"
+                                                    class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-50 text-red-700 border border-red-100 truncate max-w-[100px]"
                                                     x-text="trx.status"></span>
                                             </template>
                                         </td>
                                     </tr>
                                 </template>
                                 <tr x-show="transactions.length === 0">
-                                    <td colspan="5" class="p-4 py-8 text-center text-slate-500 font-medium">Tidak ada
+                                    <td colspan="6" class="p-4 py-8 text-center text-slate-500 font-medium">Tidak ada
                                         transaksi ditemukan</td>
                                 </tr>
                             </tbody>
@@ -331,9 +336,10 @@
                     <button
                         class="w-full py-3.5 px-4 rounded-xl bg-red-600 text-white font-bold text-sm hover:bg-red-700 transition-colors flex items-center justify-center gap-2 active:scale-95 shadow-md"
                         :class="activeTransaction.status === 'failed' || activeTransaction.status === 'Batal' ||
-                            activeTransaction.status === 'refund' ? 'opacity-50 cursor-not-allowed' : ''"
+                            activeTransaction.status === 'return' ? 'opacity-50 cursor-not-allowed' : ''"
                         :disabled="activeTransaction.status === 'failed' || activeTransaction.status === 'Batal' ||
-                            activeTransaction.status === 'refund'">
+                            activeTransaction.status === 'return'"
+                        @click="typeof batalkanTransaksi === 'function' ? batalkanTransaksi(activeTransaction) : null">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -355,6 +361,8 @@
             <x-sidebar role="kasir" active="penjualan" />
         </div>
     </div>
+
+    <x-ui.custom-alert-modal />
 @endsection
 
 @push('scripts')
